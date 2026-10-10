@@ -4325,6 +4325,28 @@ async function init(){
   setInterval(scheduleLetters,30000);
 }
 init();
+  
+/* 重做导入按钮（绕过 iOS 限制） */
+setTimeout(function(){
+  var btn=document.getElementById('btnImport');
+  if(!btn)return;
+  var newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.addEventListener('click',function(){
+    var inp=document.createElement('input');
+    inp.type='file';
+    inp.accept='.json,application/json,*/*';
+    inp.style.position='fixed';
+    inp.style.left='-9999px';
+    document.body.appendChild(inp);
+    inp.addEventListener('change',async function(){
+      var f=inp.files[0];
+      if(f)await importAll(f);
+      inp.remove();
+    });
+    inp.click();
+  });
+},500);
 
 })();
 </script>
