@@ -1286,8 +1286,8 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
         </div>
         <div class="row">
           <button class="btn primary" id="btnExport">导出备份</button>
-          <button class="btn" id="btnImport">导入备份</button>
-          <input type="file" id="importFile" accept="application/json" hidden>
+<label class="btn" for="importFile" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">导入备份</label>
+<input type="file" id="importFile" accept=".json,application/json,*/*" style="position:fixed;left:-9999px">
         </div>
         <div class="row" style="margin:0">
           <button class="btn danger" id="btnClearAll" style="width:100%">清空全部数据</button>
@@ -4326,27 +4326,7 @@ async function init(){
 }
 init();
   
-/* 重做导入按钮（绕过 iOS 限制） */
-setTimeout(function(){
-  var btn=document.getElementById('btnImport');
-  if(!btn)return;
-  var newBtn=btn.cloneNode(true);
-  btn.parentNode.replaceChild(newBtn,btn);
-  newBtn.addEventListener('click',function(){
-    var inp=document.createElement('input');
-    inp.type='file';
-    inp.accept='.json,application/json,*/*';
-    inp.style.position='fixed';
-    inp.style.left='-9999px';
-    document.body.appendChild(inp);
-    inp.addEventListener('change',async function(){
-      var f=inp.files[0];
-      if(f)await importAll(f);
-      inp.remove();
-    });
-    inp.click();
-  });
-},500);
+
 
 })();
 </script>
