@@ -7,23 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ffffff">
 <title>栖夜</title>
-  <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<script>
-(function(){
-  var CUR='v1';  /* 每次改代码把 v1 改成 v2 v3 ... */
-  try{
-    var old=localStorage.getItem('qy_ver');
-    if(old&&old!==CUR){
-      localStorage.setItem('qy_ver',CUR);
-      location.reload();
-      return;
-    }
-    localStorage.setItem('qy_ver',CUR);
-  }catch(e){}
-})();
-</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#000}
@@ -266,9 +249,10 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
 .menu-list{background:var(--panel);border-radius:16px;overflow:hidden}
 .menu-item{display:flex;align-items:center;justify-content:center;padding:16px;font-size:16px;color:var(--text);border-bottom:1px solid var(--line);width:100%;text-align:center}
 .menu-item:last-child{border-bottom:none}
-.menu-item:active{background:rgba(128,128,128,.08)}
-.menu-item.danger{color:#e64340}
-.menu-cancel{background:var(--panel);border-radius:16px;padding:16px;text-align:center;font-weight:600;color:var(--text);width:100%;margin-top:8px}
+.menu-item:active{background:rgba(text128,128,128,.08)}
+.menu-item.danger{color)}
+:#e64340}
+.menu-cancel#{background:var(--panel);border-radius:16px;padding:16px;text-align:center;font-weight:600;color:var(--text);width:100%;margin-top:8px}
 .menu-cancel:active{background:rgba(128,128,128,.08)}
 .style-preview{background:var(--bg);border-radius:12px;padding:14px 12px;margin-bottom:14px;overflow:hidden}
 .style-preview .bubble{font-size:13.5px;padding:7px 10px;line-height:1.4}
@@ -359,8 +343,7 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
 .moment-comment img{max-width:88px;max-height:88px;border-radius:6px;display:block;margin-top:4px}
 .moment-comment .cc-del{font-size:11px;color:var(--muted);flex:0 0 auto;padding:2px 6px}
 .comment-sheet .sheet-title{margin-bottom:10px}
-#commentInput{width:100%;min-height:70px;max-height:120px;resize:none;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:15px;border:1px solid var(--line);color:var(--text)}
-#commentInput:focus{border-color:var(--brand)}
+#commentInput{width:100%;min-height:70px;max-height:120px;resize:none;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:15px;border:1px solid var(--line);color:var(--commentInput:focus{border-color:var(--brand)}
 .comment-tools{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .comment-tool{padding:7px 14px;border-radius:16px;background:var(--bg);color:var(--text);font-size:13px;font-weight:500}
 .comment-tool:active{background:rgba(128,128,128,.2)}
@@ -843,14 +826,6 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
             <button class="btn primary" id="csCSSSave" style="flex:1">应用 CSS</button>
             <button class="btn" id="csCSSReset">清除</button>
           </div>
-          <div style="font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.6">
-            常用选择器：<br>
-            <code>.msg-row.me .bubble</code> 我的气泡<br>
-            <code>.msg-row.ta .bubble</code> 对方气泡<br>
-            <code>.msg-list</code> 聊天区背景<br>
-            <code>.msg-avatar</code> 头像<br>
-            <code>.nav</code> 顶栏
-          </div>
         </div>
       </div>
       <div class="cs-pane" id="cspane-search">
@@ -1285,9 +1260,8 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
           <button class="btn" id="btnClean90">删除 90 天前消息</button>
         </div>
         <div class="row">
-          <button class="btn primary" id="btnExport">导出备份</button>
-<label class="btn" for="importFile" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">导入备份</label>
-<input type="file" id="importFile" accept=".json,application/json,*/*" style="position:fixed;left:-9999px">
+          <button class="btn primary" id="btnExportText" style="flex:1">导出备份</button>
+          <button class="btn" id="btnImportText" style="flex:1">导入备份</button>
         </div>
         <div class="row" style="margin:0">
           <button class="btn danger" id="btnClearAll" style="width:100%">清空全部数据</button>
@@ -1424,6 +1398,32 @@ body.dark .more-panel{background:rgba(40,40,42,.72);border-color:rgba(255,255,25
     <button class="menu-cancel" id="msgActionCancel">取消</button>
   </div>
 </div>
+
+<!-- 弹层：导出备份 -->
+<div class="sheet-mask" id="exportMask"><div class="sheet">
+  <div class="sheet-title">导出备份</div>
+  <div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px">
+    长按下面文字全选，复制。保存到备忘录或发给别人。
+  </div>
+  <textarea class="field" id="exportText" style="min-height:180px;font-family:ui-monospace,monospace;font-size:11px" readonly></textarea>
+  <div class="row" style="margin:0">
+    <button class="btn primary" id="btnCopyExport" style="flex:1">复制</button>
+    <button class="btn" id="btnCloseExport">关闭</button>
+  </div>
+</div></div>
+
+<!-- 弹层：导入备份 -->
+<div class="sheet-mask" id="importMask"><div class="sheet">
+  <div class="sheet-title">导入备份</div>
+  <div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px">
+    把你之前复制的备份文字，长按粘贴进下面框里。
+  </div>
+  <textarea class="field" id="importText" placeholder="在这里粘贴备份文字…" style="min-height:180px;font-family:ui-monospace,monospace;font-size:11px"></textarea>
+  <div class="row" style="margin:0">
+    <button class="btn primary" id="btnDoImport" style="flex:1">开始导入</button>
+    <button class="btn" id="btnCloseImport">关闭</button>
+  </div>
+</div></div>
 
 <!-- 全屏通话 -->
 <div class="call-mask" id="callMask">
@@ -1862,6 +1862,40 @@ async function resetCdBg(){
   await dbDel('settings','cdBg');
   renderCdWidget();
 }
+function renderCdListFull(){
+  const box=$('#cdListFull');if(!box)return;box.innerHTML='';
+  if(!state.countdowns.length){box.innerHTML='<div class="empty">还没有纪念日</div>';return;}
+  state.countdowns.forEach((c,i)=>{
+    const days=daysBetween(new Date(),new Date(c.date));
+    const el=document.createElement('div');el.className='letter-item';
+    const main=document.createElement('div');main.className='lt-main';
+    const t=document.createElement('div');t.className='lt-title';t.textContent=c.name;
+    let subTxt;
+    if(days===0)subTxt='就是今天';
+    else if(days>0)subTxt='还有 '+days+' 天';
+    else subTxt='已经过去 '+(-days)+' 天';
+    const p2=document.createElement('div');p2.className='lt-preview';p2.textContent=c.date+' · '+subTxt;
+    main.append(t,p2);
+    const acts=document.createElement('div');acts.className='lt-actions';
+    const d=document.createElement('button');d.className='mini danger';d.textContent='删除';
+    d.addEventListener('click',async()=>{
+      if(!confirm('删除这个纪念日？'))return;
+      state.countdowns.splice(i,1);
+      await saveSetting('countdowns',state.countdowns);
+      renderCdListFull();renderCdWidget();renderCoupleWidget();
+    });
+    acts.appendChild(d);
+    el.append(main,acts);box.appendChild(el);
+  });
+}
+async function addCountdown(){
+  const name=$('#cdName').value.trim();const date=$('#cdDate').value;
+  if(!name||!date){alert('请填写名称和日期');return;}
+  state.countdowns.push({name,date});
+  await saveSetting('countdowns',state.countdowns);
+  $('#cdName').value='';$('#cdDate').value='';
+  renderCdListFull();renderCdWidget();renderCoupleWidget();
+}
 
 /* ============ 情侣卡 ============ */
 function renderCoupleWidget(){
@@ -2125,11 +2159,9 @@ function buildMsgRow(m){
       (m.result?'<div class="dc-result">'+esc(m.result)+'</div>':'')+
       (isMe?'<button class="dc-btn" data-act="roll">'+(m.result?'重新决定':'帮我决定')+'</button>':'');
   }
-  /* 问卷不加气泡别名，其他都加 */
   if(m.type!=='quiz'){
     (isMe?BUBBLE_ALIASES_ME:BUBBLE_ALIASES_TA).forEach(c=>bubble.classList.add(c));
   }
-  /* 长按气泡 → 弹出操作 */
   if(m.type!=='callnotice'&&m.type!=='poke'&&!m.recalled){
     let pressTimer=null;
     const startPress=()=>{pressTimer=setTimeout(()=>{openMsgActions(m.id);},500);};
@@ -3827,18 +3859,19 @@ async function requestPersistence(){
 }
 
 /* ============ 备份/清理 ============ */
-async function exportAll(){
+async function exportText(){
   const data={app:'栖夜',version:1,exportedAt:Date.now()};
   for(const n of STORES)data[n]=await dbGetAll(n);
-  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='栖夜备份_'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  const txt=JSON.stringify(data);
+  $('#exportText').value=txt;
+  openSheet('exportMask');
 }
-async function importAll(file){
+async function doImportText(){
+  const txt=$('#importText').value.trim();
+  if(!txt){alert('请先粘贴备份文字');return;}
   let data;
-  try{data=JSON.parse(await file.text());}catch(e){alert('文件解析失败');return;}
+  try{data=JSON.parse(txt);}
+  catch(e){alert('备份文字格式不对，请检查是否复制完整');return;}
   if(!confirm('导入会覆盖当前全部数据，确定继续？'))return;
   for(const n of STORES){await dbClear(n);if(Array.isArray(data[n]))for(const item of data[n])await dbPut(n,item);}
   await loadAll();
@@ -3846,8 +3879,8 @@ async function importAll(file){
   renderMoments();renderSongs();renderVideos();renderCards();
   renderProfile();applyWalls();applyStyle();applyAvatarFrame();applyCustomCSS();refreshChatTitle();
   applyListenRoom();renderCdWidget();renderCoupleWidget();
-  renderShop();renderPeriod();renderFavorites();renderPhotoStack();
-  refreshStorage();
+  renderShop();renderPeriod();renderFavorites();renderPhotoStack();refreshStorage();
+  closeSheet('importMask');
   alert('导入完成 ✅');
 }
 async function cleanMessages(days){
@@ -4131,9 +4164,26 @@ function bindEvents(){
   const dur=$('#periodDur');
   if(dur){dur.value=state.period.duration;dur.addEventListener('change',async()=>{state.period.duration=Number(dur.value)||5;await saveSetting('period',state.period);renderPeriod();});}
 
-  $('#btnExport').addEventListener('click',exportAll);
-  $('#btnImport').addEventListener('click',()=>$('#importFile').click());
-  $('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)await importAll(f);});
+  /* 导出/导入：文本框方案 */
+  $('#btnExportText').addEventListener('click',exportText);
+  $('#btnCopyExport').addEventListener('click',()=>{
+    const t=$('#exportText');
+    t.select();
+    t.setSelectionRange(0,999999);
+    try{document.execCommand('copy');alert('已复制');}
+    catch(e){
+      if(navigator.clipboard)navigator.clipboard.writeText(t.value);
+      alert('已复制');
+    }
+  });
+  $('#btnCloseExport').addEventListener('click',()=>closeSheet('exportMask'));
+  $('#btnImportText').addEventListener('click',()=>{
+    $('#importText').value='';
+    openSheet('importMask');
+  });
+  $('#btnDoImport').addEventListener('click',doImportText);
+  $('#btnCloseImport').addEventListener('click',()=>closeSheet('importMask'));
+
   $('#btnClean30').addEventListener('click',()=>cleanMessages(30));
   $('#btnClean90').addEventListener('click',()=>cleanMessages(90));
   $('#btnClearAll').addEventListener('click',async()=>{
@@ -4325,8 +4375,6 @@ async function init(){
   setInterval(scheduleLetters,30000);
 }
 init();
-  
-
 
 })();
 </script>
