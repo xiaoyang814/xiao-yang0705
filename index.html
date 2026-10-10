@@ -1588,11 +1588,12 @@ function getTaName(){
 function getTaShort(){const n=getTaName();return n.length>1?n.slice(-1):n;}
 function renderAvatarHTML(el,which){
   if(!el)return;
+  const S='width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit';
   if(which==='me'){
-    if(state.settings.myAvatar)el.innerHTML='<img src="'+state.settings.myAvatar+'">';
+    if(state.settings.myAvatar)el.innerHTML='<img src="'+state.settings.myAvatar+'" style="'+S+'">';
     else el.textContent=state.settings.myName||'我';
   } else {
-    if(state.settings.taAvatar)el.innerHTML='<img src="'+state.settings.taAvatar+'">';
+    if(state.settings.taAvatar)el.innerHTML='<img src="'+state.settings.taAvatar+'" style="'+S+'">';
     else el.textContent=getTaShort();
   }
 }
