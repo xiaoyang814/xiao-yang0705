@@ -8,6 +8,69 @@
 <meta name="theme-color" content="#F2F2F7">
 <title>栖夜</title>
 <style>
+  /* ===== 主界面尺寸放大与视觉优化补丁 ===== */
+#screen-home { background-color: #5c6b7b; } /* 默认给个好看的灰蓝色，避免没背景图时死灰 */
+
+/* 1. 放大玻璃卡片 */
+.glass-profile-card { 
+  width: 92%; 
+  max-width: 360px; 
+  padding: 60px 20px 24px !important; 
+  border-radius: 28px !important; 
+}
+.gp-av-wrap { 
+  width: 105px !important; 
+  height: 105px !important; 
+  top: -52px !important; 
+  font-size: 24px !important;
+  background: linear-gradient(135deg, #4facfe, #00c6ff) !important; /* 默认头像加个好看渐变 */
+  color: #fff !important;
+}
+.gp-name { font-size: 24px !important; margin-bottom: 6px !important; }
+.gp-id { font-size: 14px !important; margin-bottom: 14px !important; }
+.gp-bio { font-size: 15px !important; margin-bottom: 12px !important; line-height: 1.5 !important; }
+.gp-loc { font-size: 13px !important; }
+
+/* 2. 放大左侧图标 */
+.home-icons-left { 
+  left: 30px !important; 
+  gap: 40px 35px !important; 
+}
+.home-icons-left .app-icon { 
+  width: 48px !important; 
+  height: 48px !important; 
+}
+.home-icons-left .app-name { 
+  font-size: 13.5px !important; 
+}
+#cdWidget .app-name { font-size: 12px !important; max-width: 60px !important; }
+
+/* 3. 放大右侧气泡 */
+.floating-widgets-right { right: 25px !important; }
+.fw-emojis { font-size: 20px !important; margin-bottom: 8px !important; }
+.fw-av { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+.fw-bubble { 
+  padding: 10px 20px !important; 
+  font-size: 15px !important; 
+  border-radius: 24px !important; 
+  min-width: 60px !important; 
+}
+
+/* 4. 放大底部 Dock 栏 */
+.home-dock-bar { 
+  padding: 16px 12px !important; 
+  width: 92% !important; 
+  max-width: 380px !important; 
+  border-radius: 40px !important; 
+}
+.home-dock-bar .app-icon { width: 34px !important; height: 34px !important; }
+.home-dock-bar .app-name { font-size: 11.5px !important; }
+.page-dots span { width: 7px !important; height: 7px !important; }
+
+/* 5. 分页第 2 页的图标放大 */
+.page-2-grid .app-icon { width: 70px !important; height: 70px !important; }
+.page-2-grid .app-icon svg { width: 36px !important; height: 36px !important; }
+.page-2-grid .app-name { font-size: 14px !important; }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#ffffff}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;font-size:15px;color:var(--text);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
