@@ -1,896 +1,1637 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FFFFFF">
-<title>栖夜</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;width:100%;overflow:hidden;background:#F2F2F7;position:fixed;inset:0;-webkit-overflow-scrolling:touch;}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;font-size:15px;color:var(--text);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
-input,textarea{user-select:text;-webkit-user-select:text}
-button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0}
-::-webkit-scrollbar{width:0;height:0}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>栖夜</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-:root{
-  --brand:#007AFF;--brand2:#0056b3;--brand-soft:rgba(0,122,255,.12);
-  --bg:#FFFFFF;--panel:#FFFFFF;--text:#000000;--muted:#8E8E93;--line:#C6C6C8;
-  --wall:#FFFFFF;--chat-wall:#FFFFFF;
-  --av-r:50%;--chat-blur:0px;--frame-color:transparent;--frame-width:0px;
-}
-body[data-bubble="default"]{--self:#007AFF;--other:#E5E5EA;--self-text:#fff;--other-text:#000}
-body[data-bubble="night"]{--self:#3a3a3c;--other:#2c2c2e;--self-text:#fff;--other-text:#f2f2f7}
-body[data-bubble="sakura"]{--self:#ffd1dc;--other:#fff;--self-text:#5a3540;--other-text:#191919}
-body[data-theme="mono"]{--wall:#FFFFFF}
-  /* ============ 主屏全屏铺满架构 ============ */
-.phone{position:absolute;inset:0;width:100%;height:100%;background:#F2F2F7;overflow:hidden;display:flex;flex-direction:column;}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#F2F2F7;visibility:hidden;opacity:0;transition:opacity .2s,visibility .2s;z-index:1;overflow:hidden}
-.screen.active{visibility:visible;opacity:1;z-index:2}
-#screen-home{background-size:cover;background-position:center;color:#111;overflow-y:auto;display:flex;flex-direction:column;position:relative;}
-.home-bg-layer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;transition:filter .3s;}
-.home-content-layer{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100%;}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #000;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
 
-.mock-status-bar{flex:0 0 auto;height:44px;width:100%;}
+    /* ============ 主容器 ============ */
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
 
-/* ============ 顶部导航 ============ */
-.nav{flex:0 0 auto;display:flex;align-items:center;position:relative;background:#FFFFFF;z-index:10;border-bottom:0.5px solid rgba(0,0,0,0.08);height:44px;color:var(--text)}
-.nav-title-wrap{position:absolute;left:64px;right:90px;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;line-height:1.15;overflow:hidden}
-.nav-title-wrap .nav-title{font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.back{font-size:32px;line-height:1;padding:0 14px 4px;color:var(--brand);display:flex;align-items:center;height:44px;font-weight:400}
-.nav-right{margin-left:auto;display:flex;gap:2px;z-index:3;padding-right:6px}
-.nav-btn{padding:8px 10px;color:var(--brand);border-radius:6px}
-.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+    /* ============ 壁纸层 ============ */
+    .home-bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #FFFFFF;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: filter 0.3s ease;
+      z-index: 0;
+    }
 
-/* ============ 通用 UI ============ */
-.scroll{flex:1;overflow-y:auto;padding:14px 14px calc(36px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;background:#FFFFFF}
-.card{background:var(--panel);border-radius:12px;padding:16px;margin-bottom:20px;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.02)}
-.card-title{font-weight:400;margin-bottom:12px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
-.field{width:100%;border:none;border-radius:10px;padding:12px 14px;background:var(--bg);margin-bottom:10px;font-size:17px;color:var(--text);outline:none}
-.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.btn{padding:10px 16px;border-radius:9px;background:var(--bg);font-size:13.5px;color:var(--brand);font-weight:500}
-.btn.primary{background:var(--brand);color:#fff}
-.btn.danger{color:#FF3B30;background:rgba(255,59,48,.1)}
-.empty{color:var(--muted);font-size:13px;text-align:center;padding:16px 0;line-height:1.7}
-  /* ============ 沉浸式主屏 & 小组件 ============ */
-.home-single{width:100%;box-sizing:border-box;flex:1 0 auto;display:flex;flex-direction:column;gap:16px;padding:20px 16px calc(20px + env(safe-area-inset-bottom));}
-.glass-profile-card{width:90%;max-width:320px;background:rgba(255,255,255,0.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:24px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:45px 16px 16px;position:relative;display:flex;flex-direction:column;align-items:center;margin:10px auto 30px;transition:all .3s ease;overflow:hidden;}
-.glass-profile-card.size-small{width:45%;max-width:160px;padding:30px 10px 10px;}
-.glass-profile-card.size-small .gp-av-wrap{width:50px;height:50px;top:-25px;font-size:14px;}
-.glass-profile-card.size-small .gp-name{font-size:15px;}
-.glass-profile-card.size-small .gp-id, .glass-profile-card.size-small .gp-bio, .glass-profile-card.size-small .gp-loc{display:none;}
-.w-cover{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-1;opacity:.6;}
-.gp-av-wrap{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,0.9);box-shadow:0 4px 12px rgba(0,0,0,0.2);background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#333;cursor:pointer}
-.gp-info{width:100%;text-align:center}
-.gp-name{font-size:20px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);margin-bottom:4px;outline:none}
-.gp-id{font-size:12px;color:rgba(255,255,255,0.9);margin-bottom:10px;text-shadow:0 1px 3px rgba(0,0,0,.3);outline:none}
-.gp-bio{font-size:13px;color:#fff;font-style:italic;margin-bottom:10px;text-shadow:0 1px 3px rgba(0,0,0,.3);outline:none}
-.gp-loc{font-size:11px;color:rgba(255,255,255,0.9);text-shadow:0 1px 3px rgba(0,0,0,.3);outline:none}
+    /* ============ 屏幕容器 ============ */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 1;
+      background: transparent;
+    }
 
-/* 网格图标区 */
-.home-grid-all{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 10px;width:100%;padding:10px 0}
-.app{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;position:relative;transition:transform .2s ease;}
-.app.scaled{transform:scale(0.7);}
-.app-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#ffffff,#f0f0f0);box-shadow:0 3px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;transition:transform .1s;overflow:hidden;position:relative}
-.app-icon svg{width:28px;height:28px;stroke:#333;fill:none;stroke-width:2}
-.app-icon img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.app-name{color:#fff;font-size:11.5px;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px}
+    .screen.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
 
-/* 编辑模式下的删除/更换按钮 */
-.app-edit-badge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:#FF3B30;color:#fff;border-radius:50%;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;z-index:10;border:1.5px solid #fff}
-.app-change-badge{position:absolute;top:-6px;left:-6px;width:18px;height:18px;background:#007AFF;color:#fff;border-radius:50%;font-size:10px;display:none;align-items:center;justify-content:center;line-height:1;z-index:10;border:1.5px solid #fff}
-.editing .app-edit-badge, .editing .app-change-badge{display:flex}
+    #screen-home {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      z-index: 1;
+    }
 
-/* 苹果彩色底座 */
-[data-open="chat"] .app-icon{background:linear-gradient(180deg,#5AC8FA,#007AFF)}
-[data-open="chat"] .app-icon svg{stroke:#fff}
-[data-open="wechat"] .app-icon{background:linear-gradient(180deg,#34C759,#28CD41)}
-[data-open="wechat"] .app-icon svg{stroke:#fff}
-[data-open="letter"] .app-icon{background:linear-gradient(180deg,#FFCC00,#FF9500)}
-[data-open="letter"] .app-icon svg{stroke:#fff}
-[data-open="moments"] .app-icon{background:linear-gradient(180deg,#FF2D55,#FF3B30)}
-[data-open="moments"] .app-icon svg{stroke:#fff}
-[data-open="music"] .app-icon{background:linear-gradient(180deg,#fa709a,#f7b733)}
-[data-open="music"] .app-icon svg{stroke:#fff}
-[data-open="video"] .app-icon{background:linear-gradient(180deg,#667EEA,#764BA2)}
-[data-open="video"] .app-icon svg{stroke:#fff}
-[data-open="wordcards"] .app-icon{background:linear-gradient(180deg,#43E97B,#38F9D7)}
-[data-open="wordcards"] .app-icon svg{stroke:#fff}
-[data-open="shop"] .app-icon{background:linear-gradient(180deg,#00b09b,#43e97b)}
-[data-open="shop"] .app-icon svg{stroke:#fff}
-[data-open="period"] .app-icon{background:linear-gradient(180deg,#ff9a9e,#fecfef)}
-[data-open="period"] .app-icon svg{stroke:#fff}
-[data-open="game"] .app-icon{background:linear-gradient(180deg,#a18cd1,#f5576c)}
-[data-open="game"] .app-icon svg{stroke:#fff}
-[data-open="favorites"] .app-icon{background:linear-gradient(180deg,#f093fb,#c471ed)}
-[data-open="favorites"] .app-icon svg{stroke:#fff}
-[data-open="beauty"] .app-icon{background:linear-gradient(180deg,#8e9eab,#5b6b7a)}
-[data-open="beauty"] .app-icon svg{stroke:#fff}
-[data-open="settings"] .app-icon{background:linear-gradient(180deg,#c7c9d1,#9a9ca6)}
-[data-open="settings"] .app-icon svg{stroke:#fff}
-[data-open="cd"] .app-icon{background:linear-gradient(180deg,#FF9500,#FF2D55)}
-[data-open="cd"] .app-icon svg{stroke:#fff}
-  /* ============ 聊天 iMessage ============ */
-#screen-chat{background:#fff}
-.im-nav{background:rgba(249,249,249,0.94);border-bottom:0.5px solid #e5e5ea;justify-content:center;}
-.im-nav .back{position:absolute;left:0;top:0;}
-.im-header-center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;}
-.im-header-av{width:26px;height:26px;border-radius:50%;overflow:hidden;background:#ccc;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;margin-bottom:2px}
-.im-header-name{font-size:10px;font-weight:500;color:#000}
+    /* ============ 导航栏 ============ */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top));
+      background: rgba(249, 249, 249, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      flex-shrink: 0;
+    }
 
-.chat-bg-wrap{flex:1;min-height:0;position:relative;overflow:hidden;background:#fff;}
-.chat-bg{position:absolute;inset:0;background:var(--chat-wall);background-size:cover;background-position:center;filter:blur(var(--chat-blur));z-index:0}
-.msg-list{position:absolute;inset:0;overflow-y:auto;padding:12px 0 8px;display:flex;flex-direction:column;z-index:1;box-sizing:border-box;}
-.msg-row{display:flex;gap:0;align-items:flex-start;margin-bottom:10px;padding:0 10px;}
-.msg-row.me{flex-direction:row-reverse}
-.msg-avatar{width:32px;height:32px;flex:0 0 32px;border-radius:50% !important;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;background:#7a8ba6;margin:0 6px}
-.msg-row.me .msg-avatar{background:linear-gradient(135deg,var(--brand),var(--brand2))}
-.msg-col{display:flex;flex-direction:column;max-width:calc(100% - 60px);min-width:0}
-.msg-row.me .msg-col{align-items:flex-end}
-.msg-bubble-row{display:flex;align-items:flex-end;gap:4px;width:fit-content;max-width:100%}
-.bubble{position:relative;background:var(--other);color:var(--other-text);border-radius:18px !important;padding:8px 14px;line-height:1.4;font-size:15px;word-break:break-word;width:fit-content;max-width:100%}
-.msg-row.ta .bubble{border-bottom-left-radius:18px !important}
-.msg-row.me .bubble{border-bottom-right-radius:18px !important}
-.msg-row.me .bubble{background:var(--self);color:var(--self-text)}
-.bubble.media{padding:0 !important;background:transparent !important;border-radius:10px !important}
-.bubble.media img{max-width:120px;border-radius:10px}
-.bubble.callnotice{background:rgba(0,0,0,.08);color:#8e8e93;border-radius:50px;padding:5px 16px;font-size:12px;text-align:center;margin:0 auto;display:inline-block;}
-.msg-meta-row{font-size:9px;color:var(--muted);margin-top:3px;display:flex;justify-content:flex-end;width:100%}
-.read-status{display:none}
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
 
-.im-composer{background:#f6f6f8;border-top:0.5px solid #d1d1d6;padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex:0 0 auto;z-index:10;}
-.composer-row{display:flex;gap:8px;align-items:flex-end}
-.im-input-wrap{flex:1;display:flex;align-items:center;background:#fff;border:1px solid #d1d1d6;border-radius:18px;padding:2px 6px 2px 12px;min-height:36px;}
-#input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--text);padding:6px 0;max-height:80px;overflow-y:auto;resize:none;line-height:1.4}
-.send-btn{width:36px;height:36px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;flex:0 0 36px;opacity:.4;transition:opacity .2s}
-.send-btn.active{opacity:1}
-.send-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.tool-btn{width:36px;height:36px;border-radius:50%;background:#e5e5ea;display:flex;align-items:center;justify-content:center;flex:0 0 36px}
-.tool-btn svg{width:20px;height:20px;stroke:#8e8e93;fill:none;stroke-width:2}
+    .nav-right {
+      display: flex;
+      gap: 12px;
+    }
 
-/* ============ 设置页 ============ */
-.settings-group{margin-bottom:20px}
-.settings-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:0.5px solid #e5e5ea}
-.settings-item:first-child{border-radius:12px 12px 0 0}
-.settings-item:last-child{border-radius:0 0 12px 12px;border-bottom:none}
-.settings-item:only-child{border-radius:12px}
-.settings-label{font-size:15px;color:var(--text)}
-.settings-right{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
-.settings-arrow{width:8px;height:14px;border-right:2px solid #c7c7cc;border-top:2px solid #c7c7cc;transform:rotate(45deg)}
-.toggle{width:51px;height:31px;border-radius:16px;background:#e5e5ea;position:relative;cursor:pointer;transition:background .2s}
-.toggle.on{background:#34C759}
-.toggle::after{content:'';position:absolute;width:27px;height:27px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
-.toggle.on::after{transform:translateX(20px)}
+    .nav-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #007AFF;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
 
-/* ============ 通用页面 ============ */
-.page-content{flex:1;overflow-y:auto;padding:16px;background:#F2F2F7}
-.page-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    .nav-btn:active {
+      background: rgba(0, 122, 255, 0.1);
+    }
 
-/* ============ 隐藏文件输入 ============ */
-.hidden-input{display:none}
+    .nav-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
-/* ============ 动画 ============ */
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.shake{animation:shake .3s ease}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.pulse{animation:pulse .6s ease}
-</style>
+    .back {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      font-size: 28px;
+      color: #007AFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* ============ 主屏幕 ============ */
+    .home-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    /* ============ 个人资料卡片 ============ */
+    .profile-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1C1C1E;
+      margin-bottom: 4px;
+    }
+
+    .profile-id {
+      font-size: 13px;
+      color: #8E8E93;
+    }
+
+    .profile-bio {
+      font-size: 14px;
+      color: #3C3C43;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .profile-loc {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #8E8E93;
+    }
+
+    .profile-loc svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ============ 应用网格 ============ */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .app-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative;
+    }
+
+    .app-item:active {
+      transform: scale(0.9);
+    }
+
+    .app-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .app-name {
+      font-size: 11px;
+      color: #1C1C1E;
+      text-align: center;
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 编辑模式下的删除按钮 */
+    .app-delete {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #FF3B30;
+      border: 2px solid white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .app-delete svg {
+      width: 10px;
+      height: 10px;
+      stroke: white;
+      fill: none;
+      stroke-width: 3;
+    }
+
+    .edit-mode .app-delete {
+      display: flex;
+    }
+
+    .edit-mode .app-item {
+      animation: wiggle 0.3s ease-in-out infinite alternate;
+    }
+
+    @keyframes wiggle {
+      from { transform: rotate(-1deg); }
+      to { transform: rotate(1deg); }
+    }
+
+    /* 编辑模式下的图标更换按钮 */
+    .app-change-icon {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #007AFF;
+      border: 2px solid white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .app-change-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .edit-mode .app-change-icon {
+      display: flex;
+    }
+        /* ============ 聊天/短信界面（仿iMessage） ============ */
+    #screen-message,
+    #screen-chat {
+      background: #FFFFFF;
+    }
+
+    .im-nav {
+      background: rgba(249, 249, 249, 0.94);
+    }
+
+    .im-header-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .im-header-av {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8E8E93 0%, #636366 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+      overflow: hidden;
+    }
+
+    .im-header-name {
+      font-size: 11px;
+      color: #8E8E93;
+    }
+
+    .msg-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #FFFFFF;
+    }
+
+    .msg-date-divider {
+      text-align: center;
+      font-size: 11px;
+      color: #8E8E93;
+      margin: 16px 0;
+    }
+
+    .msg-row {
+      display: flex;
+      margin-bottom: 12px;
+      max-width: 80%;
+    }
+
+    .msg-row.me {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+
+    .msg-row.ta {
+      margin-right: auto;
+    }
+
+    .msg-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E5E5EA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #8E8E93;
+      flex-shrink: 0;
+    }
+
+    .msg-row.me .msg-avatar {
+      display: none;
+    }
+
+    .msg-col {
+      margin: 0 8px;
+      max-width: 100%;
+    }
+
+    .msg-bubble-row {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .bubble {
+      padding: 8px 14px;
+      border-radius: 18px;
+      font-size: 16px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+
+    .msg-row.me .bubble {
+      background: #007AFF;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-row.ta .bubble {
+      background: #E5E5EA;
+      color: #1C1C1E;
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble.media {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .bubble.media img {
+      max-width: 200px;
+      max-height: 200px;
+      display: block;
+    }
+
+    .msg-meta-row {
+      font-size: 11px;
+      color: #8E8E93;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .msg-row.me .msg-meta-row {
+      text-align: right;
+    }
+
+    /* ============ 输入栏 ============ */
+    .input-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 8px 12px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom));
+      background: rgba(249, 249, 249, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    #messageInput,
+    #chatInput {
+      flex: 1;
+      border: 1px solid #E5E5EA;
+      border-radius: 18px;
+      padding: 8px 14px;
+      font-size: 16px;
+      resize: none;
+      max-height: 80px;
+      background: #FFFFFF;
+      outline: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    #messageInput:focus,
+    #chatInput:focus {
+      border-color: #007AFF;
+    }
+
+    .input-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #8E8E93;
+      flex-shrink: 0;
+    }
+
+    .input-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #C7C7CC;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn.active {
+      color: #007AFF;
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ============ 通用应用页面 ============ */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #F2F2F7;
+    }
+
+    .app-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .app-placeholder-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .app-placeholder-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .app-placeholder-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1C1C1E;
+      margin-bottom: 8px;
+    }
+
+    .app-placeholder-desc {
+      font-size: 14px;
+      color: #8E8E93;
+    }
+
+    /* ============ 设置页面 ============ */
+    #screen-settings {
+      background: #F2F2F7;
+    }
+
+    .settings-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .settings-group {
+      background: #FFFFFF;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .settings-group-title {
+      font-size: 13px;
+      color: #8E8E93;
+      padding: 0 16px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid #E5E5EA;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item:active {
+      background: #F2F2F7;
+    }
+
+    .settings-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-item-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .settings-item-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .settings-item-label {
+      font-size: 16px;
+      color: #1C1C1E;
+    }
+
+    .settings-item-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-item-value {
+      font-size: 15px;
+      color: #8E8E93;
+    }
+
+    .settings-item-arrow {
+      width: 16px;
+      height: 16px;
+      stroke: #C7C7CC;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* 开关 */
+    .toggle {
+      width: 50px;
+      height: 30px;
+      border-radius: 15px;
+      background: #E5E5EA;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.on {
+      background: #34C759;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    /* 滑块 */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .slider-label {
+      font-size: 15px;
+      color: #1C1C1E;
+      min-width: 60px;
+    }
+
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: #E5E5EA;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      border: none;
+    }
+
+    /* ============ Toast提示 ============ */
+    #toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============ 模态框 ============ */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: #FFFFFF;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 0.5px solid #E5E5EA;
+      position: sticky;
+      top: 0;
+      background: #FFFFFF;
+      z-index: 10;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
+
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #E5E5EA;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: #8E8E93;
+    }
+
+    .modal-content {
+      padding: 16px;
+    }
+
+    /* 图标选择网格 */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .icon-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .icon-option:active {
+      background: #F2F2F7;
+    }
+
+    .icon-option.selected {
+      background: #E8F0FE;
+    }
+
+    .icon-option-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-option-preview svg {
+      width: 24px;
+      height: 24px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .icon-option-name {
+      font-size: 11px;
+      color: #3C3C43;
+      text-align: center;
+    }
+
+    /* 颜色选择 */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .color-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .color-option:active {
+      transform: scale(0.9);
+    }
+
+    .color-option.selected {
+      border-color: #007AFF;
+    }
+
+    /* ============ 滚动条隐藏 ============ */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    * {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+  </style>
 </head>
-<body data-bubble="default" data-theme="mono">
-<div class="phone" id="phone">
+<body>
+  <div id="app">
+    <!-- 壁纸层 -->
+    <div class="home-bg-layer" id="homeBg"></div>
 
-  <!-- ========== 主屏幕 ========== -->
-  <div class="screen active" id="screen-home">
-    <div class="home-bg-layer" id="homeBgLayer"></div>
-    <div class="home-content-layer">
-      <div class="mock-status-bar"></div>
-      <div class="home-single" id="homeContent">
-        
-        <!-- 个人资料小组件 -->
-        <div class="glass-profile-card" id="profileWidget">
-          <div class="gp-av-wrap" id="profileAvatar" onclick="app.pickAvatar()">
-            <span id="profileAvatarText">栖</span>
-            <img id="profileAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+    <!-- ============ 主屏幕 ============ -->
+    <div class="screen active" id="screen-home">
+      <div class="home-content">
+        <!-- 个人资料卡片 -->
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar">我</div>
+            <div class="profile-info">
+              <div class="profile-name" id="profileName">用户</div>
+              <div class="profile-id" id="profileId">ID: 100001</div>
+            </div>
           </div>
-          <div class="gp-info">
-            <div class="gp-name" id="profileName" contenteditable="true" onblur="app.saveProfile()">栖夜用户</div>
-            <div class="gp-id" id="profileId" contenteditable="true" onblur="app.saveProfile()">ID: 000001</div>
-            <div class="gp-bio" id="profileBio" contenteditable="true" onblur="app.saveProfile()">生活不止眼前的苟且</div>
-            <div class="gp-loc" id="profileLoc" contenteditable="true" onblur="app.saveProfile()">📍 河南南阳</div>
+          <div class="profile-bio" id="profileBio">这个人很懒，什么都没写~</div>
+          <div class="profile-loc">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span id="profileLoc">未设置位置</span>
           </div>
         </div>
 
-        <!-- 应用图标网格 -->
-        <div class="home-grid-all" id="appGrid">
-          <!-- 由JS动态渲染 -->
-        </div>
+        <!-- 应用网格 -->
+        <div class="app-grid" id="appGrid"></div>
+      </div>
+    </div>
 
-      </div>
-    </div>
-  </div>
-    <!-- ========== 聊天界面 ========== -->
-  <div class="screen" id="screen-chat">
-    <div class="nav im-nav">
-      <button class="back" onclick="app.closeChat()">‹</button>
-      <div class="im-header-center">
-        <div class="im-header-av" id="chatHeaderAv">TA</div>
-        <div class="im-header-name" id="chatHeaderName">TA</div>
-      </div>
-      <div class="nav-right">
-        <button class="nav-btn" onclick="app.showChatSettings()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </button>
-      </div>
-    </div>
-    <div class="chat-bg-wrap">
-      <div class="chat-bg" id="chatBg"></div>
-      <div class="msg-list" id="msgList">
-        <!-- 消息由JS动态渲染 -->
-      </div>
-    </div>
-    <div class="im-composer">
-      <div class="composer-row">
-        <button class="tool-btn" onclick="app.pickChatImage()">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </button>
-        <div class="im-input-wrap">
-          <textarea id="input" rows="1" placeholder="iMessage" oninput="app.onInputChange()" onkeydown="app.onInputKeydown(event)"></textarea>
+    <!-- ============ 信息（仿iMessage） ============ -->
+    <div class="screen" id="screen-message">
+      <div class="nav im-nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="im-header-center">
+          <div class="im-header-av">信</div>
+          <div class="im-header-name">信息</div>
         </div>
-        <button class="send-btn" id="sendBtn" onclick="app.sendMessage()">
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('新建对话')">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="msg-list" id="messageList">
+        <div class="msg-date-divider">今天 10:24</div>
+        <div class="msg-row ta">
+          <div class="msg-avatar">系</div>
+          <div class="msg-col">
+            <div class="msg-bubble-row">
+              <div class="bubble">欢迎使用信息应用，这是仿iMessage风格的短信界面</div>
+            </div>
+            <div class="msg-meta-row">10:24</div>
+          </div>
+        </div>
+        <div class="msg-row me">
+          <div class="msg-col">
+            <div class="msg-bubble-row">
+              <div class="bubble">收到！界面很清爽</div>
+            </div>
+            <div class="msg-meta-row">10:25 已送达</div>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <button class="input-btn" onclick="showToast('添加附件')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        </button>
+        <textarea id="messageInput" rows="1" placeholder="信息"></textarea>
+        <button class="send-btn" id="messageSendBtn" onclick="sendMessage()">
           <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- ========== 设置页面 ========== -->
-  <div class="screen" id="screen-settings">
-    <div class="nav">
-      <button class="back" onclick="app.closeSettings()">‹</button>
-      <div class="nav-title-wrap"><div class="nav-title">设置</div></div>
-    </div>
-    <div class="scroll">
-      <div class="settings-group">
-        <div class="settings-item" onclick="app.pickWallpaper()">
-          <span class="settings-label">主屏幕壁纸</span>
-          <div class="settings-right">
-            <span id="wallpaperStatus">默认</span>
-            <div class="settings-arrow"></div>
-          </div>
-        </div>
-        <div class="settings-item" onclick="app.resetWallpaper()">
-          <span class="settings-label">恢复默认壁纸</span>
-          <div class="settings-right">
-            <div class="settings-arrow"></div>
-          </div>
+    <!-- ============ 微信 ============ -->
+    <div class="screen" id="screen-wechat">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">微信</div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('搜索')">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
         </div>
       </div>
-
-      <div class="settings-group">
-        <div class="settings-item">
-          <span class="settings-label">壁纸模糊</span>
-          <div class="settings-right">
-            <input type="range" id="wallBlur" min="0" max="20" value="0" oninput="app.updateWallBlur(this.value)" style="width:100px">
+      <div class="app-content">
+        <div class="app-placeholder">
+          <div class="app-placeholder-icon" style="background: linear-gradient(135deg, #07C160 0%, #05A34A 100%);">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           </div>
-        </div>
-        <div class="settings-item">
-          <span class="settings-label">壁纸亮度</span>
-          <div class="settings-right">
-            <input type="range" id="wallBright" min="30" max="100" value="100" oninput="app.updateWallBright(this.value)" style="width:100px">
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-group">
-        <div class="settings-item" onclick="app.toggleEditMode()">
-          <span class="settings-label">编辑主屏幕图标</span>
-          <div class="settings-right">
-            <div class="toggle" id="editModeToggle"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-group">
-        <div class="settings-item" onclick="app.exportData()">
-          <span class="settings-label">导出数据</span>
-          <div class="settings-right">
-            <div class="settings-arrow"></div>
-          </div>
-        </div>
-        <div class="settings-item" onclick="app.importData()">
-          <span class="settings-label">导入数据</span>
-          <div class="settings-right">
-            <div class="settings-arrow"></div>
-          </div>
-        </div>
-        <div class="settings-item" onclick="app.clearAllData()">
-          <span class="settings-label" style="color:#FF3B30">清除所有数据</span>
-          <div class="settings-right">
-            <div class="settings-arrow"></div>
-          </div>
+          <div class="app-placeholder-title">微信</div>
+          <div class="app-placeholder-desc">消息、朋友圈、支付功能开发中</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 隐藏的文件输入 -->
-  <input type="file" id="wallpaperInput" class="hidden-input" accept="image/*" onchange="app.onWallpaperSelected(event)">
-  <input type="file" id="avatarInput" class="hidden-input" accept="image/*" onchange="app.onAvatarSelected(event)">
-  <input type="file" id="chatImageInput" class="hidden-input" accept="image/*" onchange="app.onChatImageSelected(event)">
-  <input type="file" id="iconInput" class="hidden-input" accept="image/*" onchange="app.onIconSelected(event)">
-  <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="app.onImportSelected(event)">
-
-</div>
-<script>
-// ============ 应用核心 ============
-const app = {
-  // 默认应用配置
-  defaultApps: [
-    { id: 'chat', name: '聊天', icon: 'message-circle', action: 'openChat' },
-    { id: 'wechat', name: '微信', icon: 'message-square', action: 'openWechat' },
-    { id: 'letter', name: '信件', icon: 'mail', action: 'openLetter' },
-    { id: 'moments', name: '瞬间', icon: 'camera', action: 'openMoments' },
-    { id: 'music', name: '音乐', icon: 'music', action: 'openMusic' },
-    { id: 'video', name: '视频', icon: 'video', action: 'openVideo' },
-    { id: 'wordcards', name: '词卡', icon: 'book-open', action: 'openWordcards' },
-    { id: 'shop', name: '商店', icon: 'shopping-bag', action: 'openShop' },
-    { id: 'period', name: '周期', icon: 'heart', action: 'openPeriod' },
-    { id: 'game', name: '游戏', icon: 'gamepad-2', action: 'openGame' },
-    { id: 'favorites', name: '收藏', icon: 'star', action: 'openFavorites' },
-    { id: 'beauty', name: '美颜', icon: 'smile', action: 'openBeauty' },
-    { id: 'cd', name: '倒数日', icon: 'calendar', action: 'openCD' },
-    { id: 'settings', name: '设置', icon: 'settings', action: 'openSettings' }
-  ],
-
-  // 应用状态
-  state: {
-    apps: [],
-    messages: [],
-    profile: {
-      name: '栖夜用户',
-      id: '000001',
-      bio: '生活不止眼前的苟且',
-      loc: '📍 河南南阳',
-      avatar: ''
-    },
-    settings: {
-      wallpaper: '',
-      wallpaperBlur: 0,
-      wallpaperBrightness: 100,
-      editMode: false,
-      bubbleTheme: 'default'
-    },
-    currentChat: null,
-    editingIconAppId: null
-  },
-
-  // 初始化
-  init() {
-    this.loadState();
-    this.renderAppGrid();
-    this.renderProfile();
-    this.applyWallpaper();
-    this.applyBubbleTheme();
-    this.bindEvents();
-    console.log('栖夜应用已启动');
-  },
-
-  // 加载状态
-  loadState() {
-    try {
-      const saved = localStorage.getItem('qiye_state');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        this.state = { ...this.state, ...parsed };
-      } else {
-        this.state.apps = [...this.defaultApps];
-      }
-    } catch (e) {
-      console.error('加载状态失败:', e);
-      this.state.apps = [...this.defaultApps];
-    }
-  },
-
-  // 保存状态
-  saveState() {
-    try {
-      localStorage.setItem('qiye_state', JSON.stringify(this.state));
-    } catch (e) {
-      console.error('保存状态失败:', e);
-    }
-  },
-
-  // 渲染应用网格
-  renderAppGrid() {
-    const grid = document.getElementById('appGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = this.state.apps.map(app => `
-      <div class="app ${this.state.settings.editMode ? 'editing' : ''}" 
-           data-open="${app.id}" 
-           data-app-id="${app.id}"
-           onclick="app.handleAppClick('${app.id}')"
-           oncontextmenu="app.handleAppLongPress(event, '${app.id}')">
-        <div class="app-icon">
-          ${app.customIcon ? `<img src="${app.customIcon}" alt="${app.name}">` : this.getIconSVG(app.icon)}
+    <!-- ============ 音乐 ============ -->
+    <div class="screen" id="screen-music">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">音乐</div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('搜索音乐')">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
         </div>
-        <div class="app-name">${app.name}</div>
-        <div class="app-edit-badge" onclick="app.removeApp(event, '${app.id}')">×</div>
-        <div class="app-change-badge" onclick="app.changeIcon(event, '${app.id}')">✎</div>
       </div>
-    `).join('');
-  },
+      <div class="app-content">
+        <div class="app-placeholder">
+          <div class="app-placeholder-icon" style="background: linear-gradient(135deg, #FC3C44 0%, #E02E36 100%);">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="app-placeholder-title">音乐</div>
+          <div class="app-placeholder-desc">播放列表、歌词、音效功能开发中</div>
+        </div>
+      </div>
+    </div>
 
-  // 获取图标SVG
-  getIconSVG(iconName) {
-    const icons = {
-      'message-circle': '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
-      'message-square': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-      'mail': '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
-      'camera': '<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
-      'music': '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-      'video': '<svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
-      'book-open': '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-      'shopping-bag': '<svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
-      'heart': '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-      'gamepad-2': '<svg viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>',
-      'star': '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
-      'smile': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-      'calendar': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-      'settings': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
-    };
-    return icons[iconName] || icons['message-circle'];
-  },
-    // 绑定事件
-  bindEvents() {
-    // 输入框自动高度
-    const input = document.getElementById('input');
-    if (input) {
-      input.addEventListener('input', () => {
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 80) + 'px';
-      });
-    }
-  },
+    <!-- ============ 商店 ============ -->
+    <div class="screen" id="screen-shop">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">商店</div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('搜索商品')">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="app-placeholder">
+          <div class="app-placeholder-icon" style="background: linear-gradient(135deg, #007AFF 0%, #0062CC 100%);">
+            <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="app-placeholder-title">商店</div>
+          <div class="app-placeholder-desc">商品浏览、购物车、订单功能开发中</div>
+        </div>
+      </div>
+    </div>
 
-  // 处理应用点击
-  handleAppClick(appId) {
-    if (this.state.settings.editMode) return;
-    
-    const app = this.state.apps.find(a => a.id === appId);
-    if (!app) return;
+    <!-- ============ 信箱 ============ -->
+    <div class="screen" id="screen-mailbox">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">信箱</div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('写邮件')">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="app-placeholder">
+          <div class="app-placeholder-icon" style="background: linear-gradient(135deg, #34C759 0%, #28A745 100%);">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="app-placeholder-title">信箱</div>
+          <div class="app-placeholder-desc">收件箱、已发送、草稿功能开发中</div>
+        </div>
+      </div>
+    </div>
 
-    switch(app.action) {
-      case 'openChat':
-        this.openChat();
-        break;
-      case 'openSettings':
-        this.openSettings();
-        break;
-      default:
-        this.showToast(`${app.name}功能开发中...`);
-    }
-  },
-
-  // 处理应用长按
-  handleAppLongPress(e, appId) {
-    e.preventDefault();
-    if (!this.state.settings.editMode) {
-      this.toggleEditMode();
-    }
-  },
-
-  // 切换编辑模式
-  toggleEditMode() {
-    this.state.settings.editMode = !this.state.settings.editMode;
-    document.getElementById('editModeToggle').classList.toggle('on', this.state.settings.editMode);
-    this.renderAppGrid();
-    this.saveState();
-  },
-
-  // 移除应用
-  removeApp(e, appId) {
-    e.stopPropagation();
-    if (!this.state.settings.editMode) return;
-    
-    if (confirm('确定要移除这个应用吗？')) {
-      this.state.apps = this.state.apps.filter(a => a.id !== appId);
-      this.renderAppGrid();
-      this.saveState();
-    }
-  },
-
-  // 更改图标
-  changeIcon(e, appId) {
-    e.stopPropagation();
-    if (!this.state.settings.editMode) return;
-    
-    this.state.editingIconAppId = appId;
-    document.getElementById('iconInput').click();
-  },
-
-  // 图标选择完成
-  onIconSelected(e) {
-    const file = e.target.files[0];
-    if (!file || !this.state.editingIconAppId) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const app = this.state.apps.find(a => a.id === this.state.editingIconAppId);
-      if (app) {
-        app.customIcon = ev.target.result;
-        this.renderAppGrid();
-        this.saveState();
-      }
-      this.state.editingIconAppId = null;
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  },
-
-  // ============ 聊天功能 ============
-  openChat() {
-    document.getElementById('screen-chat').classList.add('active');
-    this.renderMessages();
-  },
-
-  closeChat() {
-    document.getElementById('screen-chat').classList.remove('active');
-  },
-
-  // 渲染消息列表
-  renderMessages() {
-    const list = document.getElementById('msgList');
-    if (!list) return;
-
-    list.innerHTML = this.state.messages.map(msg => {
-      const isMe = msg.from === 'me';
-      const time = new Date(msg.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-      
-      return `
-        <div class="msg-row ${isMe ? 'me' : 'ta'}">
-          <div class="msg-avatar">${isMe ? (this.state.profile.avatar ? `<img src="${this.state.profile.avatar}" style="width:100%;height:100%;object-fit:cover">` : this.state.profile.name[0]) : 'TA'}</div>
+    <!-- ============ 收藏 ============ -->
+    <div class="screen" id="screen-favorites">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">收藏</div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('管理收藏')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="app-placeholder">
+          <div class="app-placeholder-icon" style="background: linear-gradient(135deg, #FF9500 0%, #E08600 100%);">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="app-placeholder-title">收藏</div>
+          <div class="app-placeholder-desc">暂无收藏内容，快去发现喜欢的东西吧</div>
+        </div>
+      </div>
+    </div>
+        <!-- ============ 聊天（AI助手） ============ -->
+    <div class="screen" id="screen-chat">
+      <div class="nav im-nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="im-header-center">
+          <div class="im-header-av" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">栖</div>
+          <div class="im-header-name">栖小助</div>
+        </div>
+        <div class="nav-right">
+          <button class="nav-btn" onclick="showToast('更多选项')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="msg-list" id="chatList">
+        <div class="msg-date-divider">今天</div>
+        <div class="msg-row ta">
+          <div class="msg-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">栖</div>
           <div class="msg-col">
             <div class="msg-bubble-row">
-              <div class="bubble ${msg.type === 'image' ? 'media' : ''}">
-                ${msg.type === 'image' ? `<img src="${msg.content}" alt="图片">` : msg.content}
-              </div>
+              <div class="bubble">你好！我是栖小助，有什么可以帮你的吗？</div>
             </div>
-            <div class="msg-meta-row">
-              <span>${time}</span>
+            <div class="msg-meta-row">刚刚</div>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <button class="input-btn" onclick="showToast('语音输入')">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <textarea id="chatInput" rows="1" placeholder="发消息..."></textarea>
+        <button class="send-btn" id="chatSendBtn" onclick="sendChat()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ 设置 ============ -->
+    <div class="screen" id="screen-settings">
+      <div class="nav">
+        <button class="back" onclick="goHome()">‹</button>
+        <div class="nav-title">设置</div>
+        <div class="nav-right"></div>
+      </div>
+      <div class="app-content settings-content">
+        <!-- 个人资料 -->
+        <div class="settings-card">
+          <div class="settings-row" onclick="showToast('编辑资料')">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #007AFF 0%, #0062CC 100%);">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
+            <div class="settings-row-label">个人资料</div>
+            <div class="settings-row-value" id="settingsProfileName">用户</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+        </div>
+
+        <!-- 外观 -->
+        <div class="settings-card">
+          <div class="settings-section-title">外观</div>
+          <div class="settings-row" onclick="openWallpaperModal()">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #5856D6 0%, #4A48B5 100%);">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="settings-row-label">壁纸</div>
+            <div class="settings-row-value" id="wallpaperValue">默认</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+          <div class="settings-row" onclick="openIconModal()">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #FF9500 0%, #E08600 100%);">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div class="settings-row-label">自定义图标</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #FF2D55 0%, #E0264A 100%);">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </div>
+            <div class="settings-row-label">深色模式</div>
+            <div class="settings-switch" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <!-- 通用 -->
+        <div class="settings-card">
+          <div class="settings-section-title">通用</div>
+          <div class="settings-row" onclick="showToast('通知设置')">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #FF3B30 0%, #E0342A 100%);">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <div class="settings-row-label">通知</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+          <div class="settings-row" onclick="showToast('声音与触感')">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #AF52DE 0%, #9947C4 100%);">
+              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </div>
+            <div class="settings-row-label">声音与触感</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+          <div class="settings-row" onclick="showToast('存储空间')">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #34C759 0%, #28A745 100%);">
+              <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="settings-row-label">存储空间</div>
+            <div class="settings-row-value">128 GB</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+        </div>
+
+        <!-- 关于 -->
+        <div class="settings-card">
+          <div class="settings-section-title">关于</div>
+          <div class="settings-row" onclick="showToast('版本 1.0.0')">
+            <div class="settings-row-icon" style="background: linear-gradient(135deg, #8E8E93 0%, #636366 100%);">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+            <div class="settings-row-label">关于本机</div>
+            <div class="settings-row-value">v1.0.0</div>
+            <div class="settings-row-arrow">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 壁纸选择模态框 ============ -->
+    <div class="modal" id="wallpaperModal">
+      <div class="modal-backdrop" onclick="closeWallpaperModal()"></div>
+      <div class="modal-content">
+        <div class="modal-handle"></div>
+        <div class="modal-title">选择壁纸</div>
+        <div class="wallpaper-grid" id="wallpaperGrid"></div>
+        <div class="blur-control">
+          <div class="blur-label">模糊度</div>
+          <input type="range" min="0" max="20" value="0" oninput="setBlur(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 图标选择模态框 ============ -->
+    <div class="modal" id="iconModal">
+      <div class="modal-backdrop" onclick="closeIconModal()"></div>
+      <div class="modal-content">
+        <div class="modal-handle"></div>
+        <div class="modal-title">自定义图标</div>
+        <div class="icon-grid" id="iconGrid"></div>
+      </div>
+    </div>
+
+    <!-- ============ Toast提示 ============ -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    // ============ 应用配置 ============
+    const APPS = [
+      { id: 'message', name: '信息', icon: 'message', color: 'linear-gradient(135deg, #34C759 0%, #28A745 100%)', badge: 2 },
+      { id: 'chat', name: '栖小助', icon: 'chat', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', badge: 0 },
+      { id: 'wechat', name: '微信', icon: 'wechat', color: 'linear-gradient(135deg, #07C160 0%, #05A34A 100%)', badge: 5 },
+      { id: 'music', name: '音乐', icon: 'music', color: 'linear-gradient(135deg, #FC3C44 0%, #E02E36 100%)', badge: 0 },
+      { id: 'shop', name: '商店', icon: 'shop', color: 'linear-gradient(135deg, #007AFF 0%, #0062CC 100%)', badge: 1 },
+      { id: 'mailbox', name: '信箱', icon: 'mail', color: 'linear-gradient(135deg, #34C759 0%, #28A745 100%)', badge: 3 },
+      { id: 'favorites', name: '收藏', icon: 'star', color: 'linear-gradient(135deg, #FF9500 0%, #E08600 100%)', badge: 0 },
+      { id: 'settings', name: '设置', icon: 'settings', color: 'linear-gradient(135deg, #8E8E93 0%, #636366 100%)', badge: 0 }
+    ];
+
+    // ============ 壁纸配置 ============
+    const WALLPAPERS = [
+      { id: 'default', name: '默认', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+      { id: 'sunset', name: '日落', gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+      { id: 'ocean', name: '海洋', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
+      { id: 'forest', name: '森林', gradient: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+      { id: 'night', name: '夜空', gradient: 'linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 100%)' },
+      { id: 'fire', name: '烈焰', gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)' },
+      { id: 'purple', name: '紫韵', gradient: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
+      { id: 'gray', name: '极简', gradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }
+    ];
+
+    // ============ 图标库 ============
+    const ICONS = {
+      message: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+      chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+      wechat: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+      music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+      shop: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+      mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+      star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-
+            // ============ 状态 ============
+    let currentScreen = 'home';
+    let currentWallpaper = 'default';
+    let currentBlur = 0;
+    let customIcons = {};
+
+    // ============ 初始化 ============
+    function init() {
+      renderApps();
+      renderWallpaperGrid();
+      renderIconGrid();
+      updateClock();
+      setInterval(updateClock, 1000);
+      updateBattery();
+      setInterval(updateBattery, 30000);
+    }
+
+    // ============ 渲染应用网格 ============
+    function renderApps() {
+      const grid = document.getElementById('appGrid');
+      grid.innerHTML = APPS.map(app => {
+        const icon = customIcons[app.id] || app.icon;
+        const badge = app.badge > 0 ? `<div class="app-badge">${app.badge}</div>` : '';
+        return `
+          <div class="app-item" onclick="openApp('${app.id}')">
+            <div class="app-icon" style="background: ${app.color}">
+              <svg viewBox="0 0 24 24">${ICONS[icon] || ICONS.message}</svg>
+              ${badge}
+            </div>
+            <div class="app-name">${app.name}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============ 打开应用 ============
+    function openApp(id) {
+      const screen = document.getElementById('screen-' + id);
+      if (!screen) return;
+      
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+      currentScreen = id;
+      
+      // 清除角标
+      const app = APPS.find(a => a.id === id);
+      if (app && app.badge > 0) {
+        app.badge = 0;
+        renderApps();
+      }
+    }
+
+    // ============ 返回主页 ============
+    function goHome() {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-home').classList.add('active');
+      currentScreen = 'home';
+    }
+
+    // ============ 时钟更新 ============
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const dateStr = now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
+      
+      const timeEl = document.getElementById('statusTime');
+      const dateEl = document.getElementById('statusDate');
+      if (timeEl) timeEl.textContent = `${hours}:${minutes}`;
+      if (dateEl) dateEl.textContent = dateStr;
+    }
+
+    // ============ 电池状态 ============
+    function updateBattery() {
+      const batteryEl = document.getElementById('statusBattery');
+      if (!batteryEl) return;
+      
+      if (navigator.getBattery) {
+        navigator.getBattery().then(battery => {
+          const level = Math.round(battery.level * 100);
+          batteryEl.textContent = level + '%';
+        }).catch(() => {
+          batteryEl.textContent = '85%';
+        });
+      } else {
+        batteryEl.textContent = '85%';
+      }
+    }
+
+    // ============ 信息发送 ============
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const list = document.getElementById('messageList');
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      const msgHTML = `
+        <div class="msg-row me">
+          <div class="msg-col">
+            <div class="msg-bubble-row">
+              <div class="bubble">${escapeHtml(text)}</div>
+            </div>
+            <div class="msg-meta-row">${timeStr} 已送达</div>
           </div>
         </div>
       `;
-    }).join('');
-
-    // 滚动到底部
-    list.scrollTop = list.scrollHeight;
-  },
-
-  // 输入框变化
-  onInputChange() {
-    const input = document.getElementById('input');
-    const sendBtn = document.getElementById('sendBtn');
-    sendBtn.classList.toggle('active', input.value.trim().length > 0);
-  },
-
-  // 输入框按键
-  onInputKeydown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      this.sendMessage();
+      list.insertAdjacentHTML('beforeend', msgHTML);
+      input.value = '';
+      list.scrollTop = list.scrollHeight;
+      
+      // 模拟回复
+      setTimeout(() => {
+        const replies = ['收到！', '好的~', '明白了', '嗯嗯', '哈哈哈', '真的吗？'];
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        const replyHTML = `
+          <div class="msg-row ta">
+            <div class="msg-avatar">系</div>
+            <div class="msg-col">
+              <div class="msg-bubble-row">
+                <div class="bubble">${reply}</div>
+              </div>
+              <div class="msg-meta-row">${timeStr}</div>
+            </div>
+          </div>
+        `;
+        list.insertAdjacentHTML('beforeend', replyHTML);
+        list.scrollTop = list.scrollHeight;
+      }, 1000 + Math.random() * 1000);
     }
-  },
 
-  // 发送消息
-  sendMessage() {
-    const input = document.getElementById('input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const msg = {
-      id: Date.now(),
-      from: 'me',
-      type: 'text',
-      content: text,
-      time: Date.now()
-    };
-
-    this.state.messages.push(msg);
-    input.value = '';
-    input.style.height = 'auto';
-    document.getElementById('sendBtn').classList.remove('active');
-    
-    this.renderMessages();
-    this.saveState();
-
-    // 模拟回复
-    setTimeout(() => {
-      this.simulateReply();
-    }, 1000 + Math.random() * 2000);
-  },
-
-  // 模拟回复
-  simulateReply() {
-    const replies = [
-      '嗯嗯，我在听~',
-      '真的吗？说来听听',
-      '哈哈，有意思',
-      '好的好的',
-      '我也是这么想的',
-      '然后呢？',
-      '😄',
-      '👍'
-    ];
-
-    const msg = {
-      id: Date.now(),
-      from: 'ta',
-      type: 'text',
-      content: replies[Math.floor(Math.random() * replies.length)],
-      time: Date.now()
-    };
-
-    this.state.messages.push(msg);
-    this.renderMessages();
-    this.saveState();
-  },
-
-  // 选择聊天图片
-  pickChatImage() {
-    document.getElementById('chatImageInput').click();
-  },
-
-  // 聊天图片选择完成
-  onChatImageSelected(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const msg = {
-        id: Date.now(),
-        from: 'me',
-        type: 'image',
-        content: ev.target.result,
-        time: Date.now()
-      };
-
-      this.state.messages.push(msg);
-      this.renderMessages();
-      this.saveState();
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  },
-    // ============ 设置功能 ============
-  openSettings() {
-    document.getElementById('screen-settings').classList.add('active');
-    this.updateSettingsUI();
-  },
-
-  closeSettings() {
-    document.getElementById('screen-settings').classList.remove('active');
-  },
-
-  showChatSettings() {
-    this.showToast('聊天设置开发中...');
-  },
-
-  // 更新设置UI
-  updateSettingsUI() {
-    const blurSlider = document.getElementById('wallBlur');
-    const brightSlider = document.getElementById('wallBright');
-    const editToggle = document.getElementById('editModeToggle');
-    
-    if (blurSlider) blurSlider.value = this.state.settings.wallpaperBlur;
-    if (brightSlider) brightSlider.value = this.state.settings.wallpaperBrightness;
-    if (editToggle) editToggle.classList.toggle('on', this.state.settings.editMode);
-    
-    // 更新壁纸状态文字
-    const wallStatus = document.getElementById('wallpaperStatus');
-    if (wallStatus) {
-      wallStatus.textContent = this.state.settings.wallpaper ? '已自定义' : '默认';
+    // ============ 聊天发送 ============
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const list = document.getElementById('chatList');
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      const msgHTML = `
+        <div class="msg-row me">
+          <div class="msg-col">
+            <div class="msg-bubble-row">
+              <div class="bubble">${escapeHtml(text)}</div>
+            </div>
+            <div class="msg-meta-row">${timeStr}</div>
+          </div>
+        </div>
+      `;
+      list.insertAdjacentHTML('beforeend', msgHTML);
+      input.value = '';
+      list.scrollTop = list.scrollHeight;
+      
+      // 模拟AI回复
+      setTimeout(() => {
+        const replies = [
+          '这是仿iOS风格的界面，有什么建议吗？',
+          '我可以帮你管理应用和设置哦~',
+          '试试更换壁纸或自定义图标吧！',
+          '这个手机模拟器是用纯HTML/CSS/JS制作的',
+          '还有什么想添加的功能吗？'
+        ];
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        const replyHTML = `
+          <div class="msg-row ta">
+            <div class="msg-avatar">栖</div>
+            <div class="msg-col">
+              <div class="msg-bubble-row">
+                <div class="bubble">${reply}</div>
+              </div>
+              <div class="msg-meta-row">${timeStr}</div>
+            </div>
+          </div>
+        `;
+        list.insertAdjacentHTML('beforeend', replyHTML);
+        list.scrollTop = list.scrollHeight;
+      }, 800 + Math.random() * 800);
     }
-  },
 
-  // ============ 壁纸管理 ============
-  pickWallpaper() {
-    document.getElementById('wallpaperInput').click();
-  },
-
-  onWallpaperSelected(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      this.state.settings.wallpaper = ev.target.result;
-      this.applyWallpaper();
-      this.saveState();
-      this.updateSettingsUI();
-      this.showToast('壁纸已更新');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  },
-
-  resetWallpaper() {
-    this.state.settings.wallpaper = '';
-    this.state.settings.wallpaperBlur = 0;
-    this.state.settings.wallpaperBrightness = 100;
-    this.applyWallpaper();
-    this.saveState();
-    this.updateSettingsUI();
-    this.showToast('已恢复默认壁纸');
-  },
-
-  applyWallpaper() {
-    const layer = document.getElementById('homeBgLayer');
-    if (!layer) return;
-
-    if (this.state.settings.wallpaper) {
-      layer.style.backgroundImage = `url(${this.state.settings.wallpaper})`;
-      layer.style.backgroundSize = 'cover';
-      layer.style.backgroundPosition = 'center';
-    } else {
-      layer.style.backgroundImage = '';
+    // ============ 壁纸相关 ============
+    function renderWallpaperGrid() {
+      const grid = document.getElementById('wallpaperGrid');
+      grid.innerHTML = WALLPAPERS.map(wp => `
+        <div class="icon-option ${wp.id === currentWallpaper ? 'selected' : ''}" onclick="setWallpaper('${wp.id}')">
+          <div class="icon-option-preview" style="background: ${wp.gradient}"></div>
+          <div class="icon-option-name">${wp.name}</div>
+        </div>
+      `).join('');
     }
-    
-    layer.style.filter = `blur(${this.state.settings.wallpaperBlur}px) brightness(${this.state.settings.wallpaperBrightness}%)`;
-  },
 
-  updateWallBlur(value) {
-    this.state.settings.wallpaperBlur = parseInt(value);
-    this.applyWallpaper();
-    this.saveState();
-  },
-
-  updateWallBright(value) {
-    this.state.settings.wallpaperBrightness = parseInt(value);
-    this.applyWallpaper();
-    this.saveState();
-  },
-
-  // ============ 个人资料 ============
-  renderProfile() {
-    const nameEl = document.getElementById('profileName');
-    const idEl = document.getElementById('profileId');
-    const bioEl = document.getElementById('profileBio');
-    const locEl = document.getElementById('profileLoc');
-    const avatarText = document.getElementById('profileAvatarText');
-    const avatarImg = document.getElementById('profileAvatarImg');
-
-    if (nameEl) nameEl.textContent = this.state.profile.name;
-    if (idEl) idEl.textContent = `ID: ${this.state.profile.id}`;
-    if (bioEl) bioEl.textContent = this.state.profile.bio;
-    if (locEl) locEl.textContent = this.state.profile.loc;
-
-    if (this.state.profile.avatar) {
-      avatarText.style.display = 'none';
-      avatarImg.style.display = 'block';
-      avatarImg.src = this.state.profile.avatar;
-    } else {
-      avatarText.style.display = 'block';
-      avatarImg.style.display = 'none';
-      avatarText.textContent = this.state.profile.name[0] || '栖';
+    function setWallpaper(id) {
+      currentWallpaper = id;
+      const wp = WALLPAPERS.find(w => w.id === id);
+      const bgLayer = document.getElementById('homeBg');
+      bgLayer.style.background = wp.gradient;
+      document.getElementById('wallpaperValue').textContent = wp.name;
+      renderWallpaperGrid();
+      closeWallpaperModal();
+      showToast('壁纸已更换');
     }
-  },
 
-  saveProfile() {
-    this.state.profile.name = document.getElementById('profileName').textContent.trim() || '栖夜用户';
-    this.state.profile.id = document.getElementById('profileId').textContent.trim().replace('ID:', '').trim() || '000001';
-    this.state.profile.bio = document.getElementById('profileBio').textContent.trim();
-    this.state.profile.loc = document.getElementById('profileLoc').textContent.trim();
-    this.renderProfile();
-    this.saveState();
-  },
-
-  pickAvatar() {
-    document.getElementById('avatarInput').click();
-  },
-
-  onAvatarSelected(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      this.state.profile.avatar = ev.target.result;
-      this.renderProfile();
-      this.saveState();
-      this.showToast('头像已更新');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  },
-
-  // ============ 气泡主题 ============
-  applyBubbleTheme() {
-    document.body.setAttribute('data-bubble', this.state.settings.bubbleTheme);
-  },
-
-  // ============ 数据导入导出 ============
-  exportData() {
-    const dataStr = JSON.stringify(this.state, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `栖夜数据备份_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    this.showToast('数据已导出');
-  },
-
-  importData() {
-    document.getElementById('importInput').click();
-  },
-
-  onImportSelected(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const imported = JSON.parse(ev.target.result);
-        if (confirm('确定要导入数据吗？当前数据将被覆盖！')) {
-          this.state = { ...this.state, ...imported };
-          this.saveState();
-          this.renderAppGrid();
-          this.renderProfile();
-          this.applyWallpaper();
-          this.updateSettingsUI();
-          this.showToast('数据导入成功');
-        }
-      } catch (err) {
-        alert('导入失败：文件格式错误');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  },
-
-  clearAllData() {
-    if (confirm('⚠️ 确定要清除所有数据吗？此操作不可恢复！')) {
-      if (confirm('再次确认：真的要清除所有数据吗？')) {
-        localStorage.removeItem('qiye_state');
-        location.reload();
-      }
+    function setBlur(value) {
+      currentBlur = value;
+      const bgLayer = document.getElementById('homeBg');
+      bgLayer.style.filter = `blur(${value}px)`;
     }
-  },
 
-  // ============ 工具函数 ============
-  showToast(msg) {
-    // 移除已有的toast
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
+    function openWallpaperModal() {
+      document.getElementById('wallpaperModal').classList.add('active');
+    }
 
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = msg;
-    document.body.appendChild(toast);
+    function closeWallpaperModal() {
+      document.getElementById('wallpaperModal').classList.remove('active');
+    }
 
-    // 动画
-    requestAnimationFrame(() => {
+    // ============ 图标自定义 ============
+    function renderIconGrid() {
+      const grid = document.getElementById('iconGrid');
+      const iconNames = Object.keys(ICONS);
+      grid.innerHTML = iconNames.map(icon => `
+        <div class="icon-option" onclick="setCustomIcon('${icon}')">
+          <div class="icon-option-preview" style="background: linear-gradient(135deg, #007AFF 0%, #0062CC 100%);">
+            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: white; stroke-width: 2;">${ICONS[icon]}</svg>
+          </div>
+          <div class="icon-option-name">${icon}</div>
+        </div>
+      `).join('');
+    }
+
+    function setCustomIcon(icon) {
+      // 这里可以扩展为选择具体应用来替换图标
+      showToast('图标已更新：' + icon);
+      closeIconModal();
+    }
+
+    function openIconModal() {
+      document.getElementById('iconModal').classList.add('active');
+    }
+
+    function closeIconModal() {
+      document.getElementById('iconModal').classList.remove('active');
+    }
+
+    // ============ 开关切换 ============
+    function toggleSwitch(el) {
+      el.classList.toggle('on');
+      const isOn = el.classList.contains('on');
+      showToast(isOn ? '已开启' : '已关闭');
+    }
+
+    // ============ Toast提示 ============
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
       toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // ============ 工具函数 ============
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ============ 回车发送 ============
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      
+      document.getElementById('messageInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      
+      document.getElementById('chatInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendChat();
+        }
+      });
     });
-
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 300);
-    }, 2000);
-  }
-};
-
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-  app.init();
-});
-</script>
+  </script>
 </body>
 </html>
