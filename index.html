@@ -2,11 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>栖夜</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;}
+*,*::before,*::after{box-sizing:border-box;touch-action:manipulation;}
 
 :root{
   --bg:#ffffff;
@@ -31,6 +32,7 @@ body{
   -webkit-font-smoothing:antialiased;
   overscroll-behavior:none;
   overflow:hidden;
+  -webkit-text-size-adjust:100%;
 }
 
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0;}
@@ -59,7 +61,7 @@ input,textarea,select{font:inherit;color:inherit;}
 .app-icon{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;}
 .app-icon .ico{
   width:60px;height:60px;border-radius:16px;display:grid;place-items:center;
-  font-size:28px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.14);
+  font-size:22px;color:#fff;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.14);
   transition:transform .12s;
 }
 .app-icon:active .ico{transform:scale(.9);}
@@ -101,7 +103,7 @@ input,textarea,select{font:inherit;color:inherit;}
   color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600;
 }
 .imsg-name{font-size:11.5px;font-weight:600;}
-.imsg-top .icon-btn{margin-left:auto;font-size:18px;color:var(--accent);width:34px;height:34px;display:grid;place-items:center;}
+.imsg-top .icon-btn{margin-left:auto;font-size:16px;color:var(--accent);width:34px;height:34px;display:grid;place-items:center;font-weight:600;}
 
 .imsg-messages{
   flex:1 1 auto;overflow-y:auto;
@@ -124,8 +126,6 @@ input,textarea,select{font:inherit;color:inherit;}
 .msg.me .bubble{background:#0b93f6;color:#fff;border-bottom-right-radius:5px;}
 .msg.them .bubble{background:#e9e9eb;color:#1c1c1e;border-bottom-left-radius:5px;}
 .msg time{margin-top:2px;padding:0 4px;font-size:10.5px;color:#c7c7cc;user-select:none;}
-
-.sticker-img{max-width:140px;max-height:140px;border-radius:12px;display:block;background:var(--bg-3);}
 
 .letter-card{
   padding:12px 14px;border-radius:14px;
@@ -166,19 +166,18 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 #sendBtn:disabled{opacity:.3;cursor:not-allowed;}
 
-/* 表情面板 */
-.sticker-panel{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px;
-  max-height:200px;overflow-y:auto;padding:10px 12px;
-  border-bottom:1px solid var(--line);background:#fafafa;
+/* 功能面板 */
+.func-panel{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  padding:12px;border-bottom:1px solid var(--line);background:#fafafa;
 }
-.sticker-panel[hidden]{display:none;}
-.sticker-item{
-  aspect-ratio:1;display:grid;place-items:center;border-radius:10px;
-  font-size:23px;padding:0;transition:background .12s;
+.func-panel[hidden]{display:none;}
+.func-btn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 4px;border-radius:12px;background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:11px;color:#333;
 }
-.sticker-item:hover{background:var(--bg-3);}
-.sticker-item img{width:100%;height:100%;object-fit:contain;border-radius:10px;}
+.func-btn .fi{font-size:20px;}
 
 /* ============================================================
    微信
@@ -198,11 +197,11 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 .wx-tabbar button{padding:8px 0 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:#7a7a7a;}
 .wx-tabbar button.active{color:#07c160;}
-.wx-tabbar .ti{font-size:20px;line-height:1;}
+.wx-tabbar .ti{font-size:16px;line-height:1;font-weight:600;}
 
 .wx-chat-item{display:flex;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid #f0f0f0;align-items:center;cursor:pointer;}
 .wx-chat-item:active{background:#f2f2f2;}
-.wx-avatar{width:46px;height:46px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:18px;font-weight:600;flex:0 0 auto;}
+.wx-avatar{width:46px;height:46px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:600;flex:0 0 auto;}
 .wx-info{flex:1 1 auto;min-width:0;}
 .wx-name{font-size:16px;font-weight:500;color:#1a1a1a;}
 .wx-preview{font-size:13px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
@@ -211,14 +210,13 @@ input,textarea,select{font:inherit;color:inherit;}
 
 .wx-cell{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-bottom:1px solid #f0f0f0;font-size:16px;cursor:pointer;}
 .wx-cell:active{background:#f2f2f2;}
-.wx-cell .ci{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:14px;}
+.wx-cell .ci{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:600;}
 .wx-cell .arrow{margin-left:auto;color:#c8c8cd;font-size:16px;}
 
-/* 微信聊天 */
 .wx-chat-body{flex:1 1 auto;overflow-y:auto;background:#EDEDED;padding:14px 12px;-webkit-overflow-scrolling:touch;}
 .wx-msg{display:flex;gap:8px;margin-bottom:14px;align-items:flex-start;}
 .wx-msg.me{flex-direction:row-reverse;}
-.wx-msg .av{width:36px;height:36px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:600;flex:0 0 auto;}
+.wx-msg .av{width:36px;height:36px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:600;flex:0 0 auto;}
 .wx-msg .bb{max-width:66%;padding:9px 12px;border-radius:6px;background:#fff;font-size:15px;line-height:1.45;word-break:break-word;}
 .wx-msg.me .bb{background:#95EC69;color:#111;}
 .wx-composer{
@@ -240,12 +238,12 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 .moments-cover .mc-av{
   position:absolute;right:16px;bottom:-24px;width:52px;height:52px;border-radius:8px;
-  background:#fff;display:grid;place-items:center;font-size:20px;color:#0b93f6;
+  background:#fff;display:grid;place-items:center;font-size:18px;color:#0b93f6;font-weight:600;
   border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 .moments-body{flex:1 1 auto;overflow-y:auto;background:#fff;}
 .moment{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid #f2f2f2;}
-.moment .av{width:40px;height:40px;border-radius:5px;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:600;}
+.moment .av{width:40px;height:40px;border-radius:5px;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:600;}
 .moment .ct{flex:1 1 auto;min-width:0;}
 .moment .nm{color:#576b95;font-size:15px;font-weight:500;margin-bottom:4px;}
 .moment .tx{font-size:15px;line-height:1.5;margin-bottom:8px;word-break:break-word;color:#1a1a1a;}
@@ -255,7 +253,7 @@ input,textarea,select{font:inherit;color:inherit;}
 .moment .likes{background:#f7f7f7;border-radius:4px;padding:6px 8px;font-size:13px;color:#576b95;margin-top:6px;}
 
 /* ============================================================
-   音乐（网易云）
+   音乐
    ============================================================ */
 .net-top{
   flex:0 0 auto;background:linear-gradient(180deg,#e60026,#c20c0c);color:#fff;
@@ -312,22 +310,17 @@ input,textarea,select{font:inherit;color:inherit;}
 .set-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f2f2f4;cursor:pointer;min-height:50px;}
 .set-item:last-child{border-bottom:none;}
 .set-item:active{background:#f5f5f7;}
-.set-item .si{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:15px;flex:0 0 auto;}
+.set-item .si{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:600;flex:0 0 auto;}
 .set-item .st{flex:1 1 auto;font-size:16px;color:#1c1c1e;}
 .set-item .sv{color:#8e8e93;font-size:15px;max-width:52%;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .set-item .arrow{color:#c8c8cd;font-size:17px;margin-left:2px;}
 .set-title{font-size:13px;color:#8e8e93;margin:0 4px 8px;}
-.sv-input{
-  flex:1 1 auto;text-align:right;border:none;background:transparent;outline:none;color:#8e8e93;font-size:15px;
-  min-width:0;
-}
 .sv-textarea{
   width:100%;min-height:80px;padding:10px;border:1px solid var(--line);border-radius:10px;
   background:#fff;outline:none;resize:vertical;line-height:1.5;
 }
 .sv-textarea:focus{border-color:var(--accent);}
 
-.sec-head{font-size:13px;color:#8e8e93;margin:18px 4px 8px;}
 .switch{position:relative;display:inline-block;width:42px;height:24px;flex:0 0 auto;}
 .switch input{opacity:0;width:0;height:0;position:absolute;}
 .switch span{position:absolute;inset:0;background:#e5e5ea;border-radius:24px;transition:background .2s;cursor:pointer;}
@@ -344,7 +337,6 @@ input,textarea,select{font:inherit;color:inherit;}
 .btn.primary:hover{background:var(--accent-hover);}
 .btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
 .btn.block{width:100%;}
-.btn.green{background:var(--wechat);color:#fff;}
 
 .rule{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;}
 .rule-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
@@ -367,26 +359,6 @@ input,textarea,select{font:inherit;color:inherit;}
 .stat-row span:last-child{color:var(--muted);}
 
 .empty-hint{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
-
-/* ============================================================
-   美化
-   ============================================================ */
-.wp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.wp-item{
-  aspect-ratio:9/16;border-radius:12px;border:2px solid transparent;
-  display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;
-  font-size:12px;color:#555;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);
-  transition:border-color .15s;
-}
-.wp-item.active{border-color:#0b93f6;}
-.wp-item.dark{color:#fff;}
-
-.accent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
-.accent-dot{
-  aspect-ratio:1;border-radius:50%;border:3px solid transparent;
-  transition:border-color .15s,transform .12s;
-}
-.accent-dot.active{border-color:#1c1c1e;transform:scale(1.06);}
 
 /* ============================================================
    字卡库
@@ -458,8 +430,31 @@ input,textarea,select{font:inherit;color:inherit;}
 .letter-list .rule{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);border:none;}
 
 /* 通用 icon-btn */
-.icon-btn{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--muted);}
+.icon-btn{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:16px;color:var(--muted);font-weight:600;}
 .icon-btn:hover{background:var(--bg-3);}
+
+/* 功能弹窗 */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.modal-mask[hidden]{display:none;}
+.modal-box{
+  background:#fff;border-radius:16px;width:100%;max-width:340px;padding:20px;
+  box-shadow:0 10px 40px rgba(0,0,0,.2);
+}
+.modal-box h3{margin:0 0 12px;font-size:16px;text-align:center;}
+.modal-box input,.modal-box textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;outline:none;
+  margin-bottom:12px;font-size:14px;
+}
+.modal-box input:focus,.modal-box textarea:focus{border-color:var(--accent);}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;padding:10px;border-radius:9px;font-size:14px;font-weight:500;}
+.modal-actions .cancel{background:#f2f2f4;color:#333;}
+.modal-actions .ok{background:var(--accent);color:#fff;}
+.modal-actions .ok.green{background:var(--wechat);}
+.modal-actions .ok.red{background:var(--danger);}
 </style>
 </head>
 <body>
@@ -485,15 +480,21 @@ input,textarea,select{font:inherit;color:inherit;}
       <div class="imsg-avatar" id="peerAvatar">梦</div>
       <div class="imsg-name" id="peerName">梦</div>
     </div>
-    <button class="icon-btn" id="openSettingsFromMsg" type="button" title="设置">ⓘ</button>
+    <button class="icon-btn" id="imsgMenuBtn" type="button" title="更多">···</button>
   </header>
 
   <main id="messages" class="imsg-messages"></main>
 
   <div class="imsg-composer">
-    <div class="sticker-panel" id="stickerPanel" hidden></div>
+    <div class="func-panel" id="imsgFuncPanel" hidden>
+      <button class="func-btn" data-func="survey" type="button"><span class="fi">问卷</span>问卷</button>
+      <button class="func-btn" data-func="photo" type="button"><span class="fi">照片</span>照片</button>
+      <button class="func-btn" data-func="choose" type="button"><span class="fi">择决</span>择决</button>
+      <button class="func-btn" data-func="call" type="button"><span class="fi">电话</span>电话</button>
+      <button class="func-btn" data-func="shoot" type="button"><span class="fi">拍摄</span>拍摄</button>
+    </div>
     <form class="imsg-form" id="composer" autocomplete="off">
-      <button type="button" class="imsg-plus" id="toggleStickers" aria-label="表情">＋</button>
+      <button type="button" class="imsg-plus" id="imsgPlusBtn" aria-label="功能">＋</button>
       <textarea id="input" rows="1" placeholder="iMessage" enterkeyhint="send" autocomplete="off"></textarea>
       <button type="submit" id="sendBtn" disabled aria-label="发送">↑</button>
     </form>
@@ -508,10 +509,10 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
   <div class="wx-body" id="wxBody"></div>
   <div class="wx-tabbar">
-    <button type="button" data-wxtab="chats" class="active"><span class="ti">💬</span>微信</button>
-    <button type="button" data-wxtab="contacts"><span class="ti">👥</span>通讯录</button>
-    <button type="button" data-wxtab="discover"><span class="ti">🧭</span>发现</button>
-    <button type="button" data-wxtab="me"><span class="ti">👤</span>我</button>
+    <button type="button" data-wxtab="chats" class="active"><span class="ti">聊</span>微信</button>
+    <button type="button" data-wxtab="contacts"><span class="ti">联</span>通讯录</button>
+    <button type="button" data-wxtab="discover"><span class="ti">现</span>发现</button>
+    <button type="button" data-wxtab="me"><span class="ti">我</span>我</button>
   </div>
 </div>
 
@@ -523,6 +524,7 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
   <div class="wx-chat-body" id="wxChatBody"></div>
   <div class="wx-composer">
+    <button type="button" class="wx-send" id="wxPlusBtn" style="background:#f2f2f4;color:#333;padding:8px 12px;">＋</button>
     <textarea id="wxChatInput" rows="1" placeholder=""></textarea>
     <button class="wx-send" id="wxChatSend" type="button" disabled>发送</button>
   </div>
@@ -544,7 +546,7 @@ input,textarea,select{font:inherit;color:inherit;}
 <div id="app-music" class="screen" hidden>
   <div class="net-top">
     <button class="back" data-back type="button">‹</button>
-    <h1>网易云音乐</h1>
+    <h1>音乐</h1>
   </div>
   <div class="net-body">
     <div class="net-banner"><div><b>每日推荐</b><span>根据你的口味生成</span></div></div>
@@ -557,7 +559,7 @@ input,textarea,select{font:inherit;color:inherit;}
     <div class="pthumb"></div>
     <div class="pinfo">
       <div class="pt" id="playerTitle">未在播放</div>
-      <div class="pa" id="playerArtist">网易云音乐</div>
+      <div class="pa" id="playerArtist">音乐</div>
     </div>
     <button class="pbtn" id="playerPlay" type="button">▶</button>
   </div>
@@ -581,20 +583,6 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
 </div>
 
-<!-- ===================== 美化 ===================== -->
-<div id="app-beautify" class="screen" hidden>
-  <div class="set-top">
-    <button class="back" data-back type="button">‹</button>
-    <h1>美化</h1>
-  </div>
-  <div class="set-body">
-    <p class="set-title">壁纸</p>
-    <div class="wp-grid" id="wallpaperGrid"></div>
-    <p class="set-title" style="margin-top:22px;">强调色</p>
-    <div class="accent-grid" id="accentGrid"></div>
-  </div>
-</div>
-
 <!-- ===================== 字卡库 ===================== -->
 <div id="app-cards" class="screen" hidden>
   <div class="set-top">
@@ -603,7 +591,7 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
   <div class="set-body">
     <div class="form-panel">
-      <label>文字内容</label>
+      <label>文字内容（对方会从字卡库中挑选回复）</label>
       <textarea id="cardText" placeholder="写点什么…"></textarea>
       <label>颜色</label>
       <div class="color-row" id="cardColors"></div>
@@ -680,6 +668,11 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
 </div>
 
+<!-- ===================== 通用弹窗 ===================== -->
+<div id="modalMask" class="modal-mask" hidden>
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
 <script>
 (() => {
   'use strict';
@@ -687,8 +680,8 @@ input,textarea,select{font:inherit;color:inherit;}
   /* ============================================================
      常量
      ============================================================ */
-  const DB_NAME = 'private-chat';
-  const DB_VERSION = 2;
+  const DB_NAME = 'qiyе';
+  const DB_VERSION = 3;
   const PAGE_SIZE = 60;
 
   const DEFAULT_SETTINGS = {
@@ -702,25 +695,22 @@ input,textarea,select{font:inherit;color:inherit;}
     wallpaper: 'white',
     accent: '#0b93f6',
     periodCycle: 28,
+    blockedByMe: false,
+    blockedByThem: false,
+    wxFriendAdded: false,
+    bgKeepAlive: false,
+    notificationsEnabled: false,
   };
 
-  const BUILTIN_EMOJI = [
-    '😀','😄','😁','😊','🙂','😉','😍','😘','😜','🤔',
-    '😅','😢','😭','😡','🥺','😴','🤗','🙃','😎','🤩',
-    '👋','👍','👎','🙏','💪','❤️','💔','🎉','🔥','✨',
-    '🌙','☀️','🍀','🌸','⭐','💤','😳','😇','🤝','👏'
-  ];
-
   const APPS = [
-    { id:'messages',  name:'信息',   icon:'💬', bg:'linear-gradient(135deg,#34c759,#30d158)' },
-    { id:'wechat',    name:'微信',   icon:'💚', bg:'linear-gradient(135deg,#07c160,#10d56a)' },
-    { id:'music',     name:'音乐',   icon:'🎵', bg:'linear-gradient(135deg,#e60026,#c20c0c)' },
-    { id:'settings',  name:'设置',   icon:'⚙️', bg:'linear-gradient(135deg,#8e8e93,#a1a1a6)' },
-    { id:'beautify',  name:'美化',   icon:'🎨', bg:'linear-gradient(135deg,#ff2d55,#ff6482)' },
-    { id:'cards',     name:'字卡库', icon:'📝', bg:'linear-gradient(135deg,#ff9500,#ffb340)' },
-    { id:'period',    name:'经期',   icon:'🌸', bg:'linear-gradient(135deg,#ff6b9d,#ff9ec4)' },
-    { id:'countdown', name:'倒数日', icon:'⏳', bg:'linear-gradient(135deg,#5856d6,#7a78ff)' },
-    { id:'mailbox',   name:'信箱',   icon:'📮', bg:'linear-gradient(135deg,#af52de,#c77dff)' },
+    { id:'messages',  name:'信息',   icon:'信', bg:'linear-gradient(135deg,#34c759,#30d158)' },
+    { id:'wechat',    name:'微信',   icon:'微', bg:'linear-gradient(135deg,#07c160,#10d56a)' },
+    { id:'music',     name:'音乐',   icon:'乐', bg:'linear-gradient(135deg,#e60026,#c20c0c)' },
+    { id:'settings',  name:'设置',   icon:'设', bg:'linear-gradient(135deg,#8e8e93,#a1a1a6)' },
+    { id:'cards',     name:'字卡库', icon:'字', bg:'linear-gradient(135deg,#ff9500,#ffb340)' },
+    { id:'period',    name:'经期',   icon:'期', bg:'linear-gradient(135deg,#ff6b9d,#ff9ec4)' },
+    { id:'countdown', name:'倒数日', icon:'日', bg:'linear-gradient(135deg,#5856d6,#7a78ff)' },
+    { id:'mailbox',   name:'信箱',   icon:'箱', bg:'linear-gradient(135deg,#af52de,#c77dff)' },
   ];
 
   const DOCK_APPS = ['messages','wechat','music','settings'];
@@ -752,9 +742,9 @@ input,textarea,select{font:inherit;color:inherit;}
   ];
 
   const WX_CHATS = [
-    { name:'梦',         av:'梦', color:'#07c160', preview:'今天也要开心呀 🌙', time:'刚刚',   badge:2 },
+    { name:'梦',         av:'梦', color:'#07c160', preview:'今天也要开心呀', time:'刚刚',   badge:2 },
     { name:'家人群',     av:'家', color:'#ff9500', preview:'[图片]',              time:'上午 9:20' },
-    { name:'文件传输助手', av:'📁', color:'#4f8cff', preview:'栖夜-备份.json',    time:'昨天' },
+    { name:'文件传输助手', av:'文', color:'#4f8cff', preview:'栖夜-备份.json',    time:'昨天' },
     { name:'林',         av:'林', color:'#af52de', preview:'在吗？',              time:'星期一' },
   ];
 
@@ -799,12 +789,13 @@ input,textarea,select{font:inherit;color:inherit;}
           s.createIndex('ts', 'ts');
         }
         if (!d.objectStoreNames.contains('autoreply')) d.createObjectStore('autoreply', { keyPath: 'id', autoIncrement: true });
-        if (!d.objectStoreNames.contains('stickers'))  d.createObjectStore('stickers',  { keyPath: 'id', autoIncrement: true });
         if (!d.objectStoreNames.contains('letters'))   d.createObjectStore('letters',   { keyPath: 'id', autoIncrement: true });
         if (!d.objectStoreNames.contains('settings'))  d.createObjectStore('settings',  { keyPath: 'key' });
         if (!d.objectStoreNames.contains('cards'))     d.createObjectStore('cards',     { keyPath: 'id', autoIncrement: true });
         if (!d.objectStoreNames.contains('periods'))   d.createObjectStore('periods',   { keyPath: 'id', autoIncrement: true });
         if (!d.objectStoreNames.contains('countdowns')) d.createObjectStore('countdowns', { keyPath: 'id', autoIncrement: true });
+        if (!d.objectStoreNames.contains('wxMessages')) d.createObjectStore('wxMessages', { keyPath: 'id', autoIncrement: true });
+        if (!d.objectStoreNames.contains('wxFriends')) d.createObjectStore('wxFriends', { keyPath: 'id', autoIncrement: true });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror   = () => reject(req.error);
@@ -977,7 +968,6 @@ input,textarea,select{font:inherit;color:inherit;}
       case 'wechat':    renderWxTab(wxTab); break;
       case 'music':     renderMusic(); break;
       case 'settings':  showSetMain(); break;
-      case 'beautify':  renderBeautify(); break;
       case 'cards':     renderCards(); break;
       case 'period':    renderPeriod(); break;
       case 'countdown': renderCountdown(); break;
@@ -992,7 +982,7 @@ input,textarea,select{font:inherit;color:inherit;}
   const composerEl   = $('#composer');
   const inputEl      = $('#input');
   const sendBtn      = $('#sendBtn');
-  const stickerPanel = $('#stickerPanel');
+  const imsgFuncPanel = $('#imsgFuncPanel');
 
   const state = { oldestId:null, hasMore:true, loading:false, typingEl:null, replyBusy:false };
 
@@ -1001,24 +991,25 @@ input,textarea,select{font:inherit;color:inherit;}
     el.className = 'msg ' + (m.role === 'me' ? 'me' : 'them');
     el.dataset.id = m.id;
 
-    if (m.type === 'sticker') {
-      const img = document.createElement('img');
-      img.className = 'sticker-img';
-      img.src = m.text;
-      img.alt = '表情';
-      img.loading = 'lazy';
-      el.appendChild(img);
-    } else if (m.type === 'letter') {
+    if (m.type === 'letter') {
       const card = document.createElement('div');
       card.className = 'letter-card';
       const title = document.createElement('div');
       title.className = 'letter-title';
-      title.textContent = '📮 ' + (m.title || '一封信');
+      title.textContent = '信箱 · ' + (m.title || '一封信');
       const body = document.createElement('div');
       body.className = 'letter-body';
       body.textContent = m.text;
       card.append(title, body);
       el.appendChild(card);
+    } else if (m.type === 'system') {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.style.background = '#f2f2f4';
+      bubble.style.color = '#8e8e93';
+      bubble.style.fontSize = '12px';
+      bubble.textContent = m.text;
+      el.appendChild(bubble);
     } else {
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
@@ -1096,6 +1087,8 @@ input,textarea,select{font:inherit;color:inherit;}
     e.preventDefault();
     const text = inputEl.value.trim();
     if (!text) return;
+    if (settings.blockedByMe) { alert('你已拉黑对方，无法发送消息'); return; }
+    if (settings.blockedByThem) { alert('对方已拉黑你'); return; }
     inputEl.value = '';
     autoGrow();
     refreshSendBtn();
@@ -1105,22 +1098,30 @@ input,textarea,select{font:inherit;color:inherit;}
     maybeAutoReply(text);
   });
 
-  /* --- 自动回复 --- */
-  function matchRule(rule, text) {
-    const kws = String(rule.keyword || '').split('|').map(s => s.trim()).filter(Boolean);
-    if (!kws.length) return false;
-    const lower = text.toLowerCase();
-    for (const kw of kws) {
-      const k = kw.toLowerCase();
-      if (rule.mode === 'exact') {
-        if (lower === k) return true;
-      } else if (rule.mode === 'regex') {
-        try { if (new RegExp(kw, 'i').test(text)) return true; } catch {}
-      } else {
-        if (lower.includes(k)) return true;
-      }
-    }
-    return false;
+  /* --- 功能面板 --- */
+  $('#imsgPlusBtn').addEventListener('click', () => {
+    imsgFuncPanel.hidden = !imsgFuncPanel.hidden;
+  });
+
+  imsgFuncPanel.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-func]');
+    if (!btn) return;
+    imsgFuncPanel.hidden = true;
+    const func = btn.dataset.func;
+    if (func === 'survey') await openSurveyModal('imsg');
+    else if (func === 'photo') await openPhotoModal('imsg');
+    else if (func === 'choose') await openChooseModal('imsg');
+    else if (func === 'call') await openCallModal('imsg');
+    else if (func === 'shoot') await openShootModal('imsg');
+  });
+
+  /* --- 自动回复（从字卡库挑选） --- */
+  async function getReply(text) {
+    if (settings.blockedByThem) return null;
+    if (!settings.autoReplyEnabled) return null;
+    const cards = await pr(os('cards').getAll());
+    if (cards.length) return pickOne(cards).text;
+    return null;
   }
 
   function showTyping() {
@@ -1136,24 +1137,7 @@ input,textarea,select{font:inherit;color:inherit;}
     if (state.typingEl) { state.typingEl.remove(); state.typingEl = null; }
   }
 
-  async function getReply(text) {
-    const rules = await pr(os('autoreply').getAll());
-    for (const rule of rules) {
-      if (rule.enabled === false) continue;
-      if (matchRule(rule, text)) {
-        const r = pickOne(rule.replies);
-        if (r) return r;
-      }
-    }
-    if (settings.fallback) {
-      const lines = settings.fallback.split('\n').map(s => s.trim()).filter(Boolean);
-      if (lines.length) return pickOne(lines);
-    }
-    return null;
-  }
-
   async function maybeAutoReply(userText) {
-    if (!settings.autoReplyEnabled) return;
     if (state.replyBusy) return;
     const reply = await getReply(userText);
     if (!reply) return;
@@ -1168,6 +1152,7 @@ input,textarea,select{font:inherit;color:inherit;}
       hideTyping();
       const m = await addMessage({ role:'them', type:'text', text: reply, ts: Date.now() });
       appendMessageEl(m);
+      notify('新消息', reply);
     } finally {
       state.replyBusy = false;
       hideTyping();
@@ -1175,574 +1160,170 @@ input,textarea,select{font:inherit;color:inherit;}
   }
 
   /* ============================================================
-     表情
+     通知
      ============================================================ */
-  function makeStickerImg(src, alt) {
-    const img = document.createElement('img');
-    img.src = src; img.alt = alt || '表情';
-    return img;
-  }
-
-  async function renderStickers() {
-    const stickers = await pr(os('stickers').getAll());
-
-    /* 设置子页列表 */
-    const listEl = $('#stickerList');
-    if (listEl) {
-      listEl.replaceChildren();
-      if (!stickers.length) {
-        const d = document.createElement('p');
-        d.className = 'empty-hint';
-        d.style.gridColumn = '1 / -1';
-        d.textContent = '还没有自定义表情。';
-        listEl.appendChild(d);
-      } else {
-        for (const s of stickers) {
-          const item = document.createElement('div');
-          item.className = 'sticker-item';
-          item.style.position = 'relative';
-          item.appendChild(makeStickerImg(s.data, s.name));
-          const del = document.createElement('button');
-          del.type = 'button';
-          del.textContent = '×';
-          del.style.cssText = 'position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:var(--danger);color:#fff;font-size:13px;line-height:1;display:grid;place-items:center;padding:0;';
-          del.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await pr(os('stickers', 'readwrite').delete(s.id));
-            renderStickers();
-          });
-          item.append(del);
-          listEl.appendChild(item);
-        }
-      }
-    }
-
-    /* 内置表情列表 */
-    const builtinEl = $('#builtinList');
-    if (builtinEl) {
-      builtinEl.replaceChildren();
-      for (const e of BUILTIN_EMOJI) {
-        const item = document.createElement('div');
-        item.className = 'sticker-item';
-        item.textContent = e;
-        builtinEl.appendChild(item);
-      }
-    }
-
-    /* 聊天表情面板 */
-    stickerPanel.replaceChildren();
-    for (const s of stickers) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'sticker-item';
-      btn.appendChild(makeStickerImg(s.data, s.name));
-      btn.addEventListener('click', async () => {
-        stickerPanel.hidden = true;
-        const m = await addMessage({ role:'me', type:'sticker', text: s.data, ts: Date.now() });
-        appendMessageEl(m);
-      });
-      stickerPanel.appendChild(btn);
-    }
-    for (const e of BUILTIN_EMOJI) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'sticker-item';
-      btn.textContent = e;
-      btn.addEventListener('click', () => {
-        inputEl.value += e;
-        autoGrow(); refreshSendBtn(); inputEl.focus();
-      });
-      stickerPanel.appendChild(btn);
+  function notify(title, body) {
+    if (!settings.notificationsEnabled) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body, tag: 'qiyе' });
     }
   }
 
-  $('#toggleStickers').addEventListener('click', () => {
-    stickerPanel.hidden = !stickerPanel.hidden;
-    if (!stickerPanel.hidden) inputEl.blur();
-  });
-
-  $('#openSettingsFromMsg').addEventListener('click', () => {
-    openApp('settings');
-    setTimeout(() => openDetail('对话设置', buildChatSettings), 0);
-  });
-
-  /* ============================================================
-     信件
-     ============================================================ */
-  async function renderLetters() {
-    const letters = await pr(os('letters').getAll());
-    letters.sort((a, b) => a.openAt - b.openAt);
-    const listEl = $('#letterList');
-    listEl.replaceChildren();
-
-    if (!letters.length) {
-      const d = document.createElement('p');
-      d.className = 'empty-hint';
-      d.textContent = '还没有信件。';
-      listEl.appendChild(d);
-      return;
+  async function requestNotificationPermission() {
+    if (!('Notification' in window)) { alert('当前浏览器不支持通知'); return; }
+    const p = await Notification.requestPermission();
+    settings.notificationsEnabled = p === 'granted';
+    await saveSettings();
+    if (settings.notificationsEnabled) {
+      new Notification('栖夜', { body: '通知已开启' });
     }
-
-    const now = Date.now();
-    for (const l of letters) {
-      const el = document.createElement('div');
-      el.className = 'rule';
-
-      const title = document.createElement('div');
-      title.style.cssText = 'font-weight:600;font-size:15px;margin-bottom:4px;color:#1c1c1e;';
-      title.textContent = (l.opened ? '📭 ' : '📮 ') + (l.title || '无标题');
-
-      const meta = document.createElement('div');
-      meta.style.cssText = 'font-size:12px;color:var(--muted);margin-bottom:10px;';
-      const openDate = new Date(l.openAt);
-      if (l.opened) {
-        meta.textContent = '已于 ' + fmtFull(openDate) + ' 拆开';
-      } else if (l.openAt > now) {
-        meta.textContent = '将于 ' + fmtFull(openDate) + ' 开启 · 还有 ' + countdown(l.openAt - now);
-      } else {
-        meta.textContent = '已到期，可以拆开了';
-      }
-
-      const parts = [title, meta];
-
-      if (l.opened) {
-        const body = document.createElement('div');
-        body.style.cssText = 'font-size:13px;white-space:pre-wrap;margin-bottom:10px;padding:10px;background:#f7f7f8;border-radius:8px;line-height:1.7;color:#333;';
-        body.textContent = l.content;
-        parts.push(body);
-      }
-
-      const actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
-
-      if (!l.opened && l.openAt <= now) {
-        const openBtn = document.createElement('button');
-        openBtn.type = 'button';
-        openBtn.className = 'btn primary';
-        openBtn.textContent = '拆开';
-        openBtn.addEventListener('click', () => openLetter(l));
-        actions.appendChild(openBtn);
-      }
-
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'btn danger';
-      delBtn.textContent = '删除';
-      delBtn.addEventListener('click', async () => {
-        if (!confirm('确定删除这封信？')) return;
-        await pr(os('letters', 'readwrite').delete(l.id));
-        renderLetters();
-      });
-      actions.appendChild(delBtn);
-
-      parts.push(actions);
-      el.append(...parts);
-      listEl.appendChild(el);
-    }
-  }
-
-  async function openLetter(l) {
-    l.opened = true;
-    await pr(os('letters', 'readwrite').put(l));
-    const m = await addMessage({ role:'them', type:'letter', title: l.title, text: l.content, ts: Date.now() });
-
-    /* 回到信息页 */
-    stack.length = 0; stack.push('home', 'app-messages');
-    showScreen('app-messages');
-    appendMessageEl(m);
-    scrollToBottom(true);
-    renderLetters();
-  }
-
-  $('#addLetter').addEventListener('click', async () => {
-    const title    = $('#letterTitle').value.trim();
-    const content  = $('#letterContent').value.trim();
-    const openAtStr = $('#letterOpenAt').value;
-
-    if (!content) { alert('请填写信件内容'); return; }
-    if (!openAtStr) { alert('请选择开启时间'); return; }
-
-    const openAt = new Date(openAtStr).getTime();
-    if (!Number.isFinite(openAt)) { alert('开启时间格式不正确'); return; }
-    if (openAt <= Date.now()) { alert('开启时间需要晚于当前时间'); return; }
-
-    await pr(os('letters', 'readwrite').add({
-      title, content, openAt, createdAt: Date.now(), opened: false,
-    }));
-
-    $('#letterTitle').value = '';
-    $('#letterContent').value = '';
-    resetLetterTime();
-    await renderLetters();
-    alert('信件已封存');
-  });
-
-  function resetLetterTime() {
-    const t = new Date(Date.now() + 86400000);
-    const local = new Date(t.getTime() - t.getTimezoneOffset() * 60000);
-    $('#letterOpenAt').value = local.toISOString().slice(0, 16);
+    alert(settings.notificationsEnabled ? '通知已开启' : '通知未授权');
   }
 
   /* ============================================================
-     设置主页面
+     通用弹窗
      ============================================================ */
-  function showSetMain() {
-    $('#setMain').hidden = false;
-    $('#setDetail').hidden = true;
-    renderSetMain();
+  const modalMask = $('#modalMask');
+  const modalBox = $('#modalBox');
+
+  function showModal(html, onOk, okText = '确定', okClass = '') {
+    modalBox.innerHTML = html + `
+      <div class="modal-actions">
+        <button class="cancel" id="modalCancel" type="button">取消</button>
+        <button class="ok ${okClass}" id="modalOk" type="button">${okText}</button>
+      </div>
+    `;
+    modalMask.hidden = false;
+    return new Promise((resolve) => {
+      const close = (v) => { modalMask.hidden = true; resolve(v); };
+      $('#modalCancel').addEventListener('click', () => close(null));
+      $('#modalOk').addEventListener('click', () => {
+        const ok = modalBox.querySelector('#modalOk');
+        if (onOk) { const r = onOk(ok); if (r === false) return; }
+        close(true);
+      });
+    });
   }
 
-  function renderSetMain() {
-    const body = $('#setMainBody');
-    body.replaceChildren();
-
-    const groups = [
-      { title:'对话', items:[
-        { icon:'💬', bg:'linear-gradient(135deg,#34c759,#30d158)', name:'对话设置', value: settings.peerName, act:() => openDetail('对话设置', buildChatSettings) },
-        { icon:'😊', bg:'linear-gradient(135deg,#ff9500,#ffb340)', name:'表情包',  value:'', act:() => openDetail('表情包', buildStickerSettings) },
-        { icon:'📮', bg:'linear-gradient(135deg,#af52de,#c77dff)', name:'信件',    value:'', act:() => { back(); openApp('mailbox'); } },
-      ]},
-      { title:'通用', items:[
-        { icon:'🎨', bg:'linear-gradient(135deg,#ff2d55,#ff6482)', name:'美化',    value:'', act:() => { back(); openApp('beautify'); } },
-        { icon:'💾', bg:'linear-gradient(135deg,#0b93f6,#5ac8fa)', name:'存储',    value:'', act:() => openDetail('存储', buildStorageSettings) },
-      ]},
-      { title:'关于', items:[
-        { icon:'🌙', bg:'linear-gradient(135deg,#5856d6,#7a78ff)', name:'栖夜',    value:'v1.0', act:() => alert('栖夜 · 只保存在这台设备上') },
-      ]},
-    ];
-
-    for (const g of groups) {
-      const t = document.createElement('p');
-      t.className = 'set-title';
-      t.textContent = g.title;
-      body.appendChild(t);
-
-      const group = document.createElement('div');
-      group.className = 'set-group';
-      for (const item of g.items) {
-        const row = document.createElement('div');
-        row.className = 'set-item';
-        row.innerHTML =
-          `<span class="si" style="background:${item.bg}">${item.icon}</span>` +
-          `<span class="st">${esc(item.name)}</span>` +
-          (item.value ? `<span class="sv">${esc(item.value)}</span>` : '') +
-          `<span class="arrow">›</span>`;
-        row.addEventListener('click', item.act);
-        group.appendChild(row);
-      }
-      body.appendChild(group);
-    }
-  }
-
-  function openDetail(title, builder) {
-    $('#setDetailTitle').textContent = title;
-    const body = $('#setDetailBody');
-    body.replaceChildren();
-    builder(body);
-    $('#setMain').hidden = true;
-    $('#setDetail').hidden = false;
-    $('#setDetailBody').scrollTop = 0;
-  }
-
-  $('#setDetailBack').addEventListener('click', () => {
-    $('#setDetail').hidden = true;
-    $('#setMain').hidden = false;
-    renderSetMain();
+  modalMask.addEventListener('click', (e) => {
+    if (e.target === modalMask) { modalMask.hidden = true; }
   });
 
-  /* --- 对话设置子页 --- */
-  function buildChatSettings(body) {
-    body.innerHTML = `
-      <p class="set-title">名称</p>
-      <div class="set-group">
-        <div class="set-item"><span class="st">我的名字</span><input class="sv-input" id="setMyName" maxlength="20" value="${esc(settings.myName)}"></div>
-        <div class="set-item"><span class="st">对方名字</span><input class="sv-input" id="setPeerName" maxlength="20" value="${esc(settings.peerName)}"></div>
-        <div class="set-item"><span class="st">对方头像字</span><input class="sv-input" id="setPeerAvatar" maxlength="2" value="${esc(settings.peerAvatar)}"></div>
-      </div>
-
-      <p class="set-title">自动回复</p>
-      <div class="set-group">
-        <div class="set-item">
-          <span class="st">启用自动回复</span>
-          <label class="switch"><input type="checkbox" id="setArEnabled" ${settings.autoReplyEnabled ? 'checked' : ''}><span></span></label>
-        </div>
-        <div class="set-item"><span class="st">延迟最小值（毫秒）</span><input class="sv-input" type="number" id="setArMin" value="${settings.delayMin}"></div>
-        <div class="set-item"><span class="st">延迟最大值（毫秒）</span><input class="sv-input" type="number" id="setArMax" value="${settings.delayMax}"></div>
-      </div>
-
-      <p class="set-title">兜底回复（没有规则命中时使用，每行一条）</p>
-      <div class="set-group" style="padding:12px 16px;">
-        <textarea class="sv-textarea" id="setFallback" placeholder="嗯…&#10;我在听。">${esc(settings.fallback)}</textarea>
-      </div>
-
-      <p class="set-title">回复规则</p>
-      <div id="setRuleList"></div>
-      <button class="btn primary block" id="setAddRule" type="button" style="margin-top:4px;">+ 新增规则</button>
-    `;
-
-    $('#setMyName').addEventListener('change', (e) => {
-      settings.myName = e.target.value.trim() || '我';
-      e.target.value = settings.myName;
-      saveSettings();
-    });
-    $('#setPeerName').addEventListener('change', (e) => {
-      settings.peerName = e.target.value.trim() || '梦';
-      e.target.value = settings.peerName;
-      applyPeer(); saveSettings(); renderSetMain();
-    });
-    $('#setPeerAvatar').addEventListener('change', (e) => {
-      settings.peerAvatar = e.target.value.trim() || '梦';
-      e.target.value = settings.peerAvatar;
-      applyPeer(); saveSettings();
-    });
-    $('#setArEnabled').addEventListener('change', (e) => {
-      settings.autoReplyEnabled = e.target.checked; saveSettings();
-    });
-    $('#setArMin').addEventListener('change', (e) => {
-      settings.delayMin = clampInt(e.target.value, 0, 10000, 600);
-      e.target.value = settings.delayMin; saveSettings();
-    });
-    $('#setArMax').addEventListener('change', (e) => {
-      settings.delayMax = clampInt(e.target.value, 0, 10000, 1400);
-      e.target.value = settings.delayMax; saveSettings();
-    });
-    $('#setFallback').addEventListener('change', (e) => {
-      settings.fallback = e.target.value; saveSettings();
-    });
-    $('#setAddRule').addEventListener('click', async () => {
-      await pr(os('autoreply', 'readwrite').add({ keyword:'', mode:'contains', replies:[], enabled:true }));
-      await renderRulesInto($('#setRuleList'));
-      const last = $('#setRuleList').lastElementChild;
-      if (last) { const inp = last.querySelector('input[type=text]'); if (inp) inp.focus(); }
-    });
-
-    renderRulesInto($('#setRuleList'));
-  }
-
-  /* --- 表情包子页 --- */
-  function buildStickerSettings(body) {
-    body.innerHTML = `
-      <p class="set-title">上传自定义表情</p>
-      <div class="set-group" style="padding:14px 16px;">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">支持 PNG / GIF / WebP，建议小于 256KB</div>
-        <input type="file" id="stickerUpload" accept="image/*">
-      </div>
-      <p class="set-title">我的表情</p>
-      <div id="stickerList" class="sticker-panel" style="border:none;padding:0;background:transparent;max-height:none;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));"></div>
-      <p class="set-title" style="margin-top:20px;">内置表情</p>
-      <div id="builtinList" class="sticker-panel" style="border:none;padding:0;background:transparent;max-height:none;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));"></div>
-    `;
-
-    $('#stickerUpload').addEventListener('change', async (e) => {
-      const file = e.target.files && e.target.files[0];
-      e.target.value = '';
-      if (!file) return;
-      if (!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
-      if (file.size > 256 * 1024) { alert('图片不能超过 256KB'); return; }
-      const data = await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result);
-        r.onerror = () => reject(r.error);
-        r.readAsDataURL(file);
-      });
-      await pr(os('stickers', 'readwrite').add({ name:file.name, data, createdAt: Date.now() }));
-      renderStickers();
-    });
-
-    renderStickers();
-  }
-
-  /* --- 存储子页 --- */
-  function buildStorageSettings(body) {
-    body.innerHTML = `
-      <p class="set-title">存储用量</p>
-      <div class="set-group" style="padding:16px;">
-        <div class="stat-row"><span>已用空间</span><span id="stUsage">—</span></div>
-        <div class="storage-bar"><div id="stBar"></div></div>
-        <div class="stat-row"><span>可用配额</span><span id="stQuota">—</span></div>
-        <div class="stat-row"><span>持久化存储</span><span id="stPersist">—</span></div>
-        <div class="stat-row"><span>消息总数</span><span id="stMsgs">—</span></div>
-        <button class="btn block" id="requestPersist" type="button" style="margin-top:12px;">申请持久化存储</button>
-      </div>
-
-      <p class="set-title">数据管理</p>
-      <div class="set-group" style="padding:16px;">
-        <button class="btn block" id="exportData" type="button" style="margin-bottom:10px;">导出全部数据（JSON）</button>
-        <button class="btn danger block" id="clearAll" type="button">清空所有数据</button>
-        <p class="empty-hint" style="margin-top:16px;text-align:left;line-height:1.7;">
-          数据只保存在这台设备的浏览器里，不会上传到任何服务器。<br>
-          清理浏览器数据会一并删除，建议定期导出备份。
-        </p>
-      </div>
-    `;
-
-    $('#requestPersist').addEventListener('click', async () => {
-      if (!navigator.storage || !navigator.storage.persist) { alert('当前浏览器不支持持久化存储'); return; }
-      const ok = await navigator.storage.persist();
-      alert(ok ? '已获得持久化存储权限' : '浏览器未授予权限（通常因为站点使用量偏低，可先多存一些数据再试）');
-      renderStorage();
-    });
-
-    $('#exportData').addEventListener('click', async () => {
-      const data = {
-        exportedAt: new Date().toISOString(),
-        settings,
-        messages:  await pr(os('messages').getAll()),
-        rules:     await pr(os('autoreply').getAll()),
-        stickers:  await pr(os('stickers').getAll()),
-        letters:   await pr(os('letters').getAll()),
-        cards:     await pr(os('cards').getAll()),
-        periods:   await pr(os('periods').getAll()),
-        countdowns:await pr(os('countdowns').getAll()),
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-      const url  = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `qiyе-${Date.now()}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    });
-
-    $('#clearAll').addEventListener('click', async () => {
-      if (!confirm('将删除所有消息、规则、表情、信件与设置，且无法恢复。确定吗？')) return;
-      if (!confirm('再次确认：这一步不可撤销。')) return;
-      await Promise.all([
-        pr(os('messages',  'readwrite').clear()),
-        pr(os('autoreply', 'readwrite').clear()),
-        pr(os('stickers',  'readwrite').clear()),
-        pr(os('letters',   'readwrite').clear()),
-        pr(os('settings',  'readwrite').clear()),
-        pr(os('cards',     'readwrite').clear()),
-        pr(os('periods',   'readwrite').clear()),
-        pr(os('countdowns','readwrite').clear()),
-      ]);
-      location.reload();
-    });
-
-    renderStorage();
-  }
-
-  async function renderStorage() {
-    let usage = 0, quota = 0;
-    try {
-      if (navigator.storage && navigator.storage.estimate) {
-        const est = await navigator.storage.estimate();
-        usage = est.usage || 0;
-        quota = est.quota || 0;
-      }
-    } catch {}
-    const u = $('#stUsage'), q = $('#stQuota'), bar = $('#stBar');
-    if (u) u.textContent = fmtBytes(usage);
-    if (q) q.textContent = quota ? fmtBytes(quota) : '未知';
-    if (bar) bar.style.width = quota ? Math.min(100, (usage / quota) * 100).toFixed(2) + '%' : '0%';
-
-    let persisted = false;
-    try {
-      if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted();
-    } catch {}
-    const p = $('#stPersist');
-    if (p) p.textContent = persisted ? '已启用' : '未启用';
-
-    const total = await pr(os('messages').count());
-    const m = $('#stMsgs');
-    if (m) m.textContent = total + ' 条';
-  }
-
   /* ============================================================
-     自动回复规则 UI
+     功能：问卷 / 照片 / 择决 / 电话 / 拍摄
      ============================================================ */
-  async function renderRulesInto(container) {
-    const rules = await pr(os('autoreply').getAll());
-    container.replaceChildren();
-    if (!rules.length) {
-      const d = document.createElement('p');
-      d.className = 'empty-hint';
-      d.textContent = '还没有规则，点击下方按钮新增。';
-      container.appendChild(d);
-      return;
+  async function openSurveyModal(platform) {
+    await showModal(`
+      <h3>问卷</h3>
+      <input type="text" id="surveyTitle" placeholder="问卷标题" value="">
+      <input type="text" id="surveyA" placeholder="选项 A">
+      <input type="text" id="surveyB" placeholder="选项 B">
+      <input type="text" id="surveyC" placeholder="选项 C（可选）">
+    `, (ok) => {
+      const title = modalBox.querySelector('#surveyTitle').value.trim() || '问卷';
+      const a = modalBox.querySelector('#surveyA').value.trim();
+      const b = modalBox.querySelector('#surveyB').value.trim();
+      const c = modalBox.querySelector('#surveyC').value.trim();
+      if (!a || !b) { alert('至少需要两个选项'); return false; }
+      const opts = [a, b, c].filter(Boolean);
+      const text = `【问卷】${title}\n${opts.map((o, i) => `${i + 1}. ${o}`).join('\n')}`;
+      sendFeatureMessage(platform, text);
+    });
+  }
+
+  async function openPhotoModal(platform) {
+    await showModal(`
+      <h3>照片</h3>
+      <textarea id="photoDesc" placeholder="描述这张照片…" rows="3"></textarea>
+    `, (ok) => {
+      const desc = modalBox.querySelector('#photoDesc').value.trim() || '一张照片';
+      sendFeatureMessage(platform, `【照片】${desc}`);
+    });
+  }
+
+  async function openChooseModal(platform) {
+    await showModal(`
+      <h3>择决</h3>
+      <textarea id="chooseOpts" placeholder="每行一个选项" rows="4"></textarea>
+    `, (ok) => {
+      const lines = modalBox.querySelector('#chooseOpts').value.split('\n').map(s => s.trim()).filter(Boolean);
+      if (lines.length < 2) { alert('至少两个选项'); return false; }
+      const chosen = pickOne(lines);
+      sendFeatureMessage(platform, `【择决】${lines.join(' / ')}\n结果：${chosen}`);
+    });
+  }
+
+  async function openCallModal(platform) {
+    await showModal(`
+      <h3>电话</h3>
+      <input type="text" id="callTo" placeholder="打给谁" value="${esc(settings.peerName)}">
+    `, (ok) => {
+      const to = modalBox.querySelector('#callTo').value.trim() || settings.peerName;
+      sendFeatureMessage(platform, `【电话】正在呼叫 ${to}…`);
+      setTimeout(() => sendFeatureMessage(platform, `【电话】${to} 已接听`), 1500);
+    });
+  }
+
+  async function openShootModal(platform) {
+    await showModal(`
+      <h3>拍摄</h3>
+      <textarea id="shootDesc" placeholder="拍到了什么？" rows="3"></textarea>
+    `, (ok) => {
+      const desc = modalBox.querySelector('#shootDesc').value.trim() || '一张拍摄';
+      sendFeatureMessage(platform, `【拍摄】${desc}`);
+    });
+  }
+
+  async function sendFeatureMessage(platform, text) {
+    if (platform === 'imsg') {
+      if (settings.blockedByMe) { alert('你已拉黑对方'); return; }
+      const m = await addMessage({ role:'me', type:'text', text, ts: Date.now() });
+      appendMessageEl(m);
+      maybeAutoReply(text);
+    } else if (platform === 'wx') {
+      if (!wxCurrent) return;
+      appendWxMsg($('#wxChatBody'), 'me', text, wxCurrent);
+      wxAutoReply(text);
     }
-    for (const rule of rules) container.appendChild(buildRuleEl(rule, container));
-  }
-
-  function buildRuleEl(rule, container) {
-    const el = document.createElement('div');
-    el.className = 'rule';
-    el.dataset.id = rule.id;
-
-    const row = document.createElement('div');
-    row.className = 'rule-row';
-
-    const kw = document.createElement('input');
-    kw.type = 'text';
-    kw.value = rule.keyword || '';
-    kw.placeholder = '关键词，用 | 分隔';
-    kw.addEventListener('change', () => saveRuleField(rule, 'keyword', kw.value));
-
-    const mode = document.createElement('select');
-    [['contains','包含'],['exact','完全匹配'],['regex','正则']].forEach(([v, label]) => {
-      const o = document.createElement('option');
-      o.value = v; o.textContent = label;
-      if (rule.mode === v) o.selected = true;
-      mode.appendChild(o);
-    });
-    mode.addEventListener('change', () => saveRuleField(rule, 'mode', mode.value));
-
-    const sw = document.createElement('label');
-    sw.className = 'switch';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = rule.enabled !== false;
-    cb.addEventListener('change', () => saveRuleField(rule, 'enabled', cb.checked));
-    const swSpan = document.createElement('span');
-    sw.append(cb, swSpan);
-
-    const del = document.createElement('button');
-    del.type = 'button';
-    del.textContent = '🗑';
-    del.style.cssText = 'width:30px;height:30px;font-size:15px;color:var(--danger);flex:0 0 auto;';
-    del.addEventListener('click', async () => {
-      await pr(os('autoreply', 'readwrite').delete(rule.id));
-      renderRulesInto(container);
-    });
-
-    row.append(kw, mode, sw, del);
-
-    const replies = document.createElement('textarea');
-    replies.className = 'rule-replies';
-    replies.placeholder = '回复内容，每行一条（随机选一条）';
-    replies.value = (rule.replies || []).join('\n');
-    replies.addEventListener('change', () => {
-      const val = replies.value.split('\n').map(s => s.trim()).filter(Boolean);
-      saveRuleField(rule, 'replies', val);
-    });
-
-    el.append(row, replies);
-    return el;
-  }
-
-  async function saveRuleField(rule, key, value) {
-    rule[key] = value;
-    await pr(os('autoreply', 'readwrite').put(rule));
   }
 
   /* ============================================================
      微信
      ============================================================ */
   let wxTab = 'chats';
+  let wxCurrent = null;
 
   $$('.wx-tabbar button').forEach(btn => {
     btn.addEventListener('click', () => renderWxTab(btn.dataset.wxtab));
   });
 
-  function renderWxTab(tab) {
+  async function renderWxTab(tab) {
     wxTab = tab;
     $$('.wx-tabbar button').forEach(b => b.classList.toggle('active', b.dataset.wxtab === tab));
     const body = $('#wxBody');
     body.replaceChildren();
 
     if (tab === 'chats') {
+      if (!settings.wxFriendAdded) {
+        body.innerHTML = `
+          <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:18px;color:#999;margin-bottom:18px;">还没有添加好友</div>
+            <button class="btn primary" id="wxAddDreamBtn" type="button" style="padding:12px 28px;font-size:16px;">添加梦</button>
+          </div>
+        `;
+        const btn = $('#wxAddDreamBtn');
+        if (btn) btn.addEventListener('click', async () => {
+          settings.wxFriendAdded = true;
+          await saveSettings();
+          await pr(os('wxFriends', 'readwrite').add({ name: settings.peerName, addedAt: Date.now() }));
+          renderWxTab('chats');
+        });
+        return;
+      }
+
       for (const c of WX_CHATS) {
+        if (c.name === '梦' && !settings.wxFriendAdded) continue;
         const item = document.createElement('div');
         item.className = 'wx-chat-item';
         item.innerHTML =
@@ -1757,11 +1338,11 @@ input,textarea,select{font:inherit;color:inherit;}
       }
     } else if (tab === 'contacts') {
       const cells = [
-        { icon:'👥', bg:'#07c160', name:'新的朋友' },
-        { icon:'🏷️', bg:'#ff9500', name:'标签' },
-        { icon:'👤', bg:'#4f8cff', name:'梦' },
-        { icon:'👤', bg:'#af52de', name:'林' },
+        { icon:'友', bg:'#07c160', name:'新的朋友' },
+        { icon:'签', bg:'#ff9500', name:'标签' },
       ];
+      if (settings.wxFriendAdded) cells.push({ icon:'梦', bg:'#4f8cff', name: settings.peerName });
+      cells.push({ icon:'林', bg:'#af52de', name:'林' });
       for (const c of cells) {
         const row = document.createElement('div');
         row.className = 'wx-cell';
@@ -1770,9 +1351,9 @@ input,textarea,select{font:inherit;color:inherit;}
       }
     } else if (tab === 'discover') {
       const cells = [
-        { icon:'🖼️', bg:'#0b93f6', name:'朋友圈', act: () => { renderMoments(); go('wx-moments'); } },
-        { icon:'📷', bg:'#07c160', name:'扫一扫' },
-        { icon:'🎵', bg:'#e60026', name:'听一听' },
+        { icon:'圈', bg:'#0b93f6', name:'朋友圈', act: () => { renderMoments(); go('wx-moments'); } },
+        { icon:'扫', bg:'#07c160', name:'扫一扫' },
+        { icon:'听', bg:'#e60026', name:'听一听' },
       ];
       for (const c of cells) {
         const row = document.createElement('div');
@@ -1785,7 +1366,7 @@ input,textarea,select{font:inherit;color:inherit;}
       const row = document.createElement('div');
       row.style.cssText = 'padding:30px 20px;text-align:center;';
       row.innerHTML =
-        `<div style="width:72px;height:72px;border-radius:10px;margin:0 auto 14px;background:linear-gradient(135deg,#0b93f6,#5ac8fa);display:grid;place-items:center;color:#fff;font-size:26px;font-weight:600;">我</div>` +
+        `<div style="width:72px;height:72px;border-radius:10px;margin:0 auto 14px;background:linear-gradient(135deg,#0b93f6,#5ac8fa);display:grid;place-items:center;color:#fff;font-size:24px;font-weight:600;">我</div>` +
         `<div style="font-size:19px;font-weight:600;color:#1a1a1a;">${esc(settings.myName)}</div>` +
         `<div style="font-size:12px;color:#999;margin-top:6px;">微信号：qiyе_me</div>`;
       body.appendChild(row);
@@ -1793,16 +1374,20 @@ input,textarea,select{font:inherit;color:inherit;}
   }
 
   /* --- 微信聊天 --- */
-  let wxCurrent = null;
-
   function openWxChat(chat) {
+    if (chat.name === '梦' && !settings.wxFriendAdded) {
+      alert('请先添加梦为好友');
+      return;
+    }
     wxCurrent = chat;
     $('#wxChatName').textContent = chat.name;
     const body = $('#wxChatBody');
     body.replaceChildren();
 
-    appendWxMsg(body, 'them', chat.name === '梦' ? '晚上好呀～' : '你好', chat);
-    appendWxMsg(body, 'them', chat.name === '梦' ? '今天过得怎么样？' : '在吗', chat);
+    if (chat.name === '梦') {
+      appendWxMsg(body, 'them', '晚上好呀～', chat);
+      appendWxMsg(body, 'them', '今天过得怎么样？', chat);
+    }
 
     $('#wxChatInput').value = '';
     $('#wxChatSend').disabled = true;
@@ -1831,17 +1416,88 @@ input,textarea,select{font:inherit;color:inherit;}
   async function sendWx() {
     const text = wxInput.value.trim();
     if (!text || !wxCurrent) return;
+    if (settings.blockedByMe) { alert('你已拉黑对方，无法发送消息'); return; }
+    if (settings.blockedByThem) { alert('对方已拉黑你'); return; }
     wxInput.value = '';
     $('#wxChatSend').disabled = true;
     const body = $('#wxChatBody');
     appendWxMsg(body, 'me', text, wxCurrent);
+    wxAutoReply(text);
+  }
 
-    if (!settings.autoReplyEnabled) return;
-    const reply = await getReply(text);
-    if (!reply) return;
+  async function wxAutoReply(text) {
+    if (!wxCurrent || !settings.autoReplyEnabled) return;
+    if (settings.blockedByThem) return;
+    const cards = await pr(os('cards').getAll());
+    if (!cards.length) return;
+    const reply = pickOne(cards).text;
     setTimeout(() => {
-      appendWxMsg(body, 'them', reply, wxCurrent);
+      appendWxMsg($('#wxChatBody'), 'them', reply, wxCurrent);
+      notify('微信消息', reply);
     }, 700 + Math.random() * 700);
+  }
+
+  /* --- 微信功能面板 --- */
+  $('#wxPlusBtn').addEventListener('click', async () => {
+    if (!wxCurrent) return;
+    await showModal(`
+      <h3>功能</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <button class="btn" data-wxfunc="survey" type="button">问卷</button>
+        <button class="btn" data-wxfunc="photo" type="button">照片</button>
+        <button class="btn" data-wxfunc="choose" type="button">择决</button>
+        <button class="btn" data-wxfunc="call" type="button">电话</button>
+        <button class="btn" data-wxfunc="shoot" type="button">拍摄</button>
+        <button class="btn" data-wxfunc="transfer" type="button">转账</button>
+        <button class="btn" data-wxfunc="redpacket" type="button">红包</button>
+      </div>
+    `, null, '关闭', '');
+
+    setTimeout(() => {
+      $$('[data-wxfunc]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          modalMask.hidden = true;
+          const f = btn.dataset.wxfunc;
+          if (f === 'survey') await openSurveyModal('wx');
+          else if (f === 'photo') await openPhotoModal('wx');
+          else if (f === 'choose') await openChooseModal('wx');
+          else if (f === 'call') await openCallModal('wx');
+          else if (f === 'shoot') await openShootModal('wx');
+          else if (f === 'transfer') await openTransferModal();
+          else if (f === 'redpacket') await openRedPacketModal();
+        });
+      });
+    }, 0);
+  });
+
+  async function openTransferModal() {
+    await showModal(`
+      <h3>转账</h3>
+      <input type="text" id="transferAmt" placeholder="金额（元）" inputmode="decimal">
+      <input type="text" id="transferNote" placeholder="备注（可选）">
+    `, (ok) => {
+      const amt = modalBox.querySelector('#transferAmt').value.trim();
+      const note = modalBox.querySelector('#transferNote').value.trim();
+      if (!amt || isNaN(Number(amt))) { alert('请输入有效金额'); return false; }
+      const text = `【转账】¥${amt}${note ? ' · ' + note : ''}`;
+      appendWxMsg($('#wxChatBody'), 'me', text, wxCurrent);
+      wxAutoReply(text);
+    });
+  }
+
+  async function openRedPacketModal() {
+    await showModal(`
+      <h3>红包</h3>
+      <input type="text" id="rpAmt" placeholder="金额（元）" inputmode="decimal">
+      <input type="text" id="rpWish" placeholder="祝福语（可选）">
+    `, (ok) => {
+      const amt = modalBox.querySelector('#rpAmt').value.trim();
+      const wish = modalBox.querySelector('#rpWish').value.trim();
+      if (!amt || isNaN(Number(amt))) { alert('请输入有效金额'); return false; }
+      const text = `【红包】¥${amt}${wish ? ' · ' + wish : ''}`;
+      appendWxMsg($('#wxChatBody'), 'me', text, wxCurrent);
+      wxAutoReply(text);
+    });
   }
 
   /* --- 朋友圈 --- */
@@ -1858,7 +1514,7 @@ input,textarea,select{font:inherit;color:inherit;}
           `<div class="tx">${esc(m.text)}</div>` +
           (m.imgs ? `<div class="imgs">${'<div></div>'.repeat(m.imgs)}</div>` : '') +
           `<div class="ft"><span>${esc(m.time)}</span><span>···</span></div>` +
-          (m.likes.length ? `<div class="likes">♥ ${m.likes.map(esc).join('，')}</div>` : '') +
+          (m.likes.length ? `<div class="likes">赞 ${m.likes.map(esc).join('，')}</div>` : '') +
         `</div>`;
       list.appendChild(el);
     }
@@ -1907,42 +1563,181 @@ input,textarea,select{font:inherit;color:inherit;}
   });
 
   /* ============================================================
-     美化
+     设置
      ============================================================ */
-  function renderBeautify() {
-    const wp = $('#wallpaperGrid');
-    wp.replaceChildren();
-    for (const w of WALLPAPERS) {
-      const el = document.createElement('button');
-      el.type = 'button';
-      el.className = 'wp-item' + (settings.wallpaper === w.id ? ' active' : '') + (w.dark ? ' dark' : '');
-      el.style.background = w.css;
-      el.textContent = w.name;
-      el.addEventListener('click', () => {
-        settings.wallpaper = w.id;
-        saveSettings();
-        applyWallpaper();
-        renderBeautify();
-      });
-      wp.appendChild(el);
-    }
+  function showSetMain() {
+    $('#setMain').hidden = false;
+    $('#setDetail').hidden = true;
+    renderSetMain();
+  }
 
-    const ag = $('#accentGrid');
-    ag.replaceChildren();
-    for (const c of ACCENTS) {
-      const el = document.createElement('button');
-      el.type = 'button';
-      el.className = 'accent-dot' + (settings.accent === c ? ' active' : '');
-      el.style.background = c;
-      el.addEventListener('click', () => {
-        settings.accent = c;
-        saveSettings();
-        applyAccent();
-        renderBeautify();
-      });
-      ag.appendChild(el);
+  function renderSetMain() {
+    const body = $('#setMainBody');
+    body.replaceChildren();
+
+    const groups = [
+      { title:'数据', items:[
+        { icon:'导', bg:'linear-gradient(135deg,#0b93f6,#5ac8fa)', name:'导出备份', act:() => exportBackup() },
+        { icon:'入', bg:'linear-gradient(135deg,#34c759,#30d158)', name:'导入备份', act:() => importBackup() },
+        { icon:'清', bg:'linear-gradient(135deg,#ff3b30,#ff6482)', name:'清空所有数据', act:() => clearAllData() },
+      ]},
+      { title:'系统', items:[
+        { icon:'活', bg:'linear-gradient(135deg,#5856d6,#7a78ff)', name:'后台保活', value: settings.bgKeepAlive ? '已开启' : '已关闭', act:() => toggleKeepAlive() },
+        { icon:'通', bg:'linear-gradient(135deg,#ff9500,#ffb340)', name:'通知', value: settings.notificationsEnabled ? '已开启' : '已关闭', act:() => requestNotificationPermission() },
+        { icon:'屏', bg:'linear-gradient(135deg,#af52de,#c77dff)', name:'添加到主屏幕', value:'', act:() => showAddToHomeTip() },
+      ]},
+      { title:'关于', items:[
+        { icon:'夜', bg:'linear-gradient(135deg,#1c1c1e,#3a3a3c)', name:'栖夜', value:'v1.0', act:() => alert('栖夜 · 只保存在这台设备上') },
+      ]},
+    ];
+
+    for (const g of groups) {
+      const t = document.createElement('p');
+      t.className = 'set-title';
+      t.textContent = g.title;
+      body.appendChild(t);
+
+      const group = document.createElement('div');
+      group.className = 'set-group';
+      for (const item of g.items) {
+        const row = document.createElement('div');
+        row.className = 'set-item';
+        row.innerHTML =
+          `<span class="si" style="background:${item.bg}">${item.icon}</span>` +
+          `<span class="st">${esc(item.name)}</span>` +
+          (item.value ? `<span class="sv">${esc(item.value)}</span>` : '') +
+          `<span class="arrow">›</span>`;
+        row.addEventListener('click', item.act);
+        group.appendChild(row);
+      }
+      body.appendChild(group);
     }
   }
+
+  async function toggleKeepAlive() {
+    settings.bgKeepAlive = !settings.bgKeepAlive;
+    await saveSettings();
+    renderSetMain();
+    alert(settings.bgKeepAlive ? '后台保活已开启（页面隐藏时仍会保持定时器运行）' : '后台保活已关闭');
+  }
+
+  function showAddToHomeTip() {
+    alert(
+      '添加到主屏幕方法：\n' +
+      '1. 用 Safari 打开此页面\n' +
+      '2. 点击分享按钮\n' +
+      '3. 选择“添加到主屏幕”\n\n' +
+      '添加后从主屏幕图标打开，即可接收通知（需在设置中开启通知）。'
+    );
+  }
+
+  async function exportBackup() {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      settings,
+      messages:  await pr(os('messages').getAll()),
+      letters:   await pr(os('letters').getAll()),
+      cards:     await pr(os('cards').getAll()),
+      periods:   await pr(os('periods').getAll()),
+      countdowns:await pr(os('countdowns').getAll()),
+      wxFriends: await pr(os('wxFriends').getAll()),
+      wxMessages:await pr(os('wxMessages').getAll()),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qiyе-backup-${Date.now()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.addEventListener('change', async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!confirm('导入将覆盖当前所有数据，确定吗？')) return;
+
+        settings = { ...DEFAULT_SETTINGS, ...(data.settings || {}) };
+        await saveSettings();
+
+        const stores = ['messages','letters','cards','periods','countdowns','wxFriends','wxMessages'];
+        for (const s of stores) {
+          if (Array.isArray(data[s])) {
+            const st = os(s, 'readwrite');
+            await pr(st.clear());
+            for (const item of data[s]) {
+              const copy = { ...item };
+              delete copy.id;
+              await pr(st.add(copy));
+            }
+          }
+        }
+
+        alert('导入完成');
+        location.reload();
+      } catch (err) {
+        alert('导入失败：' + err.message);
+      }
+    });
+    input.click();
+  }
+
+  async function clearAllData() {
+    if (!confirm('将删除所有消息、信件、字卡、记录与设置，且无法恢复。确定吗？')) return;
+    if (!confirm('再次确认：这一步不可撤销。')) return;
+    await Promise.all([
+      pr(os('messages',  'readwrite').clear()),
+      pr(os('letters',   'readwrite').clear()),
+      pr(os('settings',  'readwrite').clear()),
+      pr(os('cards',     'readwrite').clear()),
+      pr(os('periods',   'readwrite').clear()),
+      pr(os('countdowns','readwrite').clear()),
+      pr(os('wxFriends', 'readwrite').clear()),
+      pr(os('wxMessages','readwrite').clear()),
+    ]);
+    location.reload();
+  }
+
+  /* ============================================================
+     信息菜单（拉黑）
+     ============================================================ */
+  $('#imsgMenuBtn').addEventListener('click', async () => {
+    await showModal(`
+      <h3>更多</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn ${settings.blockedByMe ? 'danger' : ''}" id="btnBlockMe" type="button">
+          ${settings.blockedByMe ? '取消拉黑对方' : '拉黑对方'}
+        </button>
+        <button class="btn ${settings.blockedByThem ? 'danger' : ''}" id="btnBlockThem" type="button">
+          ${settings.blockedByThem ? '解除对方拉黑' : '模拟对方拉黑我'}
+        </button>
+      </div>
+    `, null, '关闭', '');
+
+    setTimeout(() => {
+      const b1 = $('#btnBlockMe');
+      const b2 = $('#btnBlockThem');
+      if (b1) b1.addEventListener('click', async () => {
+        settings.blockedByMe = !settings.blockedByMe;
+        await saveSettings();
+        modalMask.hidden = true;
+        alert(settings.blockedByMe ? '已拉黑对方' : '已取消拉黑');
+      });
+      if (b2) b2.addEventListener('click', async () => {
+        settings.blockedByThem = !settings.blockedByThem;
+        await saveSettings();
+        modalMask.hidden = true;
+        alert(settings.blockedByThem ? '对方已拉黑你' : '对方已解除拉黑');
+      });
+    }, 0);
+  });
 
   /* ============================================================
      字卡库
@@ -1972,7 +1767,7 @@ input,textarea,select{font:inherit;color:inherit;}
     if (!cards.length) {
       const d = document.createElement('p');
       d.className = 'empty-hint';
-      d.textContent = '还没有字卡，添加一张吧。';
+      d.textContent = '还没有字卡，添加一张吧。对方会从这里挑选回复。';
       list.appendChild(d);
       return;
     }
@@ -2025,7 +1820,6 @@ input,textarea,select{font:inherit;color:inherit;}
         ? `距离下次预测还有 ${days} 天`
         : `已推迟 ${Math.abs(days)} 天`;
       $('#pNext').textContent = days >= 0 ? `${days} 天` : `+${Math.abs(days)} 天`;
-      const d = new Date(next);
       $('#periodStart').value = fmtDate(last);
     } else {
       hero.querySelector('.big').textContent = '—';
@@ -2123,24 +1917,124 @@ input,textarea,select{font:inherit;color:inherit;}
   });
 
   /* ============================================================
-     启动
+     信箱
      ============================================================ */
-  async function seedRulesIfEmpty() {
-    const existing = await pr(os('autoreply').getAll());
-    if (existing.length) return;
-    const seeds = [
-      { keyword:'你好|hi|hello|嗨|在吗', mode:'contains', enabled:true,
-        replies:['在的，怎么啦？','我在呢 👋','嗯，我在。'] },
-      { keyword:'晚安|睡了|拜拜|再见', mode:'contains', enabled:true,
-        replies:['晚安，做个好梦 🌙','晚安，明天见。'] },
-      { keyword:'累|好累|烦|难过|emo|不开心', mode:'contains', enabled:true,
-        replies:['怎么了？跟我说说。','辛苦啦，抱抱你。','要不要先休息一会儿？'] },
-      { keyword:'开心|高兴|太好了|哈哈', mode:'contains', enabled:true,
-        replies:['听起来不错 😊','真好，替你开心。'] },
-    ];
-    for (const s of seeds) await pr(os('autoreply', 'readwrite').add(s));
+  async function renderLetters() {
+    const letters = await pr(os('letters').getAll());
+    letters.sort((a, b) => a.openAt - b.openAt);
+    const listEl = $('#letterList');
+    listEl.replaceChildren();
+
+    if (!letters.length) {
+      const d = document.createElement('p');
+      d.className = 'empty-hint';
+      d.textContent = '还没有信件。';
+      listEl.appendChild(d);
+      return;
+    }
+
+    const now = Date.now();
+    for (const l of letters) {
+      const el = document.createElement('div');
+      el.className = 'rule';
+
+      const title = document.createElement('div');
+      title.style.cssText = 'font-weight:600;font-size:15px;margin-bottom:4px;color:#1c1c1e;';
+      title.textContent = (l.opened ? '已拆 · ' : '未拆 · ') + (l.title || '无标题');
+
+      const meta = document.createElement('div');
+      meta.style.cssText = 'font-size:12px;color:var(--muted);margin-bottom:10px;';
+      const openDate = new Date(l.openAt);
+      if (l.opened) {
+        meta.textContent = '已于 ' + fmtFull(openDate) + ' 拆开';
+      } else if (l.openAt > now) {
+        meta.textContent = '将于 ' + fmtFull(openDate) + ' 开启 · 还有 ' + countdown(l.openAt - now);
+      } else {
+        meta.textContent = '已到期，可以拆开了';
+      }
+
+      const parts = [title, meta];
+
+      if (l.opened) {
+        const body = document.createElement('div');
+        body.style.cssText = 'font-size:13px;white-space:pre-wrap;margin-bottom:10px;padding:10px;background:#f7f7f8;border-radius:8px;line-height:1.7;color:#333;';
+        body.textContent = l.content;
+        parts.push(body);
+      }
+
+      const actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+
+      if (!l.opened && l.openAt <= now) {
+        const openBtn = document.createElement('button');
+        openBtn.type = 'button';
+        openBtn.className = 'btn primary';
+        openBtn.textContent = '拆开';
+        openBtn.addEventListener('click', () => openLetter(l));
+        actions.appendChild(openBtn);
+      }
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn danger';
+      delBtn.textContent = '删除';
+      delBtn.addEventListener('click', async () => {
+        if (!confirm('确定删除这封信？')) return;
+        await pr(os('letters', 'readwrite').delete(l.id));
+        renderLetters();
+      });
+      actions.appendChild(delBtn);
+
+      parts.push(actions);
+      el.append(...parts);
+      listEl.appendChild(el);
+    }
   }
 
+  async function openLetter(l) {
+    l.opened = true;
+    await pr(os('letters', 'readwrite').put(l));
+    const m = await addMessage({ role:'them', type:'letter', title: l.title, text: l.content, ts: Date.now() });
+
+    stack.length = 0; stack.push('home', 'app-messages');
+    showScreen('app-messages');
+    appendMessageEl(m);
+    scrollToBottom(true);
+    renderLetters();
+  }
+
+  $('#addLetter').addEventListener('click', async () => {
+    const title    = $('#letterTitle').value.trim();
+    const content  = $('#letterContent').value.trim();
+    const openAtStr = $('#letterOpenAt').value;
+
+    if (!content) { alert('请填写信件内容'); return; }
+    if (!openAtStr) { alert('请选择开启时间'); return; }
+
+    const openAt = new Date(openAtStr).getTime();
+    if (!Number.isFinite(openAt)) { alert('开启时间格式不正确'); return; }
+    if (openAt <= Date.now()) { alert('开启时间需要晚于当前时间'); return; }
+
+    await pr(os('letters', 'readwrite').add({
+      title, content, openAt, createdAt: Date.now(), opened: false,
+    }));
+
+    $('#letterTitle').value = '';
+    $('#letterContent').value = '';
+    resetLetterTime();
+    await renderLetters();
+    alert('信件已封存');
+  });
+
+  function resetLetterTime() {
+    const t = new Date(Date.now() + 86400000);
+    const local = new Date(t.getTime() - t.getTimezoneOffset() * 60000);
+    $('#letterOpenAt').value = local.toISOString().slice(0, 16);
+  }
+
+  /* ============================================================
+     启动
+     ============================================================ */
   async function seedWelcomeMessage() {
     const count = await pr(os('messages').count());
     if (count > 0) return;
@@ -2169,21 +2063,23 @@ input,textarea,select{font:inherit;color:inherit;}
     applyPeer();
     applyAccent();
 
-    await seedRulesIfEmpty();
     await seedWelcomeMessage();
 
     renderHome();
     resetLetterTime();
     await initChat();
-    await renderStickers();
 
     updateClock();
     setInterval(updateClock, 30000);
 
-    /* 信件到期检查 */
     setInterval(() => {
       if (!$('#app-mailbox').hidden) renderLetters();
     }, 30000);
+
+    /* 后台保活：页面隐藏时仍保持定时器 */
+    if (settings.bgKeepAlive) {
+      document.addEventListener('visibilitychange', () => {});
+    }
   }
 
   boot();
