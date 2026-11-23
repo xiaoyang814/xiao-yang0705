@@ -9,30 +9,45 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#ffffff;--bg-2:#f7f7f8;--bg-3:#eeeef1;
-  --fg:#1c1c1e;--muted:#8e8e93;--line:#e4e4e7;
-  --accent:#0b93f6;--accent-hover:#0a7fd4;--wechat:#07c160;
+  --system-bg:#ffffff;
+  --system-text:#000000;
+  --chat-bg:#ffffff;
+  --accent:#0b93f6;
+  --wechat:#07c160;
   --danger:#ff3b30;
+  --bg-2:#f7f7f8;
+  --line:#e4e4e7;
+  --muted:#8e8e93;
+}
+@media (prefers-color-scheme: dark) {
+  :root{
+    --system-bg:#000000;
+    --system-text:#ffffff;
+    --chat-bg:#000000;
+    --bg-2:#1c1c1e;
+    --line:#2c2c2e;
+    --muted:#98989d;
+  }
 }
 html,body{height:100%;}
-body{margin:0;background:#000;color:var(--fg);
+body{margin:0;background:var(--system-bg);color:var(--system-text);
   font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow:hidden;-webkit-text-size-adjust:100%;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0;}
 input,textarea,select{font:inherit;color:inherit;}
 img{max-width:100%;display:block;}
 
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--system-bg);overflow:hidden;}
 .screen[hidden]{display:none;}
 .screen-body{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;}
 .screen-body[hidden]{display:none;}
 
 .statusbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-  padding:calc(env(safe-area-inset-top) + 6px) 22px 6px;font-size:14px;font-weight:600;color:#fff;}
+  padding:calc(env(safe-area-inset-top) + 6px) 22px 6px;font-size:14px;font-weight:600;color:var(--system-text);}
 .sb-right{letter-spacing:2px;font-size:12px;}
 
 /* 桌面 */
-#home{background-color:#000;background-size:cover;background-position:center;transition:background .3s;}
+#home{background-color:var(--system-bg);background-size:cover;background-position:center;transition:background .3s;}
 .home-body{flex:1 1 auto;overflow-y:auto;padding:10px 22px 0;}
 
 /* 桌面小组件 */
@@ -61,7 +76,7 @@ img{max-width:100%;display:block;}
 }
 .app-icon .ico svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .app-icon:active .ico{transform:scale(.9);}
-.app-icon .lbl{font-size:12px;color:#fff;font-weight:500;white-space:nowrap;}
+.app-icon .lbl{font-size:12px;color:var(--system-text);font-weight:500;white-space:nowrap;}
 
 .dock{
   flex:0 0 auto;margin:14px 16px calc(16px + env(safe-area-inset-bottom));padding:12px;
@@ -84,7 +99,7 @@ img{max-width:100%;display:block;}
 .imsg-top .icon-btn{margin-left:auto;font-size:16px;color:var(--accent);width:34px;height:34px;display:grid;place-items:center;font-weight:600;}
 
 .imsg-messages,.wx-chat-body{flex:1 1 auto;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:5px;
-  background-size:cover;background-position:center;-webkit-overflow-scrolling:touch;}
+  background-color:var(--chat-bg);background-size:cover;background-position:center;-webkit-overflow-scrolling:touch;}
 
 .msg{display:flex;flex-direction:column;max-width:min(76%,600px);animation:pop .18s ease-out;}
 @keyframes pop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
@@ -393,7 +408,7 @@ img{max-width:100%;display:block;}
 <div id="app-beautify" class="screen" hidden>
   <div class="set-top"><button class="back" data-back type="button">‹</button><h1>美化</h1></div>
   <div class="set-body">
-    <p class="set-title">桌面小组件 (类似截图样式)</p>
+    <p class="set-title">桌面小组件</p>
     <div class="form-panel">
       <label>背景图</label><input type="file" id="upWgBg" accept="image/*" style="margin-bottom:12px;">
       <label>头像</label><input type="file" id="upWgAvatar" accept="image/*" style="margin-bottom:12px;">
@@ -408,6 +423,7 @@ img{max-width:100%;display:block;}
       <label>对方头像</label><input type="file" id="upPeerAvatar" accept="image/*" style="margin-bottom:12px;">
       <label>聊天背景 (图片)</label><input type="file" id="upChatBg" accept="image/*" style="margin-bottom:12px;">
       <label>桌面壁纸 (图片)</label><input type="file" id="upWallpaper" accept="image/*" style="margin-bottom:12px;">
+      <p style="font-size:12px;color:#999;margin-top:8px;">未设置时自动跟随系统深浅色模式</p>
     </div>
     
     <button class="btn danger block" id="resetBeautify" type="button">恢复默认设置</button>
@@ -511,7 +527,7 @@ img{max-width:100%;display:block;}
 (() => {
 'use strict';
 
-// 图标 SVG (黑底白线风格)
+// 图标 SVG
 const ICONS = {
   messages: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>',
   wechat: '<svg viewBox="0 0 24 24"><path d="M8 14a5 5 0 1 1 4-8"></path><path d="M8 14a5 5 0 1 0 4 8"></path><circle cx="16" cy="12" r="4"></circle></svg>',
@@ -536,8 +552,8 @@ const ICONS = {
   trash: '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
   data: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>',
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
-  close: '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
-  hangup: '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" transform="rotate(135 12 12)"></path></svg>'
+  hangup: '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" transform="rotate(135 12 12)"></path></svg>',
+  minimize: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect><line x1="9" y1="12" x2="15" y2="12"></line></svg>'
 };
 
 const DB_NAME = 'qiyе';
@@ -667,8 +683,40 @@ function renderHome() {
 }
 
 function applyWallpaper() {
-  homeEl.style.backgroundImage = settings.wallpaper ? `url(${settings.wallpaper})` : 'none';
-  homeEl.style.backgroundColor = settings.wallpaper ? 'transparent' : '#000';
+  if (settings.wallpaper) {
+    homeEl.style.backgroundImage = `url(${settings.wallpaper})`;
+    homeEl.style.backgroundColor = 'transparent';
+  } else {
+    homeEl.style.backgroundImage = 'none';
+    homeEl.style.backgroundColor = ''; // 使用CSS变量
+  }
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const lblColor = isDark ? '#fff' : '#3c3c43';
+  $$('#home .app-icon .lbl').forEach(l => l.style.color = lblColor);
+}
+
+function applyChatBg() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const defaultBg = isDark ? '#000' : '#fff';
+  // 信息
+  if (settings.chatBg) {
+    messagesEl.style.backgroundImage = `url(${settings.chatBg})`;
+    messagesEl.style.backgroundColor = 'transparent';
+  } else {
+    messagesEl.style.backgroundImage = 'none';
+    messagesEl.style.backgroundColor = defaultBg;
+  }
+  // 微信聊天
+  const wxChatBody = $('#wxChatBody');
+  if (wxChatBody) {
+    if (settings.chatBg) {
+      wxChatBody.style.backgroundImage = `url(${settings.chatBg})`;
+      wxChatBody.style.backgroundColor = 'transparent';
+    } else {
+      wxChatBody.style.backgroundImage = 'none';
+      wxChatBody.style.backgroundColor = defaultBg;
+    }
+  }
 }
 
 function renderWidget() {
@@ -688,6 +736,13 @@ function applyPeer() {
   document.title = '栖夜';
 }
 
+// 监听系统主题变化
+const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+darkModeQuery.addEventListener('change', () => {
+  applyWallpaper();
+  applyChatBg();
+});
+
 document.addEventListener('click', e=>{
   const icon = e.target.closest('[data-app]');
   if (icon) openApp(icon.dataset.app);
@@ -696,7 +751,7 @@ document.addEventListener('click', e=>{
 function openApp(id) {
   go('app-'+id);
   switch (id) {
-    case 'messages': scrollToBottom(); break;
+    case 'messages': scrollToBottom(); applyChatBg(); break;
     case 'wechat': renderWxTab(wxTab); break;
     case 'music': renderMusic(); break;
     case 'settings': renderSetMain(); break;
@@ -722,7 +777,6 @@ function handlePatTap(targetName, targetRole, platform) {
   if (targetRole === 'them') text = `${myName} 拍了拍 ${peerName}`;
   else text = `${peerName} 拍了拍 ${myName}`;
 
-  // 从字卡库获取拍一拍
   pr(os('cards').getAll()).then(cards=>{
     const pats = cards.filter(c=>c.type === 'pat');
     if (pats.length) text += ` ${pickOne(pats).text}`;
@@ -769,7 +823,6 @@ function buildMessageEl(m) {
   time.textContent = fmtTime(m.ts);
   el.appendChild(time);
 
-  // 头像双击
   const av = document.createElement('div');
   av.className = 'msg-av';
   av.style.cssText = 'width:30px;height:30px;border-radius:50%;overflow:hidden;background:#1c1c1e;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;align-self:flex-end;cursor:pointer;margin-top:4px;';
@@ -792,7 +845,7 @@ async function initChat() {
   const msgs = await pr(os('messages').getAll());
   messagesEl.replaceChildren();
   msgs.forEach(m=>messagesEl.appendChild(buildMessageEl(m)));
-  if (settings.chatBg) messagesEl.style.backgroundImage = `url(${settings.chatBg})`;
+  applyChatBg();
   scrollToBottom();
 }
 
@@ -968,12 +1021,12 @@ async function openWxChat(chat) {
   $('#wxChatName').textContent = chat.name;
   const body = $('#wxChatBody');
   body.replaceChildren();
-  if (settings.chatBg) body.style.backgroundImage = `url(${settings.chatBg})`;
   const msgs = await getAllWxMessages(chat.name);
   for (const m of msgs) appendWxMsg(body, m.role, m, chat, false);
   $('#wxChatInput').value = '';
   $('#wxChatSend').disabled = true;
   go('wx-chat');
+  applyChatBg();
   setTimeout(()=>body.scrollTop = body.scrollHeight, 0);
 }
 
@@ -1109,7 +1162,7 @@ async function openPhotoModal(platform) {
   input.addEventListener('change', async ()=>{
     const files = [...(input.files||[])];
     for (const f of files) {
-      const data = await readImage(f);
+      const data = await readImage(f, 5, 1080, 0.8);
       if (data) await sendFeatureMessage(platform, {type:'image', text:data});
     }
   });
@@ -1122,20 +1175,46 @@ async function openShootModal(platform) {
   input.addEventListener('change', async ()=>{
     const f = (input.files||[])[0];
     if (!f) return;
-    const data = await readImage(f);
+    const data = await readImage(f, 5, 1080, 0.8);
     if (data) await sendFeatureMessage(platform, {type:'image', text:data});
   });
   input.click();
 }
 
-function readImage(file) {
-  return new Promise((resolve)=>{
+function readImage(file, maxSizeMB = 5, maxWidth = 1440, quality = 0.8) {
+  return new Promise((resolve) => {
     if (!file || !file.type.startsWith('image/')) { resolve(null); return; }
-    if (file.size > 800*1024) { alert('图片过大（>800KB）'); resolve(null); return; }
-    const r = new FileReader();
-    r.onload = ()=>resolve(r.result);
-    r.onerror = ()=>resolve(null);
-    r.readAsDataURL(file);
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      alert(`图片过大（>${maxSizeMB}MB）`);
+      resolve(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        // 如果文件不大且尺寸不大，直接返回原图
+        if (file.size <= 1024 * 1024 && w <= maxWidth) {
+          resolve(dataUrl);
+          return;
+        }
+        if (w > maxWidth) {
+          h = Math.round(h * maxWidth / w);
+          w = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
   });
 }
 
@@ -1250,7 +1329,7 @@ async function startCall(type='out') {
     $('#callStatus').textContent = '正在呼叫…';
     actions.innerHTML = `
       <button class="call-btn mute" id="callMute" type="button">${ICONS.settings}<span>静音</span></button>
-      <button class="call-btn min" id="callMin" type="button">${ICONS.min}<span>最小化</span></button>
+      <button class="call-btn min" id="callMin" type="button">${ICONS.minimize}<span>最小化</span></button>
       <button class="call-btn hangup" id="callHangup" type="button">${ICONS.hangup}<span>挂断</span></button>
     `;
     $('#callHangup').onclick = endCall;
@@ -1271,7 +1350,7 @@ function renderInCallActions() {
   const actions = $('#callActions');
   actions.innerHTML = `
     <button class="call-btn mute" id="callMute" type="button">${ICONS.settings}<span>静音</span></button>
-    <button class="call-btn min" id="callMin" type="button">${ICONS.min}<span>最小化</span></button>
+    <button class="call-btn min" id="callMin" type="button">${ICONS.minimize}<span>最小化</span></button>
     <button class="call-btn hangup" id="callHangup" type="button">${ICONS.hangup}<span>挂断</span></button>
   `;
   $('#callHangup').onclick = endCall;
@@ -1434,7 +1513,7 @@ $('#momentsAddBtn').addEventListener('click', async ()=>{
       inp.addEventListener('change', async ()=>{
         const files = [...(inp.files||[])];
         for (const f of files) {
-          const d = await readImage(f);
+          const d = await readImage(f, 5, 1080, 0.8);
           if (d) {
             pickedImages.push(d);
             const pv = document.createElement('img'); pv.src = d; pv.style.cssText = 'width:48px;height:48px;object-fit:cover;border-radius:6px;';
@@ -1506,14 +1585,14 @@ function renderBeautify() {
   $('#setWgSign').value = settings.wgSign || '';
   $('#setWgLoc').value = settings.wgLoc || '';
 
-  const bindUpload = (id, key, cb) => {
+  const bindUpload = (id, key, cb, maxSize, maxW, quality) => {
     const el = $(id);
     const newEl = el.cloneNode(true);
     el.parentNode.replaceChild(newEl, el);
     newEl.addEventListener('change', async e => {
       const f = e.target.files[0];
       if (!f) return;
-      const d = await readImage(f);
+      const d = await readImage(f, maxSize, maxW, quality);
       if (d) {
         settings[key] = d;
         await saveSettings();
@@ -1523,12 +1602,12 @@ function renderBeautify() {
     });
   };
 
-  bindUpload('#upWgBg', 'wgBg', renderWidget);
-  bindUpload('#upWgAvatar', 'wgAvatar', renderWidget);
-  bindUpload('#upMyAvatar', 'myAvatar', ()=>{ initChat(); renderHome(); });
-  bindUpload('#upPeerAvatar', 'peerAvatar', ()=>{ applyPeer(); initChat(); });
-  bindUpload('#upChatBg', 'chatBg', ()=>{ initChat(); });
-  bindUpload('#upWallpaper', 'wallpaper', ()=>{ applyWallpaper(); });
+  bindUpload('#upWgBg', 'wgBg', renderWidget, 5, 1440, 0.8);
+  bindUpload('#upWgAvatar', 'wgAvatar', renderWidget, 2, 400, 0.8);
+  bindUpload('#upMyAvatar', 'myAvatar', ()=>{ initChat(); renderHome(); }, 2, 400, 0.8);
+  bindUpload('#upPeerAvatar', 'peerAvatar', ()=>{ applyPeer(); initChat(); }, 2, 400, 0.8);
+  bindUpload('#upChatBg', 'chatBg', ()=>{ applyChatBg(); }, 5, 1440, 0.8);
+  bindUpload('#upWallpaper', 'wallpaper', ()=>{ applyWallpaper(); }, 5, 1440, 0.8);
 
   $('#setWgName').oninput = async e => { settings.wgName = e.target.value; await saveSettings(); renderWidget(); };
   $('#setWgSign').oninput = async e => { settings.wgSign = e.target.value; await saveSettings(); renderWidget(); };
@@ -1539,7 +1618,7 @@ function renderBeautify() {
     settings.wgBg = ''; settings.wgAvatar = ''; settings.wgName = 'melodies'; settings.wgSign = "It'll help the luck stick."; settings.wgLoc = '江苏';
     settings.myAvatar = ''; settings.peerAvatar = ''; settings.chatBg = ''; settings.wallpaper = '';
     await saveSettings();
-    renderHome(); initChat(); renderBeautify();
+    renderHome(); initChat(); applyChatBg(); renderBeautify();
   };
 }
 
@@ -1702,7 +1781,7 @@ async function doAddCards() {
     const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.multiple = true;
     input.addEventListener('change', async ()=>{
       const files = [...(input.files||[])]; let ok = 0;
-      for (const f of files) { const d = await readImage(f); if (!d) continue; await pr(os('cards','readwrite').add({ type:'sticker', data:d, name:f.name || 'sticker', createdAt:Date.now() })); ok++; }
+      for (const f of files) { const d = await readImage(f, 2, 400, 0.8); if (!d) continue; await pr(os('cards','readwrite').add({ type:'sticker', data:d, name:f.name || 'sticker', createdAt:Date.now() })); ok++; }
       alert(`已导入 ${ok} 张表情包`); renderCardList();
     });
     input.click(); return;
@@ -1872,10 +1951,11 @@ async function boot() {
   setInterval(() => { if (db && Math.random()<0.5) maybeThemPostMoment(); }, 45000);
   setTimeout(() => { if (db) maybeThemPostMoment(); }, 15000);
 
-  // 随机模拟对方来电
   setTimeout(() => {
     if (!callState.active && db) startCall('in');
   }, 30000);
+
+  applyChatBg();
 }
 async function updateClock() { const d = new Date(); const el = $('#sbTime'); if (el) el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 async function seedWelcome() { if ((await pr(os('messages').count())) === 0) await addMessage({role:'them', type:'text', text:'晚上好呀。', ts:Date.now()}); }
