@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
 <meta name="theme-color" content="#f2f4f8" />
 <title>主屏幕</title>
 <style>
@@ -13,106 +13,114 @@
     --text: #1c1c1e;
     --text-2: #8e8e93;
     --accent: #1c1c1e;
-    --wall: linear-gradient(165deg, #eef2f8 0%, #e2e8f2 45%, #e8e3f2 100%);
+    --wall: radial-gradient(130% 100% at 18% 0%, #f7f9fd 0%, #e9eef7 48%, #dde4f0 100%);
     --chat-bg: #f4f4f6;
     --moments-bg: linear-gradient(160deg, #dbe7f5 0%, #e8e0f0 100%);
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --sb-h: calc(var(--safe-top) + 44px);
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    overscroll-behavior: none; touch-action: manipulation;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
       "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
     background: var(--bg); color: var(--text); font-size: 15px;
     -webkit-font-smoothing: antialiased; user-select: none;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
   button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
-  input, textarea { font: inherit; }
+  input, textarea { font: inherit; -webkit-user-select: text; user-select: text; }
   input:focus, textarea:focus { outline: none; }
+  img { display: block; }
 
-  #app { position: fixed; inset: 0; height: 100vh; height: 100dvh; overflow: hidden; }
+  #app {
+    position: fixed; inset: 0;
+    height: 100vh; height: 100dvh;
+    overflow: hidden;
+  }
 
-  /* ============ 状态栏 ============ */
+  /* ===== 状态栏 ===== */
   .statusbar {
     position: fixed; top: 0; left: 0; right: 0;
-    height: var(--sb-h);
-    padding: var(--safe-top) 24px 0;
+    height: var(--sb-h); padding: var(--safe-top) 24px 0;
     display: flex; align-items: center; justify-content: space-between;
     font-size: 14px; font-weight: 600; letter-spacing: .3px;
-    color: #1c1c1e; z-index: 200; pointer-events: none;
+    color: #1c1c1e; z-index: 300; pointer-events: none;
     transition: color .3s ease;
   }
   .sb-right { display: flex; align-items: center; gap: 5px; }
-  .sb-right svg { display: block; }
 
-  /* ============ 主屏幕 ============ */
+  /* ===== 主屏幕 ===== */
   #home {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
     background: var(--wall);
+    background-size: cover; background-position: center; background-repeat: no-repeat;
   }
   .home-scroll {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: calc(var(--sb-h) + 22px) 18px 12px;
+    padding: calc(var(--sb-h) + 18px) 16px 10px;
   }
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 6px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 4px; }
   .app-cell {
-    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
     padding: 0; transition: transform .14s ease;
   }
   .app-cell:active { transform: scale(.9); }
   .app-icon {
-    width: 58px; height: 58px; border-radius: 15px;
+    width: 56px; height: 56px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 3px 10px rgba(20, 30, 60, .13);
+    box-shadow: 0 2px 8px rgba(20, 30, 60, .12);
     position: relative; overflow: hidden;
   }
   .app-icon::after {
     content: ""; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 55%);
+    background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0) 55%);
   }
-  .app-icon svg { width: 30px; height: 30px; color: #fff; position: relative; z-index: 1; }
+  .app-icon svg { width: 28px; height: 28px; color: #fff; position: relative; z-index: 1; }
   .app-label {
-    font-size: 11.5px; color: #2c2c30; letter-spacing: .2px;
+    font-size: 11px; color: #2c2c30; letter-spacing: .2px;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     transition: color .3s ease;
   }
-  .page-dots { display: flex; justify-content: center; gap: 6px; padding: 14px 0 10px; }
-  .page-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(60, 70, 90, .22); }
-  .page-dots i.on { background: rgba(60, 70, 90, .55); }
-  .dock-wrap { flex: 0 0 auto; padding: 0 14px calc(var(--safe-bottom) + 14px); }
+  .page-dots { display: flex; justify-content: center; gap: 6px; padding: 12px 0 8px; }
+  .page-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(60, 70, 90, .2); }
+  .page-dots i.on { background: rgba(60, 70, 90, .5); }
+  .dock-wrap { flex: 0 0 auto; padding: 0 12px calc(var(--safe-bottom) + 12px); }
   .dock {
     display: flex; justify-content: space-around; align-items: flex-start;
-    padding: 12px 6px 10px;
-    background: rgba(255, 255, 255, .58);
+    padding: 11px 4px 9px;
+    background: rgba(255, 255, 255, .55);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, .7);
-    border-radius: 28px; box-shadow: 0 6px 22px rgba(20, 30, 60, .1);
+    border-radius: 26px; box-shadow: 0 6px 20px rgba(20, 30, 60, .09);
   }
   .dock .app-cell { flex: 1 1 0; }
 
-  /* ============ 应用页 ============ */
+  /* ===== 应用页 ===== */
   .app-page {
     position: absolute; inset: 0; z-index: 10;
     display: flex; flex-direction: column;
     background: var(--bg);
     transform: translateX(100%);
-    transition: transform .28s cubic-bezier(.32,.72,0,1);
+    transition: transform .26s cubic-bezier(.32,.72,0,1);
     overflow: hidden;
   }
   .app-page.open { transform: translateX(0); }
-  #app-chat, #app-add-contact, #app-moments { z-index: 20; }
+  #app-chat, #app-add-friend, #app-add-card, #app-add-event,
+  #app-compose, #app-moments-compose, #app-moments, #app-friend-detail { z-index: 20; }
 
   .nav {
     flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
-    padding: calc(var(--sb-h) + 6px) 12px 10px;
+    padding: calc(var(--sb-h) + 4px) 12px 9px;
     border-bottom: 1px solid var(--line);
-    background: rgba(255,255,255,.95);
+    background: rgba(255,255,255,.96);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
   }
@@ -131,12 +139,12 @@
   .app-body {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(var(--safe-bottom) + 24px);
+    padding-bottom: calc(var(--safe-bottom) + 20px);
   }
 
-  /* ============ 通用列表 / 表单 ============ */
-  .group { padding: 8px 0; }
-  .group-title { padding: 14px 18px 7px; font-size: 12.5px; color: var(--text-2); letter-spacing: .4px; }
+  /* ===== 通用列表 ===== */
+  .group { padding: 6px 0; }
+  .group-title { padding: 14px 18px 6px; font-size: 12.5px; color: var(--text-2); letter-spacing: .4px; }
   .row-item {
     position: relative; display: flex; align-items: center; gap: 12px;
     width: 100%; text-align: left; padding: 13px 18px;
@@ -149,7 +157,7 @@
   }
   .row-item svg.lead { width: 20px; height: 20px; flex: 0 0 auto; }
   .row-text { flex: 1; min-width: 0; font-size: 15.5px; }
-  .row-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; line-height: 1.5; }
+  .row-sub { font-size: 12.5px; color: var(--text-2); margin-top: 3px; line-height: 1.5; }
   .row-val { font-size: 14px; color: var(--text-2); }
   .row-item svg.chev { width: 17px; height: 17px; color: #c7c7cc; flex: 0 0 auto; }
 
@@ -157,31 +165,27 @@
     flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 17px; font-weight: 500;
-    background-size: cover; background-position: center;
-    overflow: hidden;
+    background-size: cover; background-position: center; overflow: hidden;
   }
   .avatar.sm { width: 32px; height: 32px; font-size: 13px; }
   .avatar.lg { width: 68px; height: 68px; font-size: 25px; }
   .avatar.xs { width: 26px; height: 26px; font-size: 11px; }
 
-  /* ============ 空状态 ============ */
-  .empty-state {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 64px 32px 40px; text-align: center;
-  }
+  /* ===== 空状态 ===== */
+  .empty-state { display: flex; flex-direction: column; align-items: center; padding: 60px 32px 40px; text-align: center; }
   .empty-icon {
-    width: 64px; height: 64px; border-radius: 20px;
+    width: 62px; height: 62px; border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
-    background: var(--soft); color: var(--text-2); margin-bottom: 18px;
+    background: var(--soft); color: var(--text-2); margin-bottom: 16px;
   }
-  .empty-icon svg { width: 30px; height: 30px; }
-  .empty-title { font-size: 15.5px; font-weight: 500; color: var(--text); }
-  .empty-sub { font-size: 13px; color: var(--text-2); margin-top: 7px; line-height: 1.6; }
+  .empty-icon svg { width: 28px; height: 28px; }
+  .empty-title { font-size: 15.5px; font-weight: 500; }
+  .empty-sub { font-size: 13px; color: var(--text-2); margin-top: 6px; line-height: 1.6; }
 
-  /* ============ 美化 ============ */
-  .swatches { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 18px 18px; }
+  /* ===== 美化 ===== */
+  .swatches { display: flex; flex-wrap: wrap; gap: 11px; padding: 4px 18px 16px; }
   .sw {
-    width: 44px; height: 44px; border-radius: 50%;
+    width: 42px; height: 42px; border-radius: 50%;
     border: 2px solid transparent;
     box-shadow: inset 0 0 0 2px rgba(0,0,0,.04), 0 1px 4px rgba(0,0,0,.08);
     position: relative; transition: transform .15s ease;
@@ -190,39 +194,32 @@
   .sw:active { transform: scale(.92); }
   .sw.on { border-color: var(--accent); }
   .sw.on::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #fff; }
-  .sw.upload {
-    display: flex; align-items: center; justify-content: center;
-    background: var(--soft); color: var(--text-2);
-  }
-  .sw.upload svg { width: 20px; height: 20px; }
+  .sw.upload { display: flex; align-items: center; justify-content: center; background: var(--soft); color: var(--text-2); }
+  .sw.upload svg { width: 19px; height: 19px; }
 
-  .profile-edit { display: flex; align-items: center; gap: 16px; padding: 18px 18px 10px; }
-  .profile-edit .avatar { width: 64px; height: 64px; font-size: 24px; }
+  .profile-edit { display: flex; align-items: center; gap: 16px; padding: 16px 18px 8px; }
+  .profile-edit .avatar { width: 62px; height: 62px; font-size: 23px; }
   .profile-meta { flex: 1; min-width: 0; }
-  .profile-name-input {
-    width: 100%; border: 0; background: none; font-size: 18px;
-    font-weight: 600; padding: 0; color: var(--text);
-  }
+  .profile-name-input { width: 100%; border: 0; background: none; font-size: 18px; font-weight: 600; padding: 0; color: var(--text); }
   .profile-hint { font-size: 12.5px; color: var(--text-2); margin-top: 5px; }
-
-  .field-row { padding: 6px 18px 14px; }
+  .field-row { padding: 4px 18px 14px; }
   .field-row label { display: block; font-size: 12.5px; color: var(--text-2); margin-bottom: 7px; }
   .field-row input {
     width: 100%; padding: 11px 14px; border-radius: 11px;
     background: var(--soft); border: 0; font-size: 15px; color: var(--text);
   }
 
-  /* ============ 字卡库 ============ */
-  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+  /* ===== 字卡库 ===== */
+  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; padding: 14px; }
   .card {
-    border-radius: 16px; background: #fff; border: 1px solid var(--line);
-    padding: 18px 14px 16px; text-align: center;
-    box-shadow: 0 2px 10px rgba(20,30,60,.05);
+    border-radius: 15px; background: #fff; border: 1px solid var(--line);
+    padding: 16px 12px 14px; text-align: center;
+    box-shadow: 0 2px 8px rgba(20,30,60,.04);
     transition: transform .15s ease, border-color .15s ease;
   }
   .card:active { transform: scale(.97); }
   .card.on { border-color: var(--accent); }
-  .card .zi { font-size: 34px; font-weight: 600; letter-spacing: 2px; }
+  .card .zi { font-size: 32px; font-weight: 600; letter-spacing: 2px; }
   .card .py { font-size: 12px; color: var(--text-2); margin-top: 4px; letter-spacing: .6px; }
   .card .meaning {
     font-size: 12px; color: var(--text-2); line-height: 1.5; margin-top: 8px;
@@ -231,10 +228,10 @@
   }
   .card.on .meaning { max-height: 90px; opacity: 1; }
 
-  /* ============ 会话列表 ============ */
+  /* ===== 会话列表 ===== */
   .chat-item {
     position: relative; display: flex; align-items: center; gap: 12px;
-    width: 100%; text-align: left; padding: 12px 16px;
+    width: 100%; text-align: left; padding: 11px 16px;
     transition: background .15s ease;
   }
   .chat-item:active { background: var(--soft); }
@@ -255,17 +252,24 @@
     font-size: 12px; line-height: 20px; text-align: center;
     font-variant-numeric: tabular-nums;
   }
+  .blocked-tag {
+    flex: 0 0 auto; font-size: 11px; color: #ff3b30;
+    border: 1px solid #ffd0d0; background: #fff5f5;
+    border-radius: 6px; padding: 1px 6px;
+  }
 
-  /* ============ 聊天详情 ============ */
+  /* ===== 聊天详情 ===== */
   .messages {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     display: flex; flex-direction: column; gap: 12px;
-    padding: 16px 14px 20px;
+    padding: 16px 14px 18px;
     background: var(--chat-bg);
     background-size: cover; background-position: center;
   }
   .time-divider { align-self: center; font-size: 11.5px; color: var(--text-2); padding: 2px 0; }
+  .sys-msg { align-self: center; font-size: 12px; color: var(--text-2);
+    background: rgba(0,0,0,.04); border-radius: 8px; padding: 4px 10px; max-width: 80%; text-align: center; }
   .msg { display: flex; align-items: flex-end; gap: 8px; animation: pop .18s ease-out; max-width: 100%; }
   @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .msg.me { justify-content: flex-end; }
@@ -276,9 +280,37 @@
   .msg.them .bubble { background: #ffffff; border-bottom-left-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
   .msg.me .bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
 
+  /* 特殊消息卡片 */
+  .msg-card {
+    max-width: 78%; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .msg-card.red { background: linear-gradient(135deg, #ff6b4a, #ff3b30); color: #fff; }
+  .msg-card.transfer { background: linear-gradient(135deg, #ffb340, #ff9500); color: #fff; }
+  .msg-card.letter { background: #fff; color: var(--text); border: 1px solid var(--line); }
+  .msg-card.survey { background: #fff; color: var(--text); border: 1px solid var(--line); }
+  .msg-card.call { background: #f1f1f4; color: var(--text); }
+  .mc-top { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+  .mc-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.25); flex: 0 0 auto; }
+  .mc-icon svg { width: 20px; height: 20px; }
+  .msg-card.letter .mc-icon, .msg-card.survey .mc-icon, .msg-card.call .mc-icon { background: var(--soft); color: var(--text); }
+  .mc-title { font-size: 15px; font-weight: 600; }
+  .mc-sub { font-size: 12px; opacity: .85; margin-top: 2px; }
+  .mc-body { padding: 0 14px 14px; font-size: 14px; line-height: 1.55; }
+  .mc-foot { padding: 9px 14px; font-size: 11.5px; border-top: 1px solid rgba(255,255,255,.25); opacity: .9; }
+  .msg-card.letter .mc-foot, .msg-card.survey .mc-foot, .msg-card.call .mc-foot { border-top-color: var(--line); color: var(--text-2); }
+  .survey-opt {
+    display: block; width: 100%; text-align: left;
+    padding: 9px 12px; margin-top: 7px; border-radius: 9px;
+    background: var(--soft); font-size: 14px; color: var(--text);
+    transition: background .15s ease;
+  }
+  .survey-opt:active { background: #e8e8ee; }
+  .survey-opt.done { background: #e8f5ec; color: #1f7a44; }
+
   .composer {
-    flex: 0 0 auto; display: flex; align-items: flex-end; gap: 10px;
-    padding: 8px 12px calc(var(--safe-bottom) + 8px);
+    flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;
+    padding: 8px 10px calc(var(--safe-bottom) + 8px);
     border-top: 1px solid var(--line); background: #fff;
   }
   .composer textarea {
@@ -287,91 +319,133 @@
     background: var(--soft); color: var(--text);
     font-size: 15px; line-height: 1.4; resize: none; outline: none; overflow-y: auto;
   }
-  .send-btn {
+  .composer.disabled textarea { opacity: .5; }
+  .comp-btn {
     flex: 0 0 auto; width: 38px; height: 38px;
     display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; background: var(--accent); color: #fff;
-    transition: transform .15s ease;
+    border-radius: 50%; transition: transform .15s ease, background .15s ease;
   }
-  .send-btn:active { transform: scale(.9); }
-  .send-btn svg { width: 19px; height: 19px; }
+  .comp-btn:active { transform: scale(.9); }
+  .comp-btn svg { width: 22px; height: 22px; }
+  .comp-btn.plus { color: var(--text); }
+  .comp-btn.send { background: var(--accent); color: #fff; }
+  .comp-btn.send svg { width: 19px; height: 19px; }
+  .composer.writing { justify-content: center; }
+  .write-letter-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 24px; border-radius: 19px;
+    background: var(--accent); color: #fff; font-size: 15px;
+  }
+  .write-letter-btn svg { width: 18px; height: 18px; }
 
-  /* ============ 添加联系人 ============ */
-  .ac-wrap { padding: 26px 22px; }
-  .ac-avatar-row { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
-  .ac-avatar-btn {
-    width: 84px; height: 84px; border-radius: 50%;
+  /* ===== 表单页 ===== */
+  .form-wrap { padding: 22px 20px; }
+  .form-avatar-row { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+  .form-avatar-btn {
+    width: 80px; height: 80px; border-radius: 50%;
     background: var(--soft); display: flex; align-items: center; justify-content: center;
     color: var(--text-2); overflow: hidden; background-size: cover; background-position: center;
-    border: 0; transition: transform .15s ease;
+    transition: transform .15s ease;
   }
-  .ac-avatar-btn:active { transform: scale(.94); }
-  .ac-avatar-btn svg { width: 30px; height: 30px; }
-  .ac-avatar-btn.has-img { font-size: 30px; color: #fff; font-weight: 500; }
-  .ac-avatar-hint { font-size: 12.5px; color: var(--text-2); margin-top: 10px; }
-  .ac-field { margin-bottom: 18px; }
-  .ac-field label { display: block; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; padding-left: 2px; }
-  .ac-field input {
-    width: 100%; padding: 13px 15px; border-radius: 12px;
+  .form-avatar-btn:active { transform: scale(.94); }
+  .form-avatar-btn svg { width: 28px; height: 28px; }
+  .form-avatar-btn.has-img { color: #fff; font-weight: 500; }
+  .form-hint { font-size: 12.5px; color: var(--text-2); margin-top: 9px; }
+  .f-field { margin-bottom: 16px; }
+  .f-field label { display: block; font-size: 12.5px; color: var(--text-2); margin-bottom: 7px; padding-left: 2px; }
+  .f-field input, .f-field textarea {
+    width: 100%; padding: 12px 14px; border-radius: 12px;
     background: var(--soft); border: 0; font-size: 15px; color: var(--text);
+    resize: vertical;
   }
-  .ac-save {
-    width: 100%; margin-top: 12px; padding: 14px;
+  .f-field textarea { min-height: 110px; line-height: 1.55; }
+  .f-save {
+    width: 100%; margin-top: 10px; padding: 14px;
     border-radius: 13px; background: var(--accent); color: #fff;
     font-size: 15.5px; font-weight: 500;
     transition: opacity .15s ease, transform .15s ease;
   }
-  .ac-save:active { transform: scale(.98); opacity: .9; }
+  .f-save:active { transform: scale(.98); opacity: .9; }
 
-  /* ============ 朋友圈 ============ */
+  /* ===== 朋友圈 ===== */
   .moments-hero {
-    position: relative; height: 240px;
+    position: relative; height: 230px;
     background: var(--moments-bg);
     background-size: cover; background-position: center;
-    display: flex; align-items: flex-end; padding: 0 18px 16px;
+    display: flex; align-items: flex-end; padding: 0 18px 15px;
   }
   .moments-hero::after {
     content: ""; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.28) 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,0) 42%, rgba(0,0,0,.3) 100%);
   }
-  .moments-me {
-    position: relative; z-index: 1;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .moments-me .avatar { width: 58px; height: 58px; font-size: 22px;
+  .moments-me { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
+  .moments-me .avatar { width: 56px; height: 56px; font-size: 21px;
     box-shadow: 0 2px 8px rgba(0,0,0,.2); border: 2px solid rgba(255,255,255,.85); }
-  .moments-me-name { font-size: 17px; font-weight: 600; color: #fff;
-    text-shadow: 0 1px 4px rgba(0,0,0,.35); }
-  .moments-empty { padding: 44px 28px; text-align: center; }
-  .moments-empty p { margin: 0 0 6px; font-size: 14px; color: var(--text-2); }
-  .moments-empty p:first-child { font-size: 15.5px; color: var(--text); font-weight: 500; }
+  .moments-me-name { font-size: 17px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.35); }
 
-  /* ============ 音乐 ============ */
-  .player { padding: 30px 28px calc(var(--safe-bottom) + 26px); display: flex; flex-direction: column; align-items: center; }
+  .moment-item { display: flex; gap: 11px; padding: 16px 16px 4px; position: relative; }
+  .moment-item + .moment-item::before {
+    content: ""; position: absolute; left: 16px; right: 0; top: 0;
+    height: 1px; background: var(--line);
+  }
+  .moment-main { flex: 1; min-width: 0; }
+  .moment-author { font-size: 14.5px; font-weight: 600; color: #576b95; }
+  .moment-text { font-size: 14.5px; line-height: 1.55; margin-top: 5px; white-space: pre-wrap; word-break: break-word; }
+  .moment-imgs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .moment-img { width: 84px; height: 84px; border-radius: 8px; background-size: cover; background-position: center; background-color: var(--soft); }
+  .moment-video {
+    margin-top: 8px; width: 100%; height: 150px; border-radius: 10px;
+    background: linear-gradient(135deg, #3a3a46, #1c1c1e);
+    display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.9);
+    position: relative;
+  }
+  .moment-video svg { width: 38px; height: 38px; }
+  .moment-meta { display: flex; align-items: center; gap: 12px; margin-top: 9px; }
+  .moment-meta span { font-size: 12px; color: var(--text-2); }
+  .moment-actions { display: flex; gap: 4px; margin-left: auto; }
+  .ma-btn {
+    display: flex; align-items: center; gap: 4px; padding: 4px 8px;
+    border-radius: 7px; font-size: 12.5px; color: var(--text-2);
+    background: var(--soft);
+  }
+  .ma-btn.on { color: #576b95; background: #eaf0fa; }
+  .ma-btn svg { width: 14px; height: 14px; }
+  .moment-likes { margin-top: 8px; font-size: 13px; color: #576b95; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .moment-likes svg { width: 13px; height: 13px; }
+  .moment-comments { margin-top: 6px; background: var(--soft); border-radius: 8px; padding: 8px 10px; }
+  .mcomment { font-size: 13px; line-height: 1.6; }
+  .mcomment b { color: #576b95; font-weight: 600; }
+  .comment-input-row { display: flex; gap: 6px; margin-top: 6px; }
+  .comment-input-row input {
+    flex: 1; padding: 7px 11px; border-radius: 15px; border: 0;
+    background: var(--soft); font-size: 13px; color: var(--text);
+  }
+  .comment-send { padding: 0 12px; border-radius: 15px; background: var(--accent); color: #fff; font-size: 13px; }
+
+  /* ===== 音乐 ===== */
+  .player { padding: 26px 26px calc(var(--safe-bottom) + 24px); display: flex; flex-direction: column; align-items: center; }
   .cover {
-    width: 100%; max-width: 260px; aspect-ratio: 1 / 1; border-radius: 20px;
+    width: 100%; max-width: 250px; aspect-ratio: 1 / 1; border-radius: 20px;
     background: linear-gradient(150deg, #4a4a55, #1c1c1e 70%);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 16px 40px rgba(20,30,60,.24);
+    box-shadow: 0 14px 36px rgba(20,30,60,.22);
   }
-  .cover svg { width: 66px; height: 66px; color: rgba(255,255,255,.9); }
-  .song-title { font-size: 20px; font-weight: 600; margin-top: 28px; }
-  .song-artist { font-size: 14px; color: var(--text-2); margin-top: 5px; }
-  .progress-wrap { width: 100%; margin-top: 26px; }
+  .cover svg { width: 62px; height: 62px; color: rgba(255,255,255,.9); }
+  .song-title { font-size: 19px; font-weight: 600; margin-top: 26px; }
+  .song-artist { font-size: 14px; color: var(--text-2); margin-top: 4px; }
+  .progress-wrap { width: 100%; margin-top: 24px; }
   .progress-bar { height: 4px; border-radius: 2px; background: #e6e6ea; overflow: hidden; }
   .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width .4s linear; }
   .time-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-2); margin-top: 7px; }
-  .controls { display: flex; align-items: center; gap: 34px; margin-top: 30px; }
+  .controls { display: flex; align-items: center; gap: 32px; margin-top: 28px; }
   .ctrl { display: flex; align-items: center; justify-content: center; color: var(--text); }
   .ctrl svg { width: 26px; height: 26px; }
-  .ctrl.play { width: 62px; height: 62px; border-radius: 50%; background: var(--accent); color: #fff;
-    transition: transform .15s ease; }
+  .ctrl.play { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #fff; transition: transform .15s ease; }
   .ctrl.play:active { transform: scale(.93); }
-  .ctrl.play svg { width: 26px; height: 26px; }
 
-  /* ============ 经期 ============ */
-  .cal { padding: 18px 18px 6px; }
-  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  /* ===== 经期 ===== */
+  .cal { padding: 16px 18px 6px; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .cal-title { font-size: 16.5px; font-weight: 600; }
   .cal-nav { display: flex; gap: 4px; }
   .cal-nav button { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
@@ -387,16 +461,15 @@
   .cal-day.period { background: #ffd7de; color: #c9184a; }
   .cal-day.period.today { box-shadow: inset 0 0 0 1.5px #c9184a; }
   .cal-day.predicted { background: #ffeef2; color: #d9708a; }
-  .stat-row { display: flex; gap: 12px; padding: 12px 18px 4px; }
+  .stat-row { display: flex; gap: 12px; padding: 10px 18px 4px; }
   .stat { flex: 1; border-radius: 14px; padding: 14px 12px; text-align: center; background: var(--soft); }
   .stat .num { font-size: 22px; font-weight: 600; letter-spacing: .5px; }
   .stat .lbl { font-size: 11.5px; color: var(--text-2); margin-top: 4px; }
 
-  /* ============ 倒数日 ============ */
-  .evt { display: flex; align-items: center; gap: 14px; padding: 16px 18px; position: relative; }
+  /* ===== 倒数日 ===== */
+  .evt { display: flex; align-items: center; gap: 14px; padding: 15px 18px; position: relative; }
   .evt + .evt::before { content: ""; position: absolute; left: 18px; right: 0; top: 0; height: 1px; background: var(--line); }
-  .evt-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 13px;
-    display: flex; align-items: center; justify-content: center; }
+  .evt-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; }
   .evt-icon svg { width: 22px; height: 22px; color: #fff; }
   .evt-main { flex: 1; min-width: 0; }
   .evt-name { font-size: 15.5px; font-weight: 500; }
@@ -404,8 +477,121 @@
   .evt-days { flex: 0 0 auto; text-align: right; }
   .evt-days b { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .evt-days span { display: block; font-size: 11px; color: var(--text-2); margin-top: 1px; }
+  .evt-del { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: #c7c7cc; flex: 0 0 auto; }
+  .evt-del svg { width: 17px; height: 17px; }
 
+  /* ===== 底部弹出面板 ===== */
+  .mask {
+    position: fixed; inset: 0; z-index: 400;
+    background: rgba(0,0,0,.32);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  }
+  .mask.show { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    padding: 10px 14px calc(var(--safe-bottom) + 14px);
+    transform: translateY(100%);
+    transition: transform .26s cubic-bezier(.32,.72,0,1);
+    max-height: 82vh; overflow-y: auto;
+  }
+  .sheet.show { transform: translateY(0); }
+  .sheet-grip { width: 36px; height: 4px; border-radius: 2px; background: #dcdce2; margin: 0 auto 12px; }
+  .sheet-title { text-align: center; font-size: 14px; color: var(--text-2); margin-bottom: 12px; }
+  .sheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 4px; padding: 4px 0 8px; }
+  .sheet-item { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .sheet-item .si-icon {
+    width: 50px; height: 50px; border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--soft); color: var(--text);
+    transition: transform .15s ease;
+  }
+  .sheet-item:active .si-icon { transform: scale(.92); }
+  .sheet-item .si-icon svg { width: 24px; height: 24px; }
+  .sheet-item span { font-size: 11.5px; color: var(--text-2); }
+  .sheet-item.disabled { opacity: .4; pointer-events: none; }
+
+  .modal-card {
+    background: #fff; border-radius: 18px; padding: 20px 18px 16px;
+    width: 100%;
+  }
+  .modal-card h3 { margin: 0 0 14px; font-size: 17px; text-align: center; }
+  .modal-card .f-field { margin-bottom: 13px; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-btn {
+    flex: 1; padding: 12px; border-radius: 12px; font-size: 15px;
+    text-align: center; transition: opacity .15s ease;
+  }
+  .modal-btn.ghost { background: var(--soft); color: var(--text); }
+  .modal-btn.primary { background: var(--accent); color: #fff; }
+  .modal-btn:active { opacity: .85; }
+  .survey-opt-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .survey-opt-row input { flex: 1; }
+  .survey-opt-row button { width: 38px; border-radius: 10px; background: var(--soft); color: var(--text-2); font-size: 20px; }
+  .add-opt-btn { width: 100%; padding: 9px; border-radius: 10px; background: var(--soft); color: var(--text-2); font-size: 13.5px; margin-top: 2px; }
+
+  /* ===== 通话覆盖层 ===== */
+  .call-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: linear-gradient(170deg, #2c2c33, #17171b 70%);
+    display: flex; flex-direction: column; align-items: center;
+    padding: calc(var(--safe-top) + 60px) 24px calc(var(--safe-bottom) + 50px);
+    color: #fff;
+    opacity: 0; pointer-events: none; transition: opacity .25s ease;
+  }
+  .call-overlay.show { opacity: 1; pointer-events: auto; }
+  .call-overlay.video { background: linear-gradient(170deg, #1f2a3a, #0e1420 70%); }
+  .call-avatar {
+    width: 110px; height: 110px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px; font-weight: 500; background-size: cover; background-position: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .call-name { font-size: 23px; font-weight: 600; margin-top: 24px; }
+  .call-status { font-size: 14px; opacity: .7; margin-top: 8px; letter-spacing: .5px; }
+  .call-video-preview {
+    position: absolute; right: 18px; top: calc(var(--safe-top) + 20px);
+    width: 90px; height: 124px; border-radius: 12px;
+    background: linear-gradient(135deg, #4a4a55, #2b2b33);
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+  .call-video-preview svg { width: 30px; height: 30px; opacity: .7; }
+  .call-actions { margin-top: auto; display: flex; gap: 60px; }
+  .call-btn {
+    width: 66px; height: 66px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.14); color: #fff;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .call-btn:active { transform: scale(.92); }
+  .call-btn svg { width: 28px; height: 28px; }
+  .call-btn.hangup { background: #ff3b30; }
+  .call-btn.mute.on { background: rgba(255,255,255,.85); color: #1c1c1e; }
+
+  /* ===== 通用 ===== */
   .hidden { display: none !important; }
+  .action-list { padding: 4px 0; }
+  .action-list button {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 15px 10px; text-align: left;
+    font-size: 15.5px; border-bottom: 1px solid var(--line);
+  }
+  .action-list button:last-child { border-bottom: 0; }
+  .action-list button svg { width: 21px; height: 21px; flex: 0 0 auto; }
+  .action-list button.danger { color: #ff3b30; }
+  .action-list button:active { background: var(--soft); }
+
+  .btn-add-round {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-add-round svg { width: 18px; height: 18px; }
+
+  .sec-title-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 6px; }
+  .sec-title-row .t { font-size: 12.5px; color: var(--text-2); letter-spacing: .4px; }
 </style>
 </head>
 <body>
@@ -417,14 +603,11 @@
     <span id="sb-time">9:41</span>
     <span class="sb-right">
       <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
-        <rect x="0" y="8" width="3" height="4" rx="1"/>
-        <rect x="5" y="5.5" width="3" height="6.5" rx="1"/>
-        <rect x="10" y="3" width="3" height="9" rx="1"/>
-        <rect x="15" y="0" width="3" height="12" rx="1"/>
+        <rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/>
+        <rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/>
       </svg>
       <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <path d="M1 4.2a11 11 0 0 1 14 0"/>
-        <path d="M3.6 7a7 7 0 0 1 8.8 0"/>
+        <path d="M1 4.2a11 11 0 0 1 14 0"/><path d="M3.6 7a7 7 0 0 1 8.8 0"/>
         <circle cx="8" cy="10.2" r="1" fill="currentColor" stroke="none"/>
       </svg>
       <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
@@ -441,19 +624,14 @@
       <div class="grid" id="home-grid"></div>
       <div class="page-dots"><i class="on"></i><i></i></div>
     </div>
-    <div class="dock-wrap">
-      <div class="dock" id="dock"></div>
-    </div>
+    <div class="dock-wrap"><div class="dock" id="dock"></div></div>
   </div>
 
   <!-- ===== 设置 ===== -->
   <div class="app-page" id="app-settings">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">设置</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">设置</span><span class="nav-btn ghost"></span>
     </header>
     <div class="app-body">
       <div class="group">
@@ -472,17 +650,12 @@
           <span class="row-text">通用</span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </button>
-        <button class="row-item" type="button">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.6"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-          <span class="row-text">隐私</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
       </div>
       <div class="group">
         <button class="row-item" type="button">
           <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
           <span class="row-text">关于本机</span>
-          <span class="row-val">v2.0.0</span>
+          <span class="row-val">v3.0.0</span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
         </button>
       </div>
@@ -492,41 +665,31 @@
   <!-- ===== 美化 ===== -->
   <div class="app-page" id="app-beautify">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">美化</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">美化</span><span class="nav-btn ghost"></span>
     </header>
     <div class="app-body">
-      <!-- 我的资料 -->
       <div class="profile-edit">
-        <button class="avatar lg" id="my-avatar-btn" style="background:#1c1c1e;background-size:cover;background-position:center">我</button>
+        <button class="avatar lg" id="my-avatar-btn" style="background:#1c1c1e">我</button>
         <div class="profile-meta">
           <input class="profile-name-input" id="my-name-input" placeholder="我的昵称" maxlength="12" />
           <div class="profile-hint">点击头像可上传图片</div>
         </div>
       </div>
-
       <div class="group-title">主屏幕壁纸</div>
       <div class="swatches" id="wall-swatches"></div>
-
-      <div class="group-title">微信聊天背景</div>
+      <div class="group-title">聊天背景</div>
       <div class="swatches" id="chatbg-swatches"></div>
-
       <div class="group-title">朋友圈背景</div>
       <div class="swatches" id="momentsbg-swatches"></div>
-
       <div class="group-title">默认好友名</div>
       <div class="field-row">
         <input id="default-friend-input" maxlength="8" placeholder="不填则使用「梦」" />
       </div>
-
-      <div class="group-title">说明</div>
       <div class="group">
         <div class="row-item" style="cursor:default">
           <div class="row-text" style="font-size:13px;color:#8e8e93;line-height:1.6">
-            所有设置会自动保存在本机浏览器中。对方头像和名字可在添加好友时设置，也可在聊天页右上角重新编辑。
+            所有设置自动保存在本机浏览器。添加好友后，微信、短信、信箱共用同一好友列表。
           </div>
         </div>
       </div>
@@ -536,121 +699,20 @@
   <!-- ===== 字卡库 ===== -->
   <div class="app-page" id="app-cards">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
       <span class="nav-title">字卡库</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" id="card-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
     </header>
     <div class="app-body">
       <div class="cards-grid" id="cards-grid"></div>
     </div>
   </div>
 
-  <!-- ===== 微信 ===== -->
-  <div class="app-page" id="app-wechat">
-    <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">微信</span>
-      <div class="nav-actions">
-        <button class="nav-btn" id="wx-moments-btn" aria-label="朋友圈">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>
-          </svg>
-        </button>
-        <button class="nav-btn" id="wx-add-btn" aria-label="添加好友">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-      </div>
-    </header>
-    <div class="app-body">
-      <div id="list-wechat"></div>
-    </div>
-  </div>
-
-  <!-- ===== 短信 ===== -->
-  <div class="app-page" id="app-sms">
-    <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">短信</span>
-      <div class="nav-actions">
-        <button class="nav-btn" data-add="sms" aria-label="添加联系人">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-      </div>
-    </header>
-    <div class="app-body">
-      <div id="list-sms"></div>
-    </div>
-  </div>
-
-  <!-- ===== 信箱 ===== -->
-  <div class="app-page" id="app-mail">
-    <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">信箱</span>
-      <div class="nav-actions">
-        <button class="nav-btn" data-add="mail" aria-label="添加联系人">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-      </div>
-    </header>
-    <div class="app-body">
-      <div id="list-mail"></div>
-    </div>
-  </div>
-
-  <!-- ===== 音乐 ===== -->
-  <div class="app-page" id="app-music">
-    <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">音乐</span>
-      <span class="nav-btn ghost"></span>
-    </header>
-    <div class="app-body">
-      <div class="player">
-        <div class="cover">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>
-          </svg>
-        </div>
-        <div class="song-title">安静的午后</div>
-        <div class="song-artist">林间乐队</div>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-          <div class="time-row"><span id="t-cur">0:00</span><span id="t-all">3:24</span></div>
-        </div>
-        <div class="controls">
-          <button class="ctrl" type="button" aria-label="上一首">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h2v14H7zM19 5v14l-9-7z"/></svg>
-          </button>
-          <button class="ctrl play" id="play-btn" type="button" aria-label="播放">
-            <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
-          </button>
-          <button class="ctrl" type="button" aria-label="下一首">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 5h2v14h-2zM5 5v14l9-7z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ===== 经期 ===== -->
   <div class="app-page" id="app-period">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title">经期</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">经期</span><span class="nav-btn ghost"></span>
     </header>
     <div class="app-body">
       <div class="stat-row">
@@ -661,12 +723,8 @@
         <div class="cal-head">
           <span class="cal-title" id="cal-title">--</span>
           <span class="cal-nav">
-            <button type="button" id="cal-prev" aria-label="上个月">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-            </button>
-            <button type="button" id="cal-next" aria-label="下个月">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
-            </button>
+            <button type="button" id="cal-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+            <button type="button" id="cal-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></button>
           </span>
         </div>
         <div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
@@ -675,9 +733,7 @@
       <div class="group-title">说明</div>
       <div class="group">
         <div class="row-item" style="cursor:default">
-          <div class="row-text" style="font-size:13px;color:#8e8e93;line-height:1.6">
-            浅红色为预计经期日，深红色为实际记录日。数据仅保存在本地浏览器中，用于日常参考。
-          </div>
+          <div class="row-text" style="font-size:13px;color:#8e8e93;line-height:1.6">浅红色为预计经期日，深红色为实际记录日。数据保存在本地。</div>
         </div>
       </div>
     </div>
@@ -686,25 +742,82 @@
   <!-- ===== 倒数日 ===== -->
   <div class="app-page" id="app-countdown">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
       <span class="nav-title">倒数日</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" id="event-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </header>
+    <div class="app-body"><div id="evt-list"></div></div>
+  </div>
+
+  <!-- ===== 微信 ===== -->
+  <div class="app-page" id="app-wechat">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">微信</span>
+      <div class="nav-actions">
+        <button class="nav-btn" id="wx-moments-btn" aria-label="朋友圈"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg></button>
+        <button class="nav-btn" data-add-friend="wechat" aria-label="添加好友"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </header>
+    <div class="app-body"><div id="list-wechat"></div></div>
+  </div>
+
+  <!-- ===== 短信 ===== -->
+  <div class="app-page" id="app-sms">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">短信</span>
+      <div class="nav-actions">
+        <button class="nav-btn" data-add-friend="sms" aria-label="添加联系人"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </header>
+    <div class="app-body"><div id="list-sms"></div></div>
+  </div>
+
+  <!-- ===== 信箱 ===== -->
+  <div class="app-page" id="app-mail">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">信箱</span>
+      <div class="nav-actions">
+        <button class="nav-btn" data-add-friend="mail" aria-label="添加联系人"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </header>
+    <div class="app-body"><div id="list-mail"></div></div>
+  </div>
+
+  <!-- ===== 音乐 ===== -->
+  <div class="app-page" id="app-music">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">音乐</span><span class="nav-btn ghost"></span>
     </header>
     <div class="app-body">
-      <div id="evt-list"></div>
+      <div class="player">
+        <div class="cover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+        </div>
+        <div class="song-title">安静的午后</div>
+        <div class="song-artist">林间乐队</div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="time-row"><span id="t-cur">0:00</span><span id="t-all">3:24</span></div>
+        </div>
+        <div class="controls">
+          <button class="ctrl" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h2v14H7zM19 5v14l-9-7z"/></svg></button>
+          <button class="ctrl play" id="play-btn" type="button"><svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+          <button class="ctrl" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 5h2v14h-2zM5 5v14l9-7z"/></svg></button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- ===== 朋友圈 ===== -->
   <div class="app-page" id="app-moments">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
       <span class="nav-title">朋友圈</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" id="moment-publish-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></button>
     </header>
     <div class="app-body" style="padding-bottom:0">
       <div class="moments-hero" id="moments-hero">
@@ -713,73 +826,152 @@
           <div class="moments-me-name" id="moments-my-name">林一</div>
         </div>
       </div>
-      <div class="moments-empty">
-        <p>还没有动态</p>
-        <p>添加好友后，这里会显示他们的分享</p>
-      </div>
+      <div id="moments-list"></div>
     </div>
   </div>
 
   <!-- ===== 聊天详情 ===== -->
   <div class="app-page" id="app-chat">
     <header class="nav">
-      <button class="nav-btn" id="chat-back" aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
+      <button class="nav-btn" id="chat-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
       <span class="nav-title" id="chat-title">会话</span>
-      <button class="nav-btn" id="chat-edit-btn" aria-label="编辑">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M14 6l4 4"/>
-        </svg>
-      </button>
+      <button class="nav-btn" id="chat-more-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="19" cy="12" r="1.2" fill="currentColor"/></svg></button>
     </header>
     <div class="messages" id="messages"></div>
     <form class="composer" id="composer">
       <textarea id="msg-input" rows="1" placeholder="输入消息..." autocomplete="off"></textarea>
-      <button class="send-btn" type="submit" aria-label="发送">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/>
-        </svg>
-      </button>
+      <button class="comp-btn plus" type="button" id="plus-btn" aria-label="更多功能"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></button>
+      <button class="comp-btn send" type="submit" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/></svg></button>
     </form>
   </div>
 
-  <!-- ===== 添加 / 编辑联系人 ===== -->
-  <div class="app-page" id="app-add-contact">
+  <!-- ===== 添加 / 编辑好友 ===== -->
+  <div class="app-page" id="app-add-friend">
     <header class="nav">
-      <button class="nav-btn" data-close aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-      </button>
-      <span class="nav-title" id="ac-title">添加好友</span>
-      <span class="nav-btn ghost"></span>
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title" id="af-title">添加好友</span><span class="nav-btn ghost"></span>
     </header>
     <div class="app-body">
-      <div class="ac-wrap">
-        <div class="ac-avatar-row">
-          <button class="ac-avatar-btn" id="ac-avatar-btn" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
+      <div class="form-wrap">
+        <div class="form-avatar-row">
+          <button class="form-avatar-btn" id="af-avatar-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           </button>
-          <div class="ac-avatar-hint">点击设置头像</div>
+          <div class="form-hint">点击设置头像</div>
         </div>
-
-        <div class="ac-field">
-          <label>名字</label>
-          <input id="ac-name" type="text" maxlength="12" placeholder="不填则默认叫「梦」" autocomplete="off" />
-        </div>
-
-        <div class="ac-field" id="ac-remark-field">
-          <label>备注</label>
-          <input id="ac-remark" type="text" maxlength="16" placeholder="选填，用于显示在聊天列表" autocomplete="off" />
-        </div>
-
-        <button class="ac-save" id="ac-save" type="button">保存</button>
+        <div class="f-field"><label>名字</label><input id="af-name" type="text" maxlength="12" placeholder="不填则默认叫「梦」" autocomplete="off" /></div>
+        <div class="f-field" id="af-remark-field"><label>备注</label><input id="af-remark" type="text" maxlength="16" placeholder="选填，显示在列表" autocomplete="off" /></div>
+        <button class="f-save" id="af-save" type="button">保存</button>
       </div>
     </div>
   </div>
 
+  <!-- ===== 添加字卡 ===== -->
+  <div class="app-page" id="app-add-card">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">添加字卡</span><span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="form-wrap">
+        <div class="f-field"><label>字 / 词</label><input id="acard-zi" type="text" maxlength="4" placeholder="例如：山" autocomplete="off" /></div>
+        <div class="f-field"><label>拼音</label><input id="acard-py" type="text" maxlength="20" placeholder="例如：shān" autocomplete="off" /></div>
+        <div class="f-field"><label>释义</label><textarea id="acard-mean" maxlength="80" placeholder="简单解释这个字词"></textarea></div>
+        <button class="f-save" id="acard-save" type="button">保存字卡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 添加倒数日 ===== -->
+  <div class="app-page" id="app-add-event">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">添加倒数日</span><span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="form-wrap">
+        <div class="f-field"><label>名称</label><input id="aevent-name" type="text" maxlength="16" placeholder="例如：生日" autocomplete="off" /></div>
+        <div class="f-field"><label>日期</label><input id="aevent-date" type="date" /></div>
+        <button class="f-save" id="aevent-save" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 写信 ===== -->
+  <div class="app-page" id="app-compose">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title" id="compose-title">写一封信</span>
+      <button class="nav-btn" id="compose-send" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/></svg></button>
+    </header>
+    <div class="app-body">
+      <div class="form-wrap">
+        <div class="f-field"><label>收件人</label><input id="letter-to" type="text" readonly /></div>
+        <div class="f-field"><label>主题</label><input id="letter-subject" type="text" maxlength="30" placeholder="给这封信起个标题" autocomplete="off" /></div>
+        <div class="f-field"><label>正文</label><textarea id="letter-body" maxlength="500" placeholder="写下你想说的话..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 发布朋友圈 ===== -->
+  <div class="app-page" id="app-moments-compose">
+    <header class="nav">
+      <button class="nav-btn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <span class="nav-title">发表动态</span>
+      <button class="nav-btn" id="moment-submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 20 4l-4.5 16-4-6.5z"/></svg></button>
+    </header>
+    <div class="app-body">
+      <div class="form-wrap">
+        <div class="f-field"><label>内容</label><textarea id="moment-text" maxlength="300" placeholder="分享你的此刻..."></textarea></div>
+        <div class="f-field">
+          <label>类型</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="type-chip on" data-mtype="text" style="padding:8px 16px;border-radius:18px;background:var(--soft);font-size:13.5px">文字</button>
+            <button class="type-chip" data-mtype="image" style="padding:8px 16px;border-radius:18px;background:var(--soft);font-size:13.5px">图片</button>
+            <button class="type-chip" data-mtype="video" style="padding:8px 16px;border-radius:18px;background:var(--soft);font-size:13.5px">视频</button>
+          </div>
+        </div>
+        <div class="f-field hidden" id="moment-image-field">
+          <label>选择图片</label>
+          <button id="moment-image-btn" style="width:100%;padding:12px;border-radius:12px;background:var(--soft);color:var(--text-2);font-size:14px">点击上传图片</button>
+          <div id="moment-image-preview" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+        <div class="f-field hidden" id="moment-video-field">
+          <label>视频（模拟）</label>
+          <div style="padding:14px;border-radius:12px;background:var(--soft);color:var(--text-2);font-size:13.5px;line-height:1.6">视频将以封面占位形式展示。实际项目中可接入视频上传。</div>
+        </div>
+        <button class="f-save" id="moment-publish-submit" type="button">发表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 通话覆盖层 ===== -->
+  <div class="call-overlay" id="call-overlay">
+    <div class="call-video-preview hidden" id="call-video-preview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="3"/><path d="M15.5 10.5 21 7v10l-5.5-3.5z"/></svg>
+    </div>
+    <div class="call-avatar" id="call-avatar">?</div>
+    <div class="call-name" id="call-name">对方</div>
+    <div class="call-status" id="call-status">正在呼叫...</div>
+    <div class="call-actions">
+      <button class="call-btn mute" id="call-mute-btn" type="button" aria-label="静音">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+      </button>
+      <button class="call-btn hangup" id="call-hangup-btn" type="button" aria-label="挂断">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c5-3.5 11-3.5 16 0l-2.5 3-3-1.5v-2.4a11 11 0 0 0-5 0v2.4L6.5 17z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== 遮罩与弹出层 ===== -->
+  <div class="mask" id="mask"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-grip"></div>
+    <div id="sheet-content"></div>
+  </div>
+
   <input type="file" id="file-avatar" accept="image/*" class="hidden" />
+  <input type="file" id="file-moment-img" accept="image/*" class="hidden" />
 
 </div>
 
@@ -798,13 +990,22 @@
     music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V5.6l10-2v11.9"/><circle cx="6.4" cy="18" r="2.6"/><circle cx="16.4" cy="16" r="2.6"/></svg>',
     heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.4s-7.6-4.6-7.6-9.6a4.3 4.3 0 0 1 7.6-2.7 4.3 4.3 0 0 1 7.6 2.7c0 5-7.6 9.6-7.6 9.6z"/></svg>',
     hourglass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3h10.8M6.6 21h10.8"/><path d="M7.4 3v3.2c0 2.2 4.6 5.8 4.6 5.8s4.6-3.6 4.6-5.8V3"/><path d="M7.4 21v-3.2c0-2.2 4.6-5.8 4.6-5.8s4.6 3.6 4.6 5.8V21"/></svg>',
-    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.2 2"/></svg>',
-    gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="9.4" width="17.2" height="11.2" rx="2"/><path d="M3.4 13.4h17.2M12 9.4v11.2"/><path d="M12 9.4S10.6 4.4 8 4.4a2.2 2.2 0 0 0 0 5zM12 9.4s1.4-5 4-5a2.2 2.2 0 0 1 0 5z"/></svg>',
-    plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 4 3.6 10.6l6.2 2.4 2.4 6.2z"/><path d="M20.6 4 9.8 13"/></svg>',
-    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 21V3.6"/><path d="M5.6 4.4h11.6l-2 4 2 4H5.6z"/></svg>',
-    moments: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3.5 9 6l-1.6 2.4a13 13 0 0 0 6.2 6.2L16 13l2.5 2.4-1.6 2.6a1.6 1.6 0 0 1-1.7.7C10.6 17.6 6.4 13.4 5.3 8.8a1.6 1.6 0 0 1 .7-1.7z"/></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="3"/><path d="M15.5 10.5 21 7v10l-5.5-3.5z"/></svg>',
+    redpacket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 4v4a4 4 0 0 0 8 0V4"/><path d="M12 12v3"/></svg>',
+    transfer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.4 9.6h4.2a2 2 0 1 1 0 4h-3a2 2 0 1 0 0 4h4.2"/></svg>',
+    survey: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3" width="15" height="18" rx="2.6"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>',
+    letter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><path d="M3.4 6.6 12 13l8.6-6.4"/></svg>',
+    call: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3.5 9 6l-1.6 2.4a13 13 0 0 0 6.2 6.2L16 13l2.5 2.4-1.6 2.6a1.6 1.6 0 0 1-1.7.7C10.6 17.6 6.4 13.4 5.3 8.8a1.6 1.6 0 0 1 .7-1.7z"/></svg>',
+    block: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.5h15M9 6.5V4.5h6v2M6.5 6.5l1 13.5h9l1-13.5"/></svg>',
     upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/></svg>',
-    emptyChat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5z"/></svg>'
+    like: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V10l5-7 1.5 1.2a2 2 0 0 1 .6 2L13 10h6.2a2 2 0 0 1 2 2.4l-1.3 6A2.4 2.4 0 0 1 17.6 21H7z"/><path d="M7 10H4v11h3"/></svg>',
+    comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5z"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>',
+    emptyChat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5z"/></svg>',
+    emptyMail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><path d="M3.4 6.6 12 13l8.6-6.4"/></svg>'
   };
 
   /* ================= 应用配置 ================= */
@@ -824,13 +1025,12 @@
 
   /* ================= 预置素材 ================= */
   var WALLS = [
-    'linear-gradient(165deg, #eef2f8 0%, #e2e8f2 45%, #e8e3f2 100%)',
-    'linear-gradient(165deg, #fdf1e7 0%, #fbe3e8 55%, #eae4f6 100%)',
-    'linear-gradient(165deg, #e6f4ef 0%, #dceef7 50%, #e8e9f7 100%)',
-    'linear-gradient(165deg, #f4f0e6 0%, #e9e6dc 55%, #dfe3e6 100%)',
-    'linear-gradient(165deg, #2b2b33 0%, #3a3a46 55%, #4a4458 100%)'
+    'radial-gradient(130% 100% at 18% 0%, #f7f9fd 0%, #e9eef7 48%, #dde4f0 100%)',
+    'radial-gradient(130% 100% at 82% 0%, #fdf5ef 0%, #f7e7ea 48%, #ece2f2 100%)',
+    'radial-gradient(130% 100% at 50% 0%, #eef7f2 0%, #e0eef6 48%, #e6e9f7 100%)',
+    'radial-gradient(130% 100% at 20% 0%, #f6f3ea 0%, #e9e6dc 55%, #dfe3e6 100%)',
+    'radial-gradient(130% 100% at 50% 0%, #3a3a46 0%, #2b2b33 55%, #1e1e24 100%)'
   ];
-
   var CHAT_BGS = [
     '#f4f4f6',
     'linear-gradient(160deg, #fdf1e7, #fbe3e8)',
@@ -838,34 +1038,25 @@
     'linear-gradient(160deg, #eef0f8, #e3e6f2)',
     'linear-gradient(160deg, #2b2b33, #3a3a46)'
   ];
-
   var MOMENTS_BGS = [
     'linear-gradient(160deg, #dbe7f5 0%, #e8e0f0 100%)',
     'linear-gradient(160deg, #fbe3e8 0%, #fdf1e7 100%)',
     'linear-gradient(160deg, #dceef7 0%, #e6f4ef 100%)',
     'linear-gradient(160deg, #3a3a46 0%, #4a4458 100%)'
   ];
-
   var COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#0ea5e9','#14b8a6','#ec4899','#6366f1','#84cc16'];
 
-  var CARDS = [
-    { zi: '山', py: 'shān', mean: '地面形成的高耸的部分，亦指形状像山的东西。' },
-    { zi: '水', py: 'shuǐ', mean: '无色无味的透明液体，泛指一切水域。' },
-    { zi: '风', py: 'fēng', mean: '空气流动的现象，也比喻趋势与风格。' },
-    { zi: '月', py: 'yuè', mean: '月亮，亦指时间单位，一年分为十二个月。' },
-    { zi: '光', py: 'guāng', mean: '能引起视觉反应的电磁波，引申为明亮、荣耀。' },
-    { zi: '静', py: 'jìng', mean: '安定不动，没有声响，也指心境平和。' }
-  ];
-
-  var EVENTS = [
-    { name: '春节', date: '2026-02-17', color: '#ff375f', icon: ICO.gift },
-    { name: '生日', date: '2026-05-09', color: '#5e5ce6', icon: ICO.clock },
-    { name: '旅行出发', date: '2026-07-12', color: '#30b0c7', icon: ICO.plane },
-    { name: '项目上线', date: '2026-03-30', color: '#ff9f0a', icon: ICO.flag }
+  var PRESET_CARDS = [
+    { id: 'k1', zi: '山', py: 'shān', mean: '地面形成的高耸的部分，亦指形状像山的东西。' },
+    { id: 'k2', zi: '水', py: 'shuǐ', mean: '无色无味的透明液体，泛指一切水域。' },
+    { id: 'k3', zi: '风', py: 'fēng', mean: '空气流动的现象，也比喻趋势与风格。' },
+    { id: 'k4', zi: '月', py: 'yuè', mean: '月亮，亦指时间单位，一年分为十二个月。' },
+    { id: 'k5', zi: '光', py: 'guāng', mean: '能引起视觉反应的电磁波，引申为明亮、荣耀。' },
+    { id: 'k6', zi: '静', py: 'jìng', mean: '安定不动，没有声响，也指心境平和。' }
   ];
 
   /* ================= 存储 ================= */
-  var STORE_KEY = 'mini_phone_v4';
+  var STORE_KEY = 'mini_phone_v6';
 
   function defaultStore() {
     return {
@@ -879,7 +1070,11 @@
         myName: '林一',
         defaultFriendName: '梦'
       },
-      apps: { wechat: [], sms: [], mail: [] }
+      friends: [],
+      convs: {},
+      cards: PRESET_CARDS.slice(),
+      events: [],
+      moments: []
     };
   }
 
@@ -888,11 +1083,12 @@
       var raw = localStorage.getItem(STORE_KEY);
       if (raw) {
         var s = JSON.parse(raw);
-        if (s && s.settings && s.apps) {
-          // 补齐缺失字段
+        if (s && s.settings && Array.isArray(s.friends)) {
           var d = defaultStore();
-          for (var k in d.settings) { if (!(k in s.settings)) s.settings[k] = d.settings[k]; }
-          for (var a in d.apps) { if (!(a in s.apps)) s.apps[a] = []; }
+          for (var k in d) { if (!(k in s)) s[k] = d[k]; }
+          for (var k2 in d.settings) { if (!(k2 in s.settings)) s.settings[k2] = d.settings[k2]; }
+          if (!Array.isArray(s.cards) || !s.cards.length) s.cards = PRESET_CARDS.slice();
+          if (!s.convs || typeof s.convs !== 'object') s.convs = {};
           return s;
         }
       }
@@ -910,67 +1106,123 @@
   var state = {
     openApp: null,
     currentApp: null,
-    currentChat: null,
-    draft: null,
+    currentFriend: null,
+    draftFriend: null,
+    draftMoment: { type: 'text', images: [] },
     calDate: new Date(),
     playing: false,
     pos: 0,
-    timer: null
+    timer: null,
+    callTimer: null,
+    callSeconds: 0,
+    callTarget: null,
+    callKind: 'voice'
   };
-
   var MUSIC_LEN = 204;
 
   /* ================= 工具 ================= */
   function $(s) { return document.querySelector(s); }
   function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
-
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-
   function nowTime() {
     var d = new Date();
     return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
   }
-
   function toMin(t) {
     var p = String(t).split(':');
     return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
   }
+  function uid(p) { return (p || 'id') + '_' + Date.now() + '_' + Math.floor(Math.random() * 9999); }
+  function randomColor() { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
 
-  function randomColor() {
-    return COLORS[Math.floor(Math.random() * COLORS.length)];
-  }
-
-  function findContact(app, id) {
-    var list = store.apps[app] || [];
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].id === id) return list[i];
+  function findFriend(id) {
+    for (var i = 0; i < store.friends.length; i++) {
+      if (store.friends[i].id === id) return store.friends[i];
     }
     return null;
   }
-
-  function uid() {
-    return 'c_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+  function convKey(app, friendId) { return app + '|' + friendId; }
+  function getConv(app, friendId) {
+    var k = convKey(app, friendId);
+    if (!store.convs[k]) store.convs[k] = { messages: [], unread: 0 };
+    return store.convs[k];
   }
+  function displayName(f) { return f.remark || f.name; }
 
-  function avatarStyle(person) {
-    if (person.avatar) {
-      return 'background-image:url(' + person.avatar + ');background-size:cover;background-position:center;background-color:' + (person.color || '#c7c7cc') + ';color:transparent';
+  function avatarStyle(p) {
+    if (p.avatar) {
+      return 'background-image:url(' + p.avatar + ');background-size:cover;background-position:center;background-color:' + (p.color || '#c7c7cc') + ';color:transparent';
     }
-    return 'background:' + (person.color || '#c7c7cc') + ';color:#fff';
+    return 'background:' + (p.color || '#c7c7cc') + ';color:#fff';
+  }
+  function avatarHTML(p, cls) {
+    var initial = (p.name || p.initial || '?').charAt(0);
+    return '<span class="avatar ' + (cls || '') + '" style="' + avatarStyle(p) + '">' +
+      (p.avatar ? '' : esc(initial)) + '</span>';
+  }
+  function myPerson() {
+    return {
+      avatar: store.settings.myAvatar,
+      color: '#1c1c1e',
+      name: store.settings.myName || '我'
+    };
   }
 
-  function avatarHTML(person, cls) {
-    return '<span class="avatar ' + cls + '" style="' + avatarStyle(person) + '">' +
-      (person.avatar ? '' : esc((person.initial || person.name || '?').charAt(0))) +
-    '</span>';
+  /* 字卡回复 */
+  function cardReplyText() {
+    var cards = store.cards;
+    if (!cards || !cards.length) return '嗯嗯';
+    var c = cards[Math.floor(Math.random() * cards.length)];
+    return c.zi + (c.py ? '（' + c.py + '）' : '');
+  }
+  function cardReplyLetter() {
+    var cards = store.cards;
+    if (!cards || !cards.length) return '见字如面，一切安好。';
+    var a = cards[Math.floor(Math.random() * cards.length)];
+    var b = cards[Math.floor(Math.random() * cards.length)];
+    return '最近在琢磨「' + a.zi + '」这个字，' + a.mean + ' 又想起「' + b.zi + '」，' + b.mean + ' 与你说说，望一切顺利。';
   }
 
-  var REPLIES = ['收到，我看看。', '好的，没问题。', '明白了，稍后回复你。', '嗯，这个想法不错。',
-    '我这边刚处理完，稍等。', '好的，那就这么定。', '谢谢，辛苦了。', '我确认一下再告诉你。'];
+  /* 图片压缩 */
+  function compressImage(file, size, cb) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        var scale = Math.max(size / img.width, size / img.height);
+        var w = img.width * scale, h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        try { cb(canvas.toDataURL('image/jpeg', 0.8)); }
+        catch (err) { cb(e.target.result); }
+      };
+      img.onerror = function () { cb(e.target.result); };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ================= 防缩放 ================= */
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  var lastTouchEnd = 0;
+  document.addEventListener('touchend', function (e) {
+    var now = Date.now();
+    if (now - lastTouchEnd < 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, { passive: false });
+  // 阻止 Ctrl+滚轮缩放
+  document.addEventListener('wheel', function (e) {
+    if (e.ctrlKey) e.preventDefault();
+  }, { passive: false });
 
   /* ================= 状态栏时钟 ================= */
   function tickClock() {
@@ -985,7 +1237,6 @@
       '<span class="app-label">' + esc(app.name) + '</span>' +
     '</button>';
   }
-
   function renderHome() {
     $('#home-grid').innerHTML = HOME_APPS.map(appCellHTML).join('');
     $('#dock').innerHTML = DOCK_APPS.map(appCellHTML).join('');
@@ -996,12 +1247,10 @@
     var el = document.getElementById(id);
     if (el) el.classList.add('open');
   }
-
   function closePage(id) {
     var el = document.getElementById(id);
     if (el) el.classList.remove('open');
   }
-
   function openApp(id) {
     state.openApp = id;
     openPage('app-' + id);
@@ -1012,24 +1261,28 @@
     if (id === 'countdown') renderEvents();
     if (id === 'period') renderPeriod();
     if (id === 'beautify') renderBeautify();
+    if (id === 'moments') renderMoments();
   }
-
   function closeApp() {
     if (state.openApp) closePage('app-' + state.openApp);
     state.openApp = null;
     closePage('app-chat');
-    closePage('app-add-contact');
+    closePage('app-add-friend');
+    closePage('app-add-card');
+    closePage('app-add-event');
+    closePage('app-compose');
+    closePage('app-moments-compose');
     closePage('app-moments');
-    state.currentChat = null;
+    state.currentFriend = null;
   }
 
   /* ================= 空状态 ================= */
   function emptyStateHTML(app) {
-    var icon = app === 'wechat' ? ICO.wechat : (app === 'sms' ? ICO.sms : ICO.mail);
-    var title = app === 'wechat' ? '暂无会话' : '暂无联系人';
-    var sub = app === 'wechat'
-      ? '点击右上角 + 添加好友后，即可开始聊天'
-      : '点击右上角 + 添加联系人后，即可开始对话';
+    var icon = app === 'wechat' ? ICO.emptyChat : (app === 'sms' ? ICO.sms : ICO.emptyMail);
+    var title = app === 'mail' ? '信箱空空如也' : '还没有好友';
+    var sub = app === 'mail'
+      ? '点击右上角 + 添加联系人后，就可以开始写信了'
+      : '点击右上角 + 添加好友后，即可开始聊天';
     return '<div class="empty-state">' +
       '<div class="empty-icon">' + icon + '</div>' +
       '<div class="empty-title">' + title + '</div>' +
@@ -1037,29 +1290,39 @@
     '</div>';
   }
 
-  /* ================= 会话列表 ================= */
+  /* ================= 会话列表（三应用共用好友） ================= */
   function renderAppList(app) {
     var box = document.getElementById('list-' + app);
     if (!box) return;
-    var list = store.apps[app] || [];
-
-    if (!list.length) {
+    if (!store.friends.length) {
       box.innerHTML = emptyStateHTML(app);
       return;
     }
-
-    box.innerHTML = list.map(function (c) {
-      var last = c.messages[c.messages.length - 1];
-      var displayName = c.remark || c.name;
-      var preview = last ? last.text : '暂无消息';
+    box.innerHTML = store.friends.map(function (f) {
+      var conv = store.convs[convKey(app, f.id)] || { messages: [], unread: 0 };
+      var last = conv.messages[conv.messages.length - 1];
+      var preview = '';
+      if (last) {
+        if (last.type === 'letter') preview = '【信件】' + (last.subject || '');
+        else if (last.type === 'redpacket') preview = '[红包] ' + (last.note || '恭喜发财');
+        else if (last.type === 'transfer') preview = '[转账] ' + (last.amount || '');
+        else if (last.type === 'survey') preview = '[问卷] ' + (last.title || '');
+        else if (last.type === 'call') preview = last.kind === 'video' ? '[视频通话]' : '[语音通话]';
+        else if (last.from === 'me') preview = '我：' + (last.text || '');
+        else preview = last.text || '';
+      } else {
+        preview = app === 'mail' ? '还没有信件' : '还没有消息';
+      }
       var time = last ? last.time : '';
-      var unread = c.unread ? '<span class="badge">' + (c.unread > 99 ? '99+' : c.unread) + '</span>' : '';
-      return '<button class="chat-item" type="button" data-app="' + app + '" data-chat="' + c.id + '">' +
-        avatarHTML(c, '') +
+      var unread = conv.unread ? '<span class="badge">' + (conv.unread > 99 ? '99+' : conv.unread) + '</span>' : '';
+      var blockedTag = f.iBlocked ? '<span class="blocked-tag">已拉黑</span>' :
+                       (f.theyBlocked ? '<span class="blocked-tag">被拉黑</span>' : '');
+      return '<button class="chat-item" type="button" data-app="' + app + '" data-friend="' + f.id + '">' +
+        avatarHTML(f, '') +
         '<span class="chat-main">' +
           '<span class="chat-row">' +
-            '<span class="chat-name">' + esc(displayName) + '</span>' +
-            '<span class="chat-time">' + esc(time) + '</span>' +
+            '<span class="chat-name">' + esc(displayName(f)) + '</span>' +
+            (blockedTag || '<span class="chat-time">' + esc(time) + '</span>') +
           '</span>' +
           '<span class="chat-row">' +
             '<span class="chat-prev">' + esc(preview) + '</span>' + unread +
@@ -1069,45 +1332,29 @@
     }).join('');
   }
 
-  /* ================= 添加 / 编辑联系人 ================= */
-  function openAddContact(app) {
+  /* ================= 添加 / 编辑好友 ================= */
+  function openAddFriend(app) {
     state.currentApp = app;
-    state.draft = {
-      id: null,
-      name: '',
-      remark: '',
-      avatar: '',
-      color: randomColor(),
-      initial: '',
-      isEdit: false
-    };
-    $('#ac-title').textContent = app === 'wechat' ? '添加好友' : '添加联系人';
-    $('#ac-remark-field').style.display = app === 'wechat' ? '' : 'none';
-    renderAddForm();
-    openPage('app-add-contact');
+    state.draftFriend = { id: null, name: '', remark: '', avatar: '', color: randomColor(), isEdit: false };
+    $('#af-title').textContent = app === 'wechat' ? '添加好友' : '添加联系人';
+    $('#af-remark-field').style.display = app === 'wechat' ? '' : 'none';
+    renderFriendForm();
+    openPage('app-add-friend');
   }
-
-  function openEditContact(app, contact) {
+  function openEditFriend(app, f) {
     state.currentApp = app;
-    state.draft = {
-      id: contact.id,
-      name: contact.name,
-      remark: contact.remark || '',
-      avatar: contact.avatar || '',
-      color: contact.color || randomColor(),
-      initial: contact.initial,
-      isEdit: true
+    state.draftFriend = {
+      id: f.id, name: f.name, remark: f.remark || '',
+      avatar: f.avatar || '', color: f.color || randomColor(), isEdit: true
     };
-    $('#ac-title').textContent = app === 'wechat' ? '编辑好友' : '编辑联系人';
-    $('#ac-remark-field').style.display = app === 'wechat' ? '' : 'none';
-    renderAddForm();
-    openPage('app-add-contact');
+    $('#af-title').textContent = app === 'wechat' ? '编辑好友' : '编辑联系人';
+    $('#af-remark-field').style.display = app === 'wechat' ? '' : 'none';
+    renderFriendForm();
+    openPage('app-add-friend');
   }
-
-  function renderAddForm() {
-    var d = state.draft;
-    var btn = $('#ac-avatar-btn');
-
+  function renderFriendForm() {
+    var d = state.draftFriend;
+    var btn = $('#af-avatar-btn');
     if (d.avatar) {
       btn.style.backgroundImage = 'url(' + d.avatar + ')';
       btn.style.backgroundColor = d.color;
@@ -1119,255 +1366,626 @@
       btn.classList.remove('has-img');
       btn.innerHTML = ICO.upload;
     }
-
-    $('#ac-name').value = d.name;
-    $('#ac-remark').value = d.remark;
+    $('#af-name').value = d.name;
+    $('#af-remark').value = d.remark;
   }
-
-  function saveContact() {
-    var d = state.draft;
+  function saveFriend() {
+    var d = state.draftFriend;
     if (!d) return;
-
-    var name = ($('#ac-name').value || '').trim();
+    var name = ($('#af-name').value || '').trim();
     if (!name) name = store.settings.defaultFriendName || '梦';
-    var remark = ($('#ac-remark').value || '').trim();
-
-    var contact = {
-      id: d.id || uid(),
-      name: name,
-      remark: remark,
-      avatar: d.avatar,
-      color: d.color,
-      initial: name.charAt(0),
-      unread: 0,
-      createdAt: Date.now(),
-      messages: []
-    };
-
-    var list = store.apps[state.currentApp];
+    var remark = ($('#af-remark').value || '').trim();
 
     if (d.isEdit) {
-      var old = findContact(state.currentApp, d.id);
-      if (old) {
-        contact.messages = old.messages;
-        contact.unread = old.unread || 0;
-        contact.createdAt = old.createdAt || Date.now();
-        var idx = list.indexOf(old);
-        list[idx] = contact;
-        // 如果正在查看该聊天，更新引用
-        if (state.currentChat && state.currentChat.id === contact.id) {
-          state.currentChat = contact;
-          $('#chat-title').textContent = contact.remark || contact.name;
-        }
+      var f = findFriend(d.id);
+      if (f) {
+        f.name = name; f.remark = remark;
+        f.avatar = d.avatar; f.color = d.color;
       }
     } else {
-      list.push(contact);
-    }
-
-    saveStore();
-    closePage('app-add-contact');
-    renderAppList(state.currentApp);
-
-    if (state.currentChat) renderMessages();
-  }
-
-  /* ================= 图片压缩 ================= */
-  function compressImage(file, size, cb) {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      var img = new Image();
-      img.onload = function () {
-        var canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        var ctx = canvas.getContext('2d');
-        var scale = Math.max(size / img.width, size / img.height);
-        var w = img.width * scale;
-        var h = img.height * scale;
-        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-        try {
-          cb(canvas.toDataURL('image/jpeg', 0.82));
-        } catch (err) {
-          cb(e.target.result);
-        }
+      var nf = {
+        id: uid('f'), name: name, remark: remark,
+        avatar: d.avatar, color: d.color,
+        iBlocked: false, theyBlocked: false,
+        createdAt: Date.now()
       };
-      img.onerror = function () { cb(e.target.result); };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+      store.friends.push(nf);
+      // 生成 1-2 条好友动态（用字卡内容）
+      var count = 1 + Math.floor(Math.random() * 2);
+      for (var i = 0; i < count; i++) {
+        var c = store.cards[Math.floor(Math.random() * store.cards.length)];
+        store.moments.push({
+          id: uid('m'), authorId: nf.id, authorName: displayName(nf),
+          text: c ? ('今日份的字：' + c.zi + '。' + c.mean) : '今天天气不错。',
+          type: 'text', images: [], time: Date.now() - i * 3600000,
+          likes: [], comments: []
+        });
+      }
+    }
+    saveStore();
+    closePage('app-add-friend');
+    if (state.currentApp) {
+      renderAppList(state.currentApp);
+      openPage('app-' + state.currentApp);
+    }
+    if (state.currentFriend) {
+      var cf = findFriend(state.currentFriend.id);
+      if (cf) {
+        state.currentFriend = cf;
+        $('#chat-title').textContent = displayName(cf);
+        renderMessages();
+      }
+    }
   }
 
-  /* ================= 聊天详情 ================= */
-  function openChat(app, id) {
-    var contact = findContact(app, id);
-    if (!contact) return;
-
+  /* ================= 聊天 ================= */
+  function openChat(app, friendId) {
+    var f = findFriend(friendId);
+    if (!f) return;
     state.currentApp = app;
-    state.currentChat = contact;
-    contact.unread = 0;
-    renderAppList(app);
+    state.currentFriend = f;
+    var conv = getConv(app, friendId);
+    conv.unread = 0;
 
-    document.documentElement.style.setProperty('--accent', app === 'wechat' ? '#1c1c1e' : '#1c1c1e');
-    $('#chat-title').textContent = contact.remark || contact.name;
+    $('#chat-title').textContent = displayName(f);
+    document.documentElement.style.setProperty('--accent', '#1c1c1e');
     renderMessages();
     openPage('app-chat');
+    renderAppList(app);
+
+    // 信箱：隐藏输入框，显示写信按钮
+    var composer = $('#composer');
+    if (app === 'mail') {
+      composer.classList.add('writing');
+      composer.innerHTML = '<button type="button" class="write-letter-btn" id="write-letter-btn">' +
+        ICO.letter + '<span>写一封信</span></button>';
+    } else if (!composer.classList.contains('writing')) {
+      // 确保普通输入框存在
+      if (!document.getElementById('msg-input')) {
+        composer.innerHTML =
+          '<textarea id="msg-input" rows="1" placeholder="输入消息..." autocomplete="off"></textarea>' +
+          '<button class="comp-btn plus" type="button" id="plus-btn" aria-label="更多功能">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>' +
+          '</button>' +
+          '<button class="comp-btn send" type="submit" aria-label="发送">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/></svg>' +
+          '</button>';
+      }
+      composer.classList.remove('writing');
+    }
+    updateComposerState();
+  }
+
+  function updateComposerState() {
+    var f = state.currentFriend;
+    if (!f) return;
+    var composer = $('#composer');
+    if (state.currentApp === 'mail') return; // 信箱单独处理
+    var disabled = f.iBlocked || f.theyBlocked;
+    composer.classList.toggle('disabled', disabled);
+    var input = $('#msg-input');
+    if (input) {
+      input.disabled = disabled;
+      input.placeholder = f.iBlocked ? '你已拉黑对方' : (f.theyBlocked ? '对方已拉黑你' : '输入消息...');
+    }
+    var send = composer.querySelector('.send');
+    var plus = composer.querySelector('.plus');
+    if (send) send.style.opacity = disabled ? .4 : 1;
+    if (plus) plus.style.opacity = disabled ? .4 : 1;
   }
 
   function closeChat() {
     closePage('app-chat');
-    state.currentChat = null;
-  }
-
-  function myPerson() {
-    return {
-      avatar: store.settings.myAvatar,
-      color: '#1c1c1e',
-      initial: (store.settings.myName || '我').charAt(0),
-      name: store.settings.myName || '我'
-    };
+    state.currentFriend = null;
+    // 恢复通用 composer
+    var composer = $('#composer');
+    composer.classList.remove('writing');
+    if (!document.getElementById('msg-input')) {
+      composer.innerHTML =
+        '<textarea id="msg-input" rows="1" placeholder="输入消息..." autocomplete="off"></textarea>' +
+        '<button class="comp-btn plus" type="button" id="plus-btn" aria-label="更多功能">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>' +
+        '</button>' +
+        '<button class="comp-btn send" type="submit" aria-label="发送">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/></svg>' +
+        '</button>';
+    }
   }
 
   function renderMessages() {
-    var chat = state.currentChat;
-    if (!chat) return;
+    var f = state.currentFriend;
+    if (!f) return;
+    var conv = getConv(state.currentApp, f.id);
     var box = $('#messages');
     var me = myPerson();
     var html = '';
-    var prev = null;
 
-    if (!chat.messages.length) {
-      html = '<div class="time-divider">还没有消息，发送第一条吧</div>';
+    if (f.iBlocked) html += '<div class="sys-msg">你已把对方拉黑，无法发送消息</div>';
+    else if (f.theyBlocked) html += '<div class="sys-msg">对方已把你拉黑，无法发送消息</div>';
+
+    if (!conv.messages.length) {
+      html += '<div class="time-divider">' + (state.currentApp === 'mail' ? '还没有信件，写一封吧' : '还没有消息，发送第一条吧') + '</div>';
     } else {
-      chat.messages.forEach(function (m) {
+      var prev = null;
+      conv.messages.forEach(function (m) {
+        if (m.from === 'sys') {
+          html += '<div class="sys-msg">' + esc(m.text) + '</div>';
+          return;
+        }
         if (prev === null || toMin(m.time) - toMin(prev) >= 5 || toMin(m.time) < toMin(prev)) {
           html += '<div class="time-divider">' + esc(m.time) + '</div>';
         }
         prev = m.time;
 
-        if (m.from === 'me') {
-          html += '<div class="msg me">' +
-            '<div class="bubble">' + esc(m.text) + '</div>' +
-            avatarHTML(me, 'sm') +
+        var isMe = m.from === 'me';
+        var body = '';
+        if (m.type === 'text' || !m.type) {
+          body = '<div class="bubble">' + esc(m.text || '') + '</div>';
+        } else if (m.type === 'letter') {
+          body = '<div class="msg-card letter" data-open-letter="' + m.id + '">' +
+            '<div class="mc-top"><div class="mc-icon">' + ICO.letter + '</div>' +
+              '<div><div class="mc-title">' + esc(m.subject || '无主题') + '</div>' +
+              '<div class="mc-sub">' + esc(m.from === 'me' ? '我发出的信' : '来信') + '</div></div></div>' +
+            '<div class="mc-body">' + esc((m.body || '').slice(0, 60)) + ((m.body || '').length > 60 ? '…' : '') + '</div>' +
+            '<div class="mc-foot">点击查看全文</div>' +
           '</div>';
+        } else if (m.type === 'redpacket') {
+          body = '<div class="msg-card red">' +
+            '<div class="mc-top"><div class="mc-icon">' + ICO.redpacket + '</div>' +
+              '<div><div class="mc-title">红包</div><div class="mc-sub">' + esc(m.note || '恭喜发财') + '</div></div></div>' +
+            '<div class="mc-body">' + esc(m.amount || '') + ' 元</div>' +
+            '<div class="mc-foot">' + (m.from === 'me' ? '已发送' : '已领取') + '</div>' +
+          '</div>';
+        } else if (m.type === 'transfer') {
+          body = '<div class="msg-card transfer">' +
+            '<div class="mc-top"><div class="mc-icon">' + ICO.transfer + '</div>' +
+              '<div><div class="mc-title">转账</div><div class="mc-sub">' + esc(m.note || '转账') + '</div></div></div>' +
+            '<div class="mc-body">' + esc(m.amount || '') + ' 元</div>' +
+            '<div class="mc-foot">' + (m.from === 'me' ? '已转账' : '已收款') + '</div>' +
+          '</div>';
+        } else if (m.type === 'survey') {
+          var opts = (m.options || []).map(function (o, idx) {
+            var chosen = m.answer === o;
+            return '<button class="survey-opt' + (chosen ? ' done' : '') + '" type="button" data-survey="' + m.id + '" data-opt="' + idx + '">' + esc(o) + '</button>';
+          }).join('');
+          body = '<div class="msg-card survey">' +
+            '<div class="mc-top"><div class="mc-icon">' + ICO.survey + '</div>' +
+              '<div><div class="mc-title">' + esc(m.title || '问卷') + '</div>' +
+              '<div class="mc-sub">' + (m.answer ? '已选择：' + esc(m.answer) : '请选择一个选项') + '</div></div></div>' +
+            '<div class="mc-body">' + opts + '</div>' +
+          '</div>';
+        } else if (m.type === 'call') {
+          body = '<div class="msg-card call">' +
+            '<div class="mc-top"><div class="mc-icon">' + (m.kind === 'video' ? ICO.video : ICO.phone) + '</div>' +
+              '<div><div class="mc-title">' + (m.kind === 'video' ? '视频通话' : '语音通话') + '</div>' +
+              '<div class="mc-sub">' + esc(m.duration || '') + '</div></div></div>' +
+            '<div class="mc-foot">' + (m.from === 'me' ? '由我发起' : '对方发起') + '</div>' +
+          '</div>';
+        }
+
+        if (isMe) {
+          html += '<div class="msg me">' + body + avatarHTML(me, 'sm') + '</div>';
         } else {
-          html += '<div class="msg them">' +
-            avatarHTML(chat, 'sm') +
-            '<div class="bubble">' + esc(m.text) + '</div>' +
-          '</div>';
+          html += '<div class="msg them">' + avatarHTML(f, 'sm') + body + '</div>';
         }
       });
     }
-
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
   }
 
   function autoGrow() {
     var el = $('#msg-input');
+    if (!el) return;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
   }
 
-  function sendMessage() {
+  function pushMessage(app, friendId, msg) {
+    var conv = getConv(app, friendId);
+    msg.id = msg.id || uid('msg');
+    msg.time = msg.time || nowTime();
+    conv.messages.push(msg);
+    conv.unread = 0;
+    saveStore();
+  }
+
+  function sendText() {
     var input = $('#msg-input');
+    if (!input) return;
     var text = input.value.trim();
-    var chat = state.currentChat;
-    if (!text || !chat) return;
+    var f = state.currentFriend;
+    if (!text || !f) return;
+    if (f.iBlocked || f.theyBlocked) return;
 
-    var t = nowTime();
-    chat.messages.push({ from: 'me', text: text, time: t });
-    chat.time = t;
-
+    pushMessage(state.currentApp, f.id, { from: 'me', type: 'text', text: text });
     input.value = '';
     autoGrow();
     renderMessages();
     renderAppList(state.currentApp);
+    scheduleReply(f);
+  }
 
-    clearTimeout(chat._timer);
-    chat._timer = setTimeout(function () {
-      var reply = REPLIES[Math.floor(Math.random() * REPLIES.length)];
-      var rt = nowTime();
-      chat.messages.push({ from: 'them', text: reply, time: rt });
-      chat.time = rt;
+  function scheduleReply(f) {
+    if (!f) return;
+    clearTimeout(f._timer);
+    f._timer = setTimeout(function () {
+      // 若已被拉黑则不再回复
+      var cur = findFriend(f.id);
+      if (!cur || cur.iBlocked) return;
 
-      if (state.currentChat && state.currentChat.id === chat.id) {
+      // 小概率对方拉黑我
+      if (!cur.theyBlocked && !cur.iBlocked && Math.random() < 0.04) {
+        cur.theyBlocked = true;
+        var conv = getConv(state.currentApp, cur.id);
+        conv.messages.push({ from: 'sys', text: '对方已将你拉黑', time: nowTime() });
+        saveStore();
+        if (state.currentFriend && state.currentFriend.id === cur.id) {
+          renderMessages();
+          updateComposerState();
+        }
+        renderAppList(state.currentApp);
+        return;
+      }
+
+      if (state.currentApp === 'mail') {
+        pushMessage('mail', cur.id, {
+          from: 'them', type: 'letter',
+          subject: 'Re: ' + (lastLetterSubject(cur.id) || '来信'),
+          body: cardReplyLetter()
+        });
+      } else {
+        pushMessage(state.currentApp, cur.id, {
+          from: 'them', type: 'text', text: cardReplyText()
+        });
+      }
+
+      if (state.currentFriend && state.currentFriend.id === cur.id) {
         renderMessages();
       } else {
-        chat.unread = (chat.unread || 0) + 1;
+        var conv2 = getConv(state.currentApp, cur.id);
+        conv2.unread = (conv2.unread || 0) + 1;
       }
       renderAppList(state.currentApp);
-      saveStore();
-    }, 900 + Math.random() * 700);
-
-    saveStore();
+    }, 900 + Math.random() * 800);
   }
 
-  /* ================= 美化 ================= */
-  function renderBeautify() {
-    // 我的资料
-    var myAvatarBtn = $('#my-avatar-btn');
-    if (store.settings.myAvatar) {
-      myAvatarBtn.style.backgroundImage = 'url(' + store.settings.myAvatar + ')';
-      myAvatarBtn.style.backgroundColor = '#1c1c1e';
-      myAvatarBtn.style.color = 'transparent';
-      myAvatarBtn.textContent = '';
-    } else {
-      myAvatarBtn.style.backgroundImage = '';
-      myAvatarBtn.style.backgroundColor = '#1c1c1e';
-      myAvatarBtn.style.color = '#fff';
-      myAvatarBtn.textContent = (store.settings.myName || '我').charAt(0);
+  function lastLetterSubject(friendId) {
+    var conv = getConv('mail', friendId);
+    for (var i = conv.messages.length - 1; i >= 0; i--) {
+      if (conv.messages[i].type === 'letter') return conv.messages[i].subject;
     }
-    $('#my-name-input').value = store.settings.myName || '';
-    $('#default-friend-input').value = store.settings.defaultFriendName || '';
-
-    // 壁纸
-    $('#wall-swatches').innerHTML = WALLS.map(function (w, i) {
-      return '<button class="sw' + (i === store.settings.wall ? ' on' : '') +
-        '" type="button" data-wall="' + i + '" style="background:' + w + '"></button>';
-    }).join('');
-
-    // 聊天背景
-    var chatHtml = CHAT_BGS.map(function (bg, i) {
-      var on = (store.settings.chatBg === bg && !store.settings.chatBgIsImage) ? ' on' : '';
-      return '<button class="sw' + on + '" type="button" data-chatbg="' + i + '" style="background:' + bg + '"></button>';
-    }).join('');
-    chatHtml += '<button class="sw upload" type="button" id="chatbg-upload" aria-label="上传背景">' + ICO.upload + '</button>';
-    $('#chatbg-swatches').innerHTML = chatHtml;
-
-    // 朋友圈背景
-    var mHtml = MOMENTS_BGS.map(function (bg, i) {
-      var on = (store.settings.momentsBg === bg && !store.settings.momentsBgIsImage) ? ' on' : '';
-      return '<button class="sw' + on + '" type="button" data-momentsbg="' + i + '" style="background:' + bg + '"></button>';
-    }).join('');
-    mHtml += '<button class="sw upload" type="button" id="momentsbg-upload" aria-label="上传背景">' + ICO.upload + '</button>';
-    $('#momentsbg-swatches').innerHTML = mHtml;
+    return '';
   }
 
-  function applyWall(i) {
-    store.settings.wall = i;
-    document.documentElement.style.setProperty('--wall', WALLS[i]);
-    var dark = i === 4;
-    document.querySelector('.statusbar').style.color = dark ? '#ffffff' : '#1c1c1e';
-    $$('.app-label').forEach(function (el) {
-      el.style.color = dark ? 'rgba(255,255,255,.9)' : '#2c2c30';
+  /* ================= 写信 ================= */
+  function openCompose() {
+    var f = state.currentFriend;
+    if (!f) return;
+    if (f.iBlocked || f.theyBlocked) {
+      alert(f.iBlocked ? '你已拉黑对方，无法写信' : '对方已拉黑你，无法写信');
+      return;
+    }
+    $('#letter-to').value = displayName(f);
+    $('#letter-subject').value = '';
+    $('#letter-body').value = '';
+    $('#compose-title').textContent = '写信给 ' + displayName(f);
+    openPage('app-compose');
+  }
+  function sendLetter() {
+    var f = state.currentFriend;
+    if (!f) return;
+    var subject = ($('#letter-subject').value || '').trim() || '无主题';
+    var body = ($('#letter-body').value || '').trim();
+    if (!body) { alert('信的内容不能为空'); return; }
+
+    pushMessage('mail', f.id, {
+      from: 'me', type: 'letter', subject: subject, body: body
     });
-    saveStore();
+    closePage('app-compose');
+    renderMessages();
+    renderAppList('mail');
+    scheduleReply(f);
   }
 
-  function applyChatBg(val, isImage) {
-    store.settings.chatBg = val;
-    store.settings.chatBgIsImage = !!isImage;
-    document.documentElement.style.setProperty('--chat-bg', val);
-    saveStore();
+  /* ================= 聊天更多功能 ================= */
+  function openChatActions() {
+    var f = state.currentFriend;
+    if (!f) return;
+    var app = state.currentApp;
+    var html = '';
+
+    if (app === 'wechat' || app === 'sms') {
+      html += '<div class="sheet-grid">' +
+        '<button class="sheet-item" data-action="voice"><span class="si-icon">' + ICO.phone + '</span><span>语音通话</span></button>' +
+        '<button class="sheet-item" data-action="video"><span class="si-icon">' + ICO.video + '</span><span>视频通话</span></button>' +
+        '<button class="sheet-item" data-action="redpacket"><span class="si-icon">' + ICO.redpacket + '</span><span>发红包</span></button>' +
+        '<button class="sheet-item" data-action="transfer"><span class="si-icon">' + ICO.transfer + '</span><span>转账</span></button>' +
+        '<button class="sheet-item" data-action="survey"><span class="si-icon">' + ICO.survey + '</span><span>问卷</span></button>' +
+        '<button class="sheet-item" data-action="letter"><span class="si-icon">' + ICO.letter + '</span><span>写信</span></button>' +
+      '</div>';
+    } else {
+      html += '<div class="sheet-grid">' +
+        '<button class="sheet-item" data-action="letter"><span class="si-icon">' + ICO.letter + '</span><span>写信</span></button>' +
+      '</div>';
+    }
+    html += '<div class="action-list">' +
+      '<button type="button" data-action="edit">' + ICO.edit + '编辑资料</button>';
+    if (f.iBlocked) {
+      html += '<button type="button" data-action="unblock">' + ICO.block + '解除拉黑</button>';
+    } else if (f.theyBlocked) {
+      html += '<button type="button" data-action="block" disabled style="opacity:.4">' + ICO.block + '对方已拉黑你，无法操作</button>';
+    } else {
+      html += '<button type="button" class="danger" data-action="block">' + ICO.block + '拉黑对方</button>';
+    }
+    html += '<button type="button" data-action="delete" class="danger">' + ICO.trash + '删除好友</button>';
+    html += '</div>';
+    showSheet(html);
   }
 
-  function applyMomentsBg(val, isImage) {
-    store.settings.momentsBg = val;
-    store.settings.momentsBgIsImage = !!isImage;
-    document.documentElement.style.setProperty('--moments-bg', val);
-    var hero = $('#moments-hero');
-    if (hero) hero.style.background = val;
+  function handleChatAction(action) {
+    var f = state.currentFriend;
+    if (!f) return;
+    hideSheet();
+
+    if (action === 'edit') {
+      openEditFriend(state.currentApp, f);
+      closePage('app-chat');
+    } else if (action === 'block') {
+      if (f.iBlocked || f.theyBlocked) return;
+      if (!confirm('确定拉黑「' + displayName(f) + '」吗？')) return;
+      f.iBlocked = true;
+      saveStore();
+      renderMessages();
+      updateComposerState();
+      renderAppList(state.currentApp);
+    } else if (action === 'unblock') {
+      f.iBlocked = false;
+      saveStore();
+      renderMessages();
+      updateComposerState();
+      renderAppList(state.currentApp);
+    } else if (action === 'delete') {
+      if (!confirm('删除后将清除所有聊天记录，确定删除「' + displayName(f) + '」吗？')) return;
+      deleteFriend(f.id);
+    } else if (action === 'voice') {
+      startCall('voice');
+    } else if (action === 'video') {
+      startCall('video');
+    } else if (action === 'redpacket') {
+      openAmountModal('redpacket');
+    } else if (action === 'transfer') {
+      openAmountModal('transfer');
+    } else if (action === 'survey') {
+      openSurveyModal();
+    } else if (action === 'letter') {
+      openCompose();
+    }
+  }
+
+  function deleteFriend(id) {
+    store.friends = store.friends.filter(function (f) { return f.id !== id; });
+    var keys = Object.keys(store.convs);
+    keys.forEach(function (k) {
+      if (k.split('|')[1] === id) delete store.convs[k];
+    });
+    store.moments = store.moments.filter(function (m) { return m.authorId !== id; });
     saveStore();
+    closePage('app-chat');
+    state.currentFriend = null;
+    if (state.currentApp) renderAppList(state.currentApp);
+    renderMoments();
+  }
+
+  /* ================= 红包 / 转账 ================= */
+  function openAmountModal(kind) {
+    var title = kind === 'redpacket' ? '发红包' : '转账';
+    var html = '<div class="modal-card">' +
+      '<h3>' + title + '</h3>' +
+      '<div class="f-field"><label>金额（元）</label><input id="amt-input" type="number" min="0.01" step="0.01" placeholder="0.00" inputmode="decimal" /></div>' +
+      '<div class="f-field"><label>' + (kind === 'redpacket' ? '祝福语' : '备注') + '</label><input id="amt-note" type="text" maxlength="20" placeholder="' + (kind === 'redpacket' ? '恭喜发财' : '转账') + '" /></div>' +
+      '<div class="modal-btns"><button class="modal-btn ghost" data-sheet-close>取消</button>' +
+      '<button class="modal-btn primary" id="amt-confirm">确定</button></div>' +
+    '</div>';
+    showSheet(html);
+    $('#amt-confirm').onclick = function () {
+      var amt = parseFloat($('#amt-input').value);
+      if (!amt || amt <= 0) { alert('请输入正确金额'); return; }
+      var note = ($('#amt-note').value || '').trim() || (kind === 'redpacket' ? '恭喜发财' : '转账');
+      var f = state.currentFriend;
+      if (!f) return;
+      pushMessage(state.currentApp, f.id, {
+        from: 'me', type: kind, amount: amt.toFixed(2), note: note
+      });
+      hideSheet();
+      renderMessages();
+      renderAppList(state.currentApp);
+      // 对方回复感谢
+      setTimeout(function () {
+        var cur = findFriend(f.id);
+        if (!cur || cur.iBlocked || cur.theyBlocked) return;
+        pushMessage(state.currentApp, cur.id, {
+          from: 'them', type: 'text',
+          text: kind === 'redpacket' ? '谢谢老板！' : '已收到，谢谢！'
+        });
+        if (state.currentFriend && state.currentFriend.id === cur.id) renderMessages();
+        else getConv(state.currentApp, cur.id).unread++;
+        renderAppList(state.currentApp);
+      }, 1200);
+    };
+  }
+
+  /* ================= 问卷 ================= */
+  function openSurveyModal() {
+    var html = '<div class="modal-card">' +
+      '<h3>发起问卷</h3>' +
+      '<div class="f-field"><label>问题</label><input id="sv-title" type="text" maxlength="30" placeholder="例如：周末去哪玩？" /></div>' +
+      '<div class="f-field"><label>选项</label><div id="sv-opts"></div>' +
+      '<button type="button" class="add-opt-btn" id="sv-add">+ 添加选项</button></div>' +
+      '<div class="modal-btns"><button class="modal-btn ghost" data-sheet-close>取消</button>' +
+      '<button class="modal-btn primary" id="sv-confirm">发送</button></div>' +
+    '</div>';
+    showSheet(html);
+
+    var opts = ['', ''];
+    function renderOpts() {
+      $('#sv-opts').innerHTML = opts.map(function (o, i) {
+        return '<div class="survey-opt-row">' +
+          '<input type="text" data-opt-idx="' + i + '" maxlength="20" placeholder="选项 ' + (i + 1) + '" value="' + esc(o) + '" />' +
+          (opts.length > 2 ? '<button type="button" data-opt-del="' + i + '">×</button>' : '') +
+        '</div>';
+      }).join('');
+    }
+    renderOpts();
+
+    $('#sv-opts').addEventListener('input', function (e) {
+      var inp = e.target;
+      if (inp.dataset.optIdx !== undefined) opts[Number(inp.dataset.optIdx)] = inp.value;
+    });
+    $('#sv-add').onclick = function () {
+      if (opts.length >= 6) return;
+      opts.push('');
+      renderOpts();
+    };
+    $('#sv-opts').addEventListener('click', function (e) {
+      var del = e.target.closest('[data-opt-del]');
+      if (del) {
+        opts.splice(Number(del.dataset.optDel), 1);
+        renderOpts();
+      }
+    });
+
+    $('#sv-confirm').onclick = function () {
+      var title = ($('#sv-title').value || '').trim();
+      var valid = opts.map(function (o) { return o.trim(); }).filter(Boolean);
+      if (!title) { alert('请填写问题'); return; }
+      if (valid.length < 2) { alert('至少填写两个选项'); return; }
+      var f = state.currentFriend;
+      if (!f) return;
+      pushMessage(state.currentApp, f.id, {
+        from: 'me', type: 'survey', title: title, options: valid, answer: ''
+      });
+      hideSheet();
+      renderMessages();
+      renderAppList(state.currentApp);
+      // 对方随机选择
+      setTimeout(function () {
+        var cur = findFriend(f.id);
+        if (!cur || cur.iBlocked || cur.theyBlocked) return;
+        var conv = getConv(state.currentApp, cur.id);
+        var target = null;
+        for (var i = conv.messages.length - 1; i >= 0; i--) {
+          if (conv.messages[i].type === 'survey' && !conv.messages[i].answer) {
+            target = conv.messages[i]; break;
+          }
+        }
+        if (target) {
+          target.answer = target.options[Math.floor(Math.random() * target.options.length)];
+          saveStore();
+        }
+        pushMessage(state.currentApp, cur.id, {
+          from: 'them', type: 'text', text: '我选了「' + (target ? target.answer : '') + '」'
+        });
+        if (state.currentFriend && state.currentFriend.id === cur.id) renderMessages();
+        else getConv(state.currentApp, cur.id).unread++;
+        renderAppList(state.currentApp);
+      }, 1300);
+    };
+  }
+
+  /* ================= 通话 ================= */
+  function startCall(kind) {
+    var f = state.currentFriend;
+    if (!f) return;
+    if (f.iBlocked || f.theyBlocked) {
+      alert(f.iBlocked ? '你已拉黑对方' : '对方已拉黑你');
+      return;
+    }
+    state.callTarget = f;
+    state.callKind = kind;
+    state.callSeconds = 0;
+
+    var overlay = $('#call-overlay');
+    overlay.classList.toggle('video', kind === 'video');
+    $('#call-video-preview').classList.toggle('hidden', kind !== 'video');
+    var av = $('#call-avatar');
+    av.style.cssText = avatarStyle(f);
+    av.textContent = f.avatar ? '' : (displayName(f).charAt(0));
+    $('#call-name').textContent = displayName(f);
+    $('#call-status').textContent = '正在呼叫...';
+    overlay.classList.add('show');
+
+    clearTimeout(state.callTimer);
+    state.callTimer = setTimeout(function () {
+      $('#call-status').textContent = '00:00';
+      state.callSeconds = 0;
+      state.callTimer = setInterval(function () {
+        state.callSeconds++;
+        var m = Math.floor(state.callSeconds / 60);
+        var s = state.callSeconds % 60;
+        $('#call-status').textContent = ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
+      }, 1000);
+    }, 2200);
+  }
+
+  function endCall() {
+    clearTimeout(state.callTimer);
+    clearInterval(state.callTimer);
+    $('#call-overlay').classList.remove('show');
+    var f = state.callTarget;
+    var kind = state.callKind;
+    var dur = state.callSeconds > 0 ? ('时长 ' + Math.floor(state.callSeconds / 60) + ' 分 ' + (state.callSeconds % 60) + ' 秒') : '未接通';
+    if (f) {
+      pushMessage(state.currentApp, f.id, {
+        from: 'me', type: 'call', kind: kind, duration: dur
+      });
+      if (state.currentFriend && state.currentFriend.id === f.id) renderMessages();
+      else getConv(state.currentApp, f.id).unread++;
+      renderAppList(state.currentApp);
+    }
+    state.callTarget = null;
+    state.callSeconds = 0;
+  }
+
+  /* ================= 信件详情 ================= */
+  function openLetter(msgId) {
+    var f = state.currentFriend;
+    if (!f) return;
+    var conv = getConv(state.currentApp, f.id);
+    var msg = null;
+    for (var i = 0; i < conv.messages.length; i++) {
+      if (conv.messages[i].id === msgId) { msg = conv.messages[i]; break; }
+    }
+    if (!msg) return;
+    var html = '<div class="modal-card">' +
+      '<h3>' + esc(msg.subject || '无主题') + '</h3>' +
+      '<div style="font-size:13px;color:var(--text-2);margin-bottom:12px">' +
+        (msg.from === 'me' ? '我发出的信' : '来自 ' + esc(displayName(f))) + ' · ' + esc(msg.time) +
+      '</div>' +
+      '<div style="font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:50vh;overflow-y:auto">' + esc(msg.body || '') + '</div>' +
+      '<div class="modal-btns"><button class="modal-btn primary" data-sheet-close>关闭</button></div>' +
+    '</div>';
+    showSheet(html);
+  }
+
+  /* ================= 问卷选择 ================= */
+  function answerSurvey(msgId, optIdx) {
+    var f = state.currentFriend;
+    if (!f) return;
+    var conv = getConv(state.currentApp, f.id);
+    var msg = null;
+    for (var i = 0; i < conv.messages.length; i++) {
+      if (conv.messages[i].id === msgId) { msg = conv.messages[i]; break; }
+    }
+    if (!msg || msg.from !== 'me') return;
+    if (msg.answer) return;
+    var opt = msg.options[optIdx];
+    if (!opt) return;
+    msg.answer = opt;
+    saveStore();
+    pushMessage(state.currentApp, f.id, { from: 'them', type: 'text', text: '我选了「' + opt + '」' });
+    renderMessages();
+    renderAppList(state.currentApp);
   }
 
   /* ================= 朋友圈 ================= */
@@ -1386,34 +2004,340 @@
       av.textContent = (store.settings.myName || '我').charAt(0);
     }
     $('#moments-my-name').textContent = store.settings.myName || '我';
+
     var hero = $('#moments-hero');
     hero.style.background = store.settings.momentsBg;
     hero.style.backgroundSize = 'cover';
     hero.style.backgroundPosition = 'center';
+
+    var list = store.moments.slice().sort(function (a, b) { return b.time - a.time; });
+    if (!list.length) {
+      $('#moments-list').innerHTML = '<div class="empty-state">' +
+        '<div class="empty-icon">' + ICO.comment + '</div>' +
+        '<div class="empty-title">还没有动态</div>' +
+        '<div class="empty-sub">点击右上角发布你的第一条动态</div>' +
+      '</div>';
+      return;
+    }
+
+    $('#moments-list').innerHTML = list.map(function (m) {
+      var author = m.authorId === 'me' ? me : findFriend(m.authorId);
+      if (!author) author = { name: '已删除', color: '#c7c7cc' };
+      var imgs = '';
+      if (m.type === 'image' && m.images && m.images.length) {
+        imgs = '<div class="moment-imgs">' + m.images.map(function (src) {
+          return '<div class="moment-img" style="background-image:url(' + src + ')"></div>';
+        }).join('') + '</div>';
+      } else if (m.type === 'video') {
+        imgs = '<div class="moment-video">' + ICO.play + '</div>';
+      }
+      var liked = m.likes && m.likes.indexOf('我') > -1;
+      var likesHtml = '';
+      if (m.likes && m.likes.length) {
+        likesHtml = '<div class="moment-likes">' + ICO.like + '<span>' + m.likes.map(esc).join('、') + '</span></div>';
+      }
+      var commentsHtml = '';
+      if (m.comments && m.comments.length) {
+        commentsHtml = '<div class="moment-comments">' + m.comments.map(function (c) {
+          return '<div class="mcomment"><b>' + esc(c.who) + '</b>：' + esc(c.text) + '</div>';
+        }).join('') + '</div>';
+      }
+      return '<div class="moment-item">' +
+        avatarHTML(author, '') +
+        '<div class="moment-main">' +
+          '<div class="moment-author">' + esc(m.authorId === 'me' ? me.name : (author.remark || author.name)) + '</div>' +
+          (m.text ? '<div class="moment-text">' + esc(m.text) + '</div>' : '') +
+          imgs +
+          '<div class="moment-meta">' +
+            '<span>' + fmtMomentTime(m.time) + '</span>' +
+            '<div class="moment-actions">' +
+              '<button class="ma-btn' + (liked ? ' on' : '') + '" data-like="' + m.id + '">' + ICO.like + '<span>' + (liked ? '取消' : '赞') + '</span></button>' +
+              '<button class="ma-btn" data-comment="' + m.id + '">' + ICO.comment + '<span>评论</span></button>' +
+            '</div>' +
+          '</div>' +
+          likesHtml +
+          commentsHtml +
+          '<div class="comment-input-row hidden" id="ci-' + m.id + '">' +
+            '<input type="text" maxlength="40" placeholder="写评论..." data-comment-input="' + m.id + '" />' +
+            '<button class="comment-send" data-comment-send="' + m.id + '">发送</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function fmtMomentTime(t) {
+    var d = new Date(t);
+    var diff = Date.now() - t;
+    if (diff < 60000) return '刚刚';
+    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+
+  function toggleLike(id) {
+    var m = null;
+    for (var i = 0; i < store.moments.length; i++) {
+      if (store.moments[i].id === id) { m = store.moments[i]; break; }
+    }
+    if (!m) return;
+    m.likes = m.likes || [];
+    var idx = m.likes.indexOf('我');
+    if (idx > -1) m.likes.splice(idx, 1);
+    else m.likes.push('我');
+    saveStore();
+    renderMoments();
+  }
+
+  function toggleCommentBox(id) {
+    var row = document.getElementById('ci-' + id);
+    if (!row) return;
+    row.classList.toggle('hidden');
+    if (!row.classList.contains('hidden')) {
+      var inp = row.querySelector('input');
+      if (inp) inp.focus();
+    }
+  }
+
+  function sendComment(id) {
+    var inp = document.querySelector('[data-comment-input="' + id + '"]');
+    if (!inp) return;
+    var text = inp.value.trim();
+    if (!text) return;
+    var m = null;
+    for (var i = 0; i < store.moments.length; i++) {
+      if (store.moments[i].id === id) { m = store.moments[i]; break; }
+    }
+    if (!m) return;
+    m.comments = m.comments || [];
+    m.comments.push({ who: store.settings.myName || '我', text: text });
+    saveStore();
+    renderMoments();
+  }
+
+  /* 发布朋友圈 */
+  function openMomentCompose() {
+    state.draftMoment = { type: 'text', images: [] };
+    $('#moment-text').value = '';
+    $$('.type-chip').forEach(function (b) { b.classList.toggle('on', b.dataset.mtype === 'text'); });
+    $('#moment-image-field').classList.add('hidden');
+    $('#moment-video-field').classList.add('hidden');
+    $('#moment-image-preview').innerHTML = '';
+    openPage('app-moments-compose');
+  }
+  function publishMoment() {
+    var text = ($('#moment-text').value || '').trim();
+    var d = state.draftMoment;
+    if (!text && !d.images.length && d.type !== 'video') {
+      alert('写点什么吧');
+      return;
+    }
+    store.moments.push({
+      id: uid('m'), authorId: 'me',
+      text: text, type: d.type, images: d.images.slice(),
+      time: Date.now(), likes: [], comments: []
+    });
+    saveStore();
+    closePage('app-moments-compose');
+    renderMoments();
   }
 
   /* ================= 字卡库 ================= */
   function renderCards() {
-    $('#cards-grid').innerHTML = CARDS.map(function (c, i) {
+    var box = $('#cards-grid');
+    if (!store.cards.length) {
+      box.innerHTML = '<div class="empty-state" style="grid-column:1/-1">' +
+        '<div class="empty-icon">' + ICO.cards + '</div>' +
+        '<div class="empty-title">还没有字卡</div>' +
+        '<div class="empty-sub">点击右上角添加你的第一张字卡</div>' +
+      '</div>';
+      return;
+    }
+    box.innerHTML = store.cards.map(function (c, i) {
       return '<button class="card" type="button" data-card="' + i + '">' +
         '<div class="zi">' + esc(c.zi) + '</div>' +
-        '<div class="py">' + esc(c.py) + '</div>' +
-        '<div class="meaning">' + esc(c.mean) + '</div>' +
+        '<div class="py">' + esc(c.py || '') + '</div>' +
+        '<div class="meaning">' + esc(c.mean || '') + '</div>' +
       '</button>';
     }).join('');
+  }
+  function addCard() {
+    var zi = ($('#acard-zi').value || '').trim();
+    if (!zi) { alert('请输入字或词'); return; }
+    store.cards.push({
+      id: uid('k'), zi: zi,
+      py: ($('#acard-py').value || '').trim(),
+      mean: ($('#acard-mean').value || '').trim()
+    });
+    saveStore();
+    $('#acard-zi').value = '';
+    $('#acard-py').value = '';
+    $('#acard-mean').value = '';
+    closePage('app-add-card');
+    renderCards();
+  }
+
+  /* ================= 倒数日 ================= */
+  function renderEvents() {
+    var box = $('#evt-list');
+    if (!store.events.length) {
+      box.innerHTML = '<div class="empty-state">' +
+        '<div class="empty-icon">' + ICO.hourglass + '</div>' +
+        '<div class="empty-title">还没有倒数日</div>' +
+        '<div class="empty-sub">点击右上角添加一个重要日子</div>' +
+      '</div>';
+      return;
+    }
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var list = store.events.map(function (e) {
+      var parts = e.date.split('-');
+      var target = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      var days = Math.round((target - today) / 86400000);
+      return { e: e, days: days };
+    }).sort(function (a, b) { return Math.abs(a.days) - Math.abs(b.days); });
+
+    box.innerHTML = list.map(function (item) {
+      var e = item.e;
+      var days = item.days;
+      var label = days >= 0 ? '天后' : '天前';
+      var num = Math.abs(days);
+      return '<div class="evt">' +
+        '<span class="evt-icon" style="background:' + (e.color || '#30b0c7') + '">' + ICO.clock + '</span>' +
+        '<div class="evt-main">' +
+          '<div class="evt-name">' + esc(e.name) + '</div>' +
+          '<div class="evt-date">' + esc(e.date) + '</div>' +
+        '</div>' +
+        '<div class="evt-days"><b>' + num + '</b><span>' + label + '</span></div>' +
+        '<button class="evt-del" data-evt-del="' + e.id + '">' + ICO.trash + '</button>' +
+      '</div>';
+    }).join('');
+  }
+  function addEvent() {
+    var name = ($('#aevent-name').value || '').trim();
+    var date = $('#aevent-date').value;
+    if (!name) { alert('请输入名称'); return; }
+    if (!date) { alert('请选择日期'); return; }
+    store.events.push({
+      id: uid('e'), name: name, date: date,
+      color: ['#ff375f','#5e5ce6','#30b0c7','#ff9f0a','#10b981'][Math.floor(Math.random()*5)]
+    });
+    saveStore();
+    $('#aevent-name').value = '';
+    $('#aevent-date').value = '';
+    closePage('app-add-event');
+    renderEvents();
+  }
+
+  /* ================= 经期 ================= */
+  function renderPeriod() {
+    var d = state.calDate;
+    var y = d.getFullYear();
+    var m = d.getMonth();
+    $('#cal-title').textContent = y + '年' + (m + 1) + '月';
+    var firstDay = new Date(y, m, 1).getDay();
+    var total = new Date(y, m + 1, 0).getDate();
+    var today = new Date();
+    var html = '';
+    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+    for (var day = 1; day <= total; day++) {
+      var cls = 'cal-day';
+      var isToday = (today.getFullYear() === y && today.getMonth() === m && today.getDate() === day);
+      var isPeriod = day >= 12 && day <= 16;
+      var isPred = day >= 9 && day <= 11;
+      if (isPeriod) cls += ' period';
+      else if (isPred) cls += ' predicted';
+      if (isToday) cls += ' today';
+      html += '<div class="' + cls + '">' + day + '</div>';
+    }
+    $('#cal-days').innerHTML = html;
+
+    var nextStart = new Date(today.getFullYear(), today.getMonth(), 16);
+    if (today.getDate() > 16) nextStart = new Date(today.getFullYear(), today.getMonth() + 1, 16);
+    var diff = Math.ceil((nextStart - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+    $('#stat-next').textContent = Math.max(0, diff);
+    var cycleDay = today.getDate() >= 16 ? (today.getDate() - 15) : (today.getDate() + 15);
+    $('#stat-day').textContent = cycleDay;
+  }
+
+  /* ================= 美化 ================= */
+  function renderBeautify() {
+    var myAvatarBtn = $('#my-avatar-btn');
+    if (store.settings.myAvatar) {
+      myAvatarBtn.style.backgroundImage = 'url(' + store.settings.myAvatar + ')';
+      myAvatarBtn.style.backgroundColor = '#1c1c1e';
+      myAvatarBtn.style.color = 'transparent';
+      myAvatarBtn.textContent = '';
+    } else {
+      myAvatarBtn.style.backgroundImage = '';
+      myAvatarBtn.style.backgroundColor = '#1c1c1e';
+      myAvatarBtn.style.color = '#fff';
+      myAvatarBtn.textContent = (store.settings.myName || '我').charAt(0);
+    }
+    $('#my-name-input').value = store.settings.myName || '';
+    $('#default-friend-input').value = store.settings.defaultFriendName || '';
+
+    $('#wall-swatches').innerHTML = WALLS.map(function (w, i) {
+      return '<button class="sw' + (i === store.settings.wall ? ' on' : '') + '" type="button" data-wall="' + i + '" style="background:' + w + '"></button>';
+    }).join('');
+
+    var chatHtml = CHAT_BGS.map(function (bg, i) {
+      var on = (store.settings.chatBg === bg && !store.settings.chatBgIsImage) ? ' on' : '';
+      return '<button class="sw' + on + '" type="button" data-chatbg="' + i + '" style="background:' + bg + '"></button>';
+    }).join('');
+    chatHtml += '<button class="sw upload" type="button" id="chatbg-upload">' + ICO.upload + '</button>';
+    $('#chatbg-swatches').innerHTML = chatHtml;
+
+    var mHtml = MOMENTS_BGS.map(function (bg, i) {
+      var on = (store.settings.momentsBg === bg && !store.settings.momentsBgIsImage) ? ' on' : '';
+      return '<button class="sw' + on + '" type="button" data-momentsbg="' + i + '" style="background:' + bg + '"></button>';
+    }).join('');
+    mHtml += '<button class="sw upload" type="button" id="momentsbg-upload">' + ICO.upload + '</button>';
+    $('#momentsbg-swatches').innerHTML = mHtml;
+  }
+
+  function applyWall(i) {
+    store.settings.wall = i;
+    document.documentElement.style.setProperty('--wall', WALLS[i]);
+    var dark = i === 4;
+    document.querySelector('.statusbar').style.color = dark ? '#ffffff' : '#1c1c1e';
+    $$('.app-label').forEach(function (el) {
+      el.style.color = dark ? 'rgba(255,255,255,.9)' : '#2c2c30';
+    });
+    saveStore();
+  }
+  function applyChatBg(val, isImage) {
+    store.settings.chatBg = val;
+    store.settings.chatBgIsImage = !!isImage;
+    document.documentElement.style.setProperty('--chat-bg', val);
+    saveStore();
+  }
+  function applyMomentsBg(val, isImage) {
+    store.settings.momentsBg = val;
+    store.settings.momentsBgIsImage = !!isImage;
+    document.documentElement.style.setProperty('--moments-bg', val);
+    saveStore();
+  }
+
+  /* ================= 弹出层 ================= */
+  function showSheet(html) {
+    $('#sheet-content').innerHTML = html;
+    $('#mask').classList.add('show');
+    $('#sheet').classList.add('show');
+  }
+  function hideSheet() {
+    $('#mask').classList.remove('show');
+    $('#sheet').classList.remove('show');
   }
 
   /* ================= 音乐 ================= */
   function fmtTime(sec) {
     return Math.floor(sec / 60) + ':' + ('0' + Math.floor(sec % 60)).slice(-2);
   }
-
   function updateProgress() {
     var pct = Math.min(100, (state.pos / MUSIC_LEN) * 100);
     $('#progress-fill').style.width = pct + '%';
     $('#t-cur').textContent = fmtTime(state.pos);
   }
-
   function toggleMusic() {
     var icon = $('#play-icon');
     state.playing = !state.playing;
@@ -1430,294 +2354,247 @@
     }
   }
 
-  /* ================= 经期 ================= */
-  function renderPeriod() {
-    var d = state.calDate;
-    var y = d.getFullYear();
-    var m = d.getMonth();
-
-    $('#cal-title').textContent = y + '年' + (m + 1) + '月';
-
-    var firstDay = new Date(y, m, 1).getDay();
-    var total = new Date(y, m + 1, 0).getDate();
-    var today = new Date();
-
-    var html = '';
-    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-
-    for (var day = 1; day <= total; day++) {
-      var cls = 'cal-day';
-      var isToday = (today.getFullYear() === y && today.getMonth() === m && today.getDate() === day);
-      var isPeriod = day >= 12 && day <= 16;
-      var isPred = day >= 9 && day <= 11;
-
-      if (isPeriod) cls += ' period';
-      else if (isPred) cls += ' predicted';
-      if (isToday) cls += ' today';
-
-      html += '<div class="' + cls + '">' + day + '</div>';
-    }
-    $('#cal-days').innerHTML = html;
-
-    var nextStart = new Date(today.getFullYear(), today.getMonth(), 16);
-    if (today.getDate() > 16) nextStart = new Date(today.getFullYear(), today.getMonth() + 1, 16);
-    var diff = Math.ceil((nextStart - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
-    $('#stat-next').textContent = Math.max(0, diff);
-
-    var cycleDay = today.getDate() >= 16 ? (today.getDate() - 15) : (today.getDate() + 15);
-    $('#stat-day').textContent = cycleDay;
-  }
-
-  /* ================= 倒数日 ================= */
-  function renderEvents() {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    var list = EVENTS.map(function (e) {
-      var parts = e.date.split('-');
-      var target = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      var days = Math.round((target - today) / 86400000);
-      return { name: e.name, date: e.date, color: e.color, icon: e.icon, days: days };
-    }).sort(function (a, b) { return a.days - b.days; });
-
-    $('#evt-list').innerHTML = list.map(function (e) {
-      var label = e.days >= 0 ? '天后' : '天前';
-      var num = Math.abs(e.days);
-      return '<div class="evt">' +
-        '<span class="evt-icon" style="background:' + e.color + '">' + e.icon + '</span>' +
-        '<div class="evt-main">' +
-          '<div class="evt-name">' + esc(e.name) + '</div>' +
-          '<div class="evt-date">' + esc(e.date) + '</div>' +
-        '</div>' +
-        '<div class="evt-days"><b>' + num + '</b><span>' + label + '</span></div>' +
-      '</div>';
-    }).join('');
-  }
-
-  /* ================= 全局事件 ================= */
+  /* ================= 事件绑定 ================= */
   function bind() {
     document.addEventListener('click', function (e) {
       // 打开应用
       var cell = e.target.closest('.app-cell');
-      if (cell && cell.dataset.app) {
-        openApp(cell.dataset.app);
-        return;
-      }
+      if (cell && cell.dataset.app) { openApp(cell.dataset.app); return; }
 
-      // 关闭当前页
+      // 关闭应用页
       var closeBtn = e.target.closest('[data-close]');
       if (closeBtn) {
         var page = closeBtn.closest('.app-page');
         if (page) {
-          if (page.id === 'app-add-contact' && state.currentChat) {
-            // 从编辑状态返回聊天
-            closePage('app-add-contact');
-            openPage('app-chat');
+          if (page.id === 'app-add-friend' && state.currentFriend) {
+            closePage('app-add-friend'); openPage('app-chat');
           } else {
             closePage(page.id);
-            if (page.id === 'app-chat') state.currentChat = null;
+            if (page.id === 'app-chat') state.currentFriend = null;
           }
         }
         return;
       }
 
-      // 会话
+      // 添加好友按钮
+      var addF = e.target.closest('[data-add-friend]');
+      if (addF) { openAddFriend(addF.dataset.addFriend); return; }
+
+      // 会话项
       var chatItem = e.target.closest('.chat-item');
-      if (chatItem) {
-        openChat(chatItem.dataset.app, chatItem.dataset.chat);
-        return;
-      }
+      if (chatItem) { openChat(chatItem.dataset.app, chatItem.dataset.friend); return; }
 
       // 壁纸
       var sw = e.target.closest('[data-wall]');
-      if (sw) {
-        applyWall(Number(sw.dataset.wall));
-        renderBeautify();
-        return;
-      }
+      if (sw) { applyWall(Number(sw.dataset.wall)); renderBeautify(); return; }
 
       // 聊天背景
       var cb = e.target.closest('[data-chatbg]');
-      if (cb) {
-        applyChatBg(CHAT_BGS[Number(cb.dataset.chatbg)], false);
-        renderBeautify();
-        return;
-      }
+      if (cb) { applyChatBg(CHAT_BGS[Number(cb.dataset.chatbg)], false); renderBeautify(); return; }
 
       // 朋友圈背景
       var mb = e.target.closest('[data-momentsbg]');
-      if (mb) {
-        applyMomentsBg(MOMENTS_BGS[Number(mb.dataset.momentsbg)], false);
-        renderBeautify();
-        renderMoments();
-        return;
-      }
+      if (mb) { applyMomentsBg(MOMENTS_BGS[Number(mb.dataset.momentsbg)], false); renderBeautify(); renderMoments(); return; }
 
       // 字卡
       var card = e.target.closest('.card');
-      if (card) {
-        card.classList.toggle('on');
-        return;
+      if (card) { card.classList.toggle('on'); return; }
+
+      // 添加字卡
+      if (e.target.closest('#card-add-btn')) { openPage('app-add-card'); return; }
+      if (e.target.closest('#acard-save')) { addCard(); return; }
+
+      // 添加倒数日
+      if (e.target.closest('#event-add-btn')) { openPage('app-add-event'); return; }
+      if (e.target.closest('#aevent-save')) { addEvent(); return; }
+
+      // 删除倒数日
+      var delEvt = e.target.closest('[data-evt-del]');
+      if (delEvt) {
+        store.events = store.events.filter(function (x) { return x.id !== delEvt.dataset.evtDel; });
+        saveStore(); renderEvents(); return;
       }
 
-      // 添加按钮（短信 / 信箱）
-      var addBtn = e.target.closest('[data-add]');
-      if (addBtn) {
-        openAddContact(addBtn.dataset.add);
-        return;
-      }
+      // 添加好友保存
+      if (e.target.closest('#af-save')) { saveFriend(); return; }
 
-      // 微信添加好友
-      if (e.target.closest('#wx-add-btn')) {
-        openAddContact('wechat');
-        return;
+      // 我的头像
+      if (e.target.closest('#my-avatar-btn')) {
+        $('#file-avatar').dataset.target = 'my'; $('#file-avatar').click(); return;
       }
-
-      // 朋友圈入口
-      if (e.target.closest('#wx-moments-btn')) {
-        renderMoments();
-        openPage('app-moments');
-        return;
+      // 好友头像
+      if (e.target.closest('#af-avatar-btn')) {
+        $('#file-avatar').dataset.target = 'friend'; $('#file-avatar').click(); return;
+      }
+      // 聊天背景上传
+      if (e.target.closest('#chatbg-upload')) {
+        $('#file-avatar').dataset.target = 'chatbg'; $('#file-avatar').click(); return;
+      }
+      // 朋友圈背景上传
+      if (e.target.closest('#momentsbg-upload')) {
+        $('#file-avatar').dataset.target = 'momentsbg'; $('#file-avatar').click(); return;
       }
 
       // 聊天返回
-      if (e.target.closest('#chat-back')) {
-        closeChat();
+      if (e.target.closest('#chat-back')) { closeChat(); return; }
+
+      // 聊天更多
+      if (e.target.closest('#chat-more-btn')) { openChatActions(); return; }
+
+      // 功能菜单
+      var actionBtn = e.target.closest('[data-action]');
+      if (actionBtn && actionBtn.closest('#sheet')) {
+        handleChatAction(actionBtn.dataset.action); return;
+      }
+
+      // 写信
+      if (e.target.closest('#write-letter-btn')) { openCompose(); return; }
+      if (e.target.closest('#compose-send')) { sendLetter(); return; }
+
+      // 信件详情
+      var letterCard = e.target.closest('[data-open-letter]');
+      if (letterCard) { openLetter(letterCard.dataset.openLetter); return; }
+
+      // 问卷选项
+      var svOpt = e.target.closest('[data-survey]');
+      if (svOpt) { answerSurvey(svOpt.dataset.survey, Number(svOpt.dataset.opt)); return; }
+
+      // 朋友圈入口
+      if (e.target.closest('#wx-moments-btn')) { renderMoments(); openPage('app-moments'); return; }
+      // 发布朋友圈
+      if (e.target.closest('#moment-publish-btn')) { openMomentCompose(); return; }
+      if (e.target.closest('#moment-publish-submit')) { publishMoment(); return; }
+
+      // 朋友圈类型切换
+      var chip = e.target.closest('.type-chip');
+      if (chip) {
+        $$('.type-chip').forEach(function (b) { b.classList.remove('on'); b.style.background = 'var(--soft)'; b.style.color = 'var(--text)'; });
+        chip.classList.add('on'); chip.style.background = 'var(--accent)'; chip.style.color = '#fff';
+        state.draftMoment.type = chip.dataset.mtype;
+        $('#moment-image-field').classList.toggle('hidden', chip.dataset.mtype !== 'image');
+        $('#moment-video-field').classList.toggle('hidden', chip.dataset.mtype !== 'video');
         return;
       }
 
-      // 聊天编辑（对方资料）
-      if (e.target.closest('#chat-edit-btn')) {
-        if (state.currentChat) {
-          openEditContact(state.currentApp, state.currentChat);
-          closePage('app-chat');
-        }
-        return;
+      // 朋友圈图片上传
+      if (e.target.closest('#moment-image-btn')) {
+        $('#file-moment-img').click(); return;
       }
 
-      // 我的头像上传
-      if (e.target.closest('#my-avatar-btn')) {
-        var f = $('#file-avatar');
-        f.dataset.target = 'my';
-        f.click();
-        return;
-      }
+      // 点赞
+      var likeBtn = e.target.closest('[data-like]');
+      if (likeBtn) { toggleLike(likeBtn.dataset.like); return; }
 
-      // 添加联系人头像上传
-      if (e.target.closest('#ac-avatar-btn')) {
-        var f2 = $('#file-avatar');
-        f2.dataset.target = 'draft';
-        f2.click();
-        return;
-      }
+      // 评论展开
+      var cmtBtn = e.target.closest('[data-comment]');
+      if (cmtBtn) { toggleCommentBox(cmtBtn.dataset.comment); return; }
 
-      // 聊天背景上传
-      if (e.target.closest('#chatbg-upload')) {
-        var f3 = $('#file-avatar');
-        f3.dataset.target = 'chatbg';
-        f3.click();
-        return;
-      }
+      // 发送评论
+      var cmtSend = e.target.closest('[data-comment-send]');
+      if (cmtSend) { sendComment(cmtSend.dataset.commentSend); return; }
 
-      // 朋友圈背景上传
-      if (e.target.closest('#momentsbg-upload')) {
-        var f4 = $('#file-avatar');
-        f4.dataset.target = 'momentsbg';
-        f4.click();
-        return;
-      }
-
-      // 保存联系人
-      if (e.target.closest('#ac-save')) {
-        saveContact();
-        return;
-      }
+      // 关闭 sheet
+      if (e.target.closest('[data-sheet-close]')) { hideSheet(); return; }
     });
+
+    // 遮罩点击
+    $('#mask').addEventListener('click', hideSheet);
 
     // 文件选择
     $('#file-avatar').addEventListener('change', function (e) {
       var file = e.target.files && e.target.files[0];
       if (!file) return;
       var target = e.target.dataset.target;
-      var self = this;
-
       if (target === 'my') {
-        compressImage(file, 160, function (dataUrl) {
-          store.settings.myAvatar = dataUrl;
-          saveStore();
-          renderBeautify();
-          renderMoments();
-          if (state.currentChat) renderMessages();
+        compressImage(file, 160, function (d) {
+          store.settings.myAvatar = d; saveStore(); renderBeautify(); renderMoments();
+          if (state.currentFriend) renderMessages();
         });
-      } else if (target === 'draft') {
-        compressImage(file, 160, function (dataUrl) {
-          if (state.draft) {
-            state.draft.avatar = dataUrl;
-            renderAddForm();
-          }
+      } else if (target === 'friend') {
+        compressImage(file, 160, function (d) {
+          if (state.draftFriend) { state.draftFriend.avatar = d; renderFriendForm(); }
         });
       } else if (target === 'chatbg') {
-        compressImage(file, 800, function (dataUrl) {
-          applyChatBg('url(' + dataUrl + ')', true);
-          renderBeautify();
-        });
+        compressImage(file, 800, function (d) { applyChatBg('url(' + d + ')', true); renderBeautify(); });
       } else if (target === 'momentsbg') {
-        compressImage(file, 800, function (dataUrl) {
-          applyMomentsBg('url(' + dataUrl + ')', true);
-          renderBeautify();
-          renderMoments();
-        });
+        compressImage(file, 800, function (d) { applyMomentsBg('url(' + d + ')', true); renderBeautify(); renderMoments(); });
       }
+      this.value = '';
+    });
 
-      self.value = '';
+    // 朋友圈图片上传
+    $('#file-moment-img').addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      compressImage(file, 800, function (d) {
+        state.draftMoment.images.push(d);
+        var prev = $('#moment-image-preview');
+        var div = document.createElement('div');
+        div.className = 'moment-img';
+        div.style.backgroundImage = 'url(' + d + ')';
+        prev.appendChild(div);
+      });
+      this.value = '';
     });
 
     // 我的昵称
     $('#my-name-input').addEventListener('input', function () {
-      store.settings.myName = this.value;
-      saveStore();
-      renderMoments();
-      if (state.currentChat) renderMessages();
+      store.settings.myName = this.value; saveStore(); renderMoments();
+      if (state.currentFriend) renderMessages();
     });
 
     // 默认好友名
     $('#default-friend-input').addEventListener('input', function () {
-      store.settings.defaultFriendName = this.value || '梦';
-      saveStore();
+      store.settings.defaultFriendName = this.value || '梦'; saveStore();
     });
 
-    // 发送
+    // 聊天发送
     $('#composer').addEventListener('submit', function (e) {
       e.preventDefault();
-      sendMessage();
+      if (state.currentApp === 'mail') return;
+      sendText();
     });
 
-    var input = $('#msg-input');
-    input.addEventListener('input', autoGrow);
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+    // 聊天输入框（事件委托，因为 composer 会重建）
+    document.addEventListener('input', function (e) {
+      if (e.target.id === 'msg-input') autoGrow();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.target.id === 'msg-input' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
         e.preventDefault();
-        sendMessage();
+        sendText();
       }
     });
-    input.addEventListener('focus', function () {
-      setTimeout(function () {
-        var box = $('#messages');
-        box.scrollTop = box.scrollHeight;
-      }, 260);
+    document.addEventListener('focusin', function (e) {
+      if (e.target.id === 'msg-input') {
+        setTimeout(function () { var b = $('#messages'); if (b) b.scrollTop = b.scrollHeight; }, 260);
+      }
+    });
+
+    // 加号按钮
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('#plus-btn')) {
+        var f = state.currentFriend;
+        if (!f || f.iBlocked || f.theyBlocked) return;
+        openChatActions();
+      }
     });
 
     // 音乐
     $('#play-btn').addEventListener('click', toggleMusic);
 
-    // 日历切换
+    // 日历
     $('#cal-prev').addEventListener('click', function () {
-      state.calDate.setMonth(state.calDate.getMonth() - 1);
-      renderPeriod();
+      state.calDate.setMonth(state.calDate.getMonth() - 1); renderPeriod();
     });
     $('#cal-next').addEventListener('click', function () {
-      state.calDate.setMonth(state.calDate.getMonth() + 1);
-      renderPeriod();
+      state.calDate.setMonth(state.calDate.getMonth() + 1); renderPeriod();
+    });
+
+    // 通话挂断
+    $('#call-hangup-btn').addEventListener('click', endCall);
+    $('#call-mute-btn').addEventListener('click', function () {
+      this.classList.toggle('on');
     });
   }
 
@@ -1728,19 +2605,19 @@
     tickClock();
     setInterval(tickClock, 20000);
 
-    // 应用已保存的设置
     applyWall(store.settings.wall || 0);
     document.documentElement.style.setProperty('--chat-bg', store.settings.chatBg || '#f4f4f6');
     document.documentElement.style.setProperty('--moments-bg', store.settings.momentsBg || MOMENTS_BGS[0]);
 
-    // 音乐初始
     $('#t-all').textContent = fmtTime(MUSIC_LEN);
     updateProgress();
 
-    // 微信空状态
     renderAppList('wechat');
     renderAppList('sms');
     renderAppList('mail');
+    renderCards();
+    renderEvents();
+    renderMoments();
   }
 
   if (document.readyState === 'loading') {
