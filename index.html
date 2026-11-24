@@ -3,673 +3,783 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-<meta name="theme-color" content="#ffffff" />
-<title>聊天</title>
+<meta name="theme-color" content="#f2f4f8" />
+<title>主屏幕</title>
 <style>
   :root {
     --bg: #ffffff;
-    --bg-soft: #f4f4f6;
+    --soft: #f4f4f6;
     --line: #ececef;
     --text: #1c1c1e;
     --text-2: #8e8e93;
     --accent: #1c1c1e;
-    --bubble-me: #1c1c1e;
-    --bubble-them: #f1f1f4;
+    --wall: linear-gradient(165deg, #eef2f8 0%, #e2e8f2 45%, #e8e3f2 100%);
+    --chat-bg: #f4f4f6;
+    --moments-bg: linear-gradient(160deg, #dbe7f5 0%, #e8e0f0 100%);
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --sb-h: calc(var(--safe-top) + 44px);
   }
 
-  * {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-  }
-
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
       "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg); color: var(--text); font-size: 15px;
+    -webkit-font-smoothing: antialiased; user-select: none;
+  }
+  button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+  input, textarea { font: inherit; }
+  input:focus, textarea:focus { outline: none; }
+
+  #app { position: fixed; inset: 0; height: 100vh; height: 100dvh; overflow: hidden; }
+
+  /* ============ 状态栏 ============ */
+  .statusbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--sb-h);
+    padding: var(--safe-top) 24px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 14px; font-weight: 600; letter-spacing: .3px;
+    color: #1c1c1e; z-index: 200; pointer-events: none;
+    transition: color .3s ease;
+  }
+  .sb-right { display: flex; align-items: center; gap: 5px; }
+  .sb-right svg { display: block; }
+
+  /* ============ 主屏幕 ============ */
+  #home {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    background: var(--wall);
+  }
+  .home-scroll {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: calc(var(--sb-h) + 22px) 18px 12px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 6px; }
+  .app-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    padding: 0; transition: transform .14s ease;
+  }
+  .app-cell:active { transform: scale(.9); }
+  .app-icon {
+    width: 58px; height: 58px; border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(20, 30, 60, .13);
+    position: relative; overflow: hidden;
+  }
+  .app-icon::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 55%);
+  }
+  .app-icon svg { width: 30px; height: 30px; color: #fff; position: relative; z-index: 1; }
+  .app-label {
+    font-size: 11.5px; color: #2c2c30; letter-spacing: .2px;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    transition: color .3s ease;
+  }
+  .page-dots { display: flex; justify-content: center; gap: 6px; padding: 14px 0 10px; }
+  .page-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(60, 70, 90, .22); }
+  .page-dots i.on { background: rgba(60, 70, 90, .55); }
+  .dock-wrap { flex: 0 0 auto; padding: 0 14px calc(var(--safe-bottom) + 14px); }
+  .dock {
+    display: flex; justify-content: space-around; align-items: flex-start;
+    padding: 12px 6px 10px;
+    background: rgba(255, 255, 255, .58);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 28px; box-shadow: 0 6px 22px rgba(20, 30, 60, .1);
+  }
+  .dock .app-cell { flex: 1 1 0; }
+
+  /* ============ 应用页 ============ */
+  .app-page {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; flex-direction: column;
     background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  button {
-    font: inherit;
-    color: inherit;
-  }
-
-  /* ============ 根容器：铺满可视区域 ============ */
-  #app {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-    background: var(--bg);
-  }
-
-  .view {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    background: var(--bg);
-  }
-
-  #main-view { z-index: 1; }
-
-  #chat-view {
-    z-index: 2;
     transform: translateX(100%);
-    transition: transform .3s cubic-bezier(.32, .72, 0, 1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, .07);
+    transition: transform .28s cubic-bezier(.32,.72,0,1);
+    overflow: hidden;
   }
+  .app-page.open { transform: translateX(0); }
+  #app-chat, #app-add-contact, #app-moments { z-index: 20; }
 
-  #chat-view.open { transform: translateX(0); }
-
-  /* ============ 顶部栏 ============ */
-  .topbar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: calc(var(--safe-top) + 10px) 14px 10px;
-    background: rgba(255, 255, 255, .94);
+  .nav {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+    padding: calc(var(--sb-h) + 6px) 12px 10px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,.95);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--line);
-    position: relative;
-    z-index: 5;
+  }
+  .nav-btn {
+    width: 34px; height: 34px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; transition: background .15s ease;
+  }
+  .nav-btn:active { background: var(--soft); }
+  .nav-btn svg { width: 22px; height: 22px; }
+  .nav-btn.ghost { opacity: 0; pointer-events: none; }
+  .nav-title { flex: 1; text-align: center; font-size: 16.5px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav-actions { display: flex; align-items: center; gap: 2px; }
+
+  .app-body {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--safe-bottom) + 24px);
   }
 
-  .topbar .title {
-    flex: 1;
-    margin: 0;
-    font-size: 19px;
-    font-weight: 600;
-    letter-spacing: .2px;
-  }
-
-  .icon-btn {
-    width: 34px;
-    height: 34px;
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: none;
-    color: var(--text);
-    cursor: pointer;
+  /* ============ 通用列表 / 表单 ============ */
+  .group { padding: 8px 0; }
+  .group-title { padding: 14px 18px 7px; font-size: 12.5px; color: var(--text-2); letter-spacing: .4px; }
+  .row-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; text-align: left; padding: 13px 18px;
     transition: background .15s ease;
   }
+  .row-item:active { background: var(--soft); }
+  .row-item + .row-item::before {
+    content: ""; position: absolute; left: 52px; right: 0; top: 0;
+    height: 1px; background: var(--line);
+  }
+  .row-item svg.lead { width: 20px; height: 20px; flex: 0 0 auto; }
+  .row-text { flex: 1; min-width: 0; font-size: 15.5px; }
+  .row-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; line-height: 1.5; }
+  .row-val { font-size: 14px; color: var(--text-2); }
+  .row-item svg.chev { width: 17px; height: 17px; color: #c7c7cc; flex: 0 0 auto; }
 
-  .icon-btn:active { background: var(--bg-soft); }
-  .icon-btn svg { width: 22px; height: 22px; }
-
-  /* ============ 页面容器 ============ */
-  .pages {
-    position: relative;
-    flex: 1 1 auto;
-    min-height: 0;
+  .avatar {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 17px; font-weight: 500;
+    background-size: cover; background-position: center;
     overflow: hidden;
   }
+  .avatar.sm { width: 32px; height: 32px; font-size: 13px; }
+  .avatar.lg { width: 68px; height: 68px; font-size: 25px; }
+  .avatar.xs { width: 26px; height: 26px; font-size: 11px; }
 
-  .page {
-    position: absolute;
-    inset: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 16px;
-    display: none;
+  /* ============ 空状态 ============ */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 64px 32px 40px; text-align: center;
+  }
+  .empty-icon {
+    width: 64px; height: 64px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--soft); color: var(--text-2); margin-bottom: 18px;
+  }
+  .empty-icon svg { width: 30px; height: 30px; }
+  .empty-title { font-size: 15.5px; font-weight: 500; color: var(--text); }
+  .empty-sub { font-size: 13px; color: var(--text-2); margin-top: 7px; line-height: 1.6; }
+
+  /* ============ 美化 ============ */
+  .swatches { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 18px 18px; }
+  .sw {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid transparent;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.04), 0 1px 4px rgba(0,0,0,.08);
+    position: relative; transition: transform .15s ease;
+    background-size: cover; background-position: center;
+  }
+  .sw:active { transform: scale(.92); }
+  .sw.on { border-color: var(--accent); }
+  .sw.on::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #fff; }
+  .sw.upload {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--soft); color: var(--text-2);
+  }
+  .sw.upload svg { width: 20px; height: 20px; }
+
+  .profile-edit { display: flex; align-items: center; gap: 16px; padding: 18px 18px 10px; }
+  .profile-edit .avatar { width: 64px; height: 64px; font-size: 24px; }
+  .profile-meta { flex: 1; min-width: 0; }
+  .profile-name-input {
+    width: 100%; border: 0; background: none; font-size: 18px;
+    font-weight: 600; padding: 0; color: var(--text);
+  }
+  .profile-hint { font-size: 12.5px; color: var(--text-2); margin-top: 5px; }
+
+  .field-row { padding: 6px 18px 14px; }
+  .field-row label { display: block; font-size: 12.5px; color: var(--text-2); margin-bottom: 7px; }
+  .field-row input {
+    width: 100%; padding: 11px 14px; border-radius: 11px;
+    background: var(--soft); border: 0; font-size: 15px; color: var(--text);
   }
 
-  .page.active { display: block; }
-
-  /* ============ 搜索框 ============ */
-  .search-wrap { padding: 10px 16px 8px; }
-
-  .search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--bg-soft);
-    border-radius: 11px;
-    padding: 8px 11px;
-    color: var(--text-2);
+  /* ============ 字卡库 ============ */
+  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+  .card {
+    border-radius: 16px; background: #fff; border: 1px solid var(--line);
+    padding: 18px 14px 16px; text-align: center;
+    box-shadow: 0 2px 10px rgba(20,30,60,.05);
+    transition: transform .15s ease, border-color .15s ease;
   }
-
-  .search svg { width: 17px; height: 17px; flex: 0 0 auto; }
-
-  .search input {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    background: none;
-    outline: none;
-    font: inherit;
-    font-size: 15px;
-    color: var(--text);
+  .card:active { transform: scale(.97); }
+  .card.on { border-color: var(--accent); }
+  .card .zi { font-size: 34px; font-weight: 600; letter-spacing: 2px; }
+  .card .py { font-size: 12px; color: var(--text-2); margin-top: 4px; letter-spacing: .6px; }
+  .card .meaning {
+    font-size: 12px; color: var(--text-2); line-height: 1.5; margin-top: 8px;
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height .25s ease, opacity .25s ease;
   }
-
-  .search input::placeholder { color: var(--text-2); }
+  .card.on .meaning { max-height: 90px; opacity: 1; }
 
   /* ============ 会话列表 ============ */
   .chat-item {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; text-align: left; padding: 12px 16px;
     transition: background .15s ease;
   }
-
-  .chat-item:active { background: var(--bg-soft); }
-
+  .chat-item:active { background: var(--soft); }
   .chat-item + .chat-item::before {
-    content: "";
-    position: absolute;
-    left: 74px;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: var(--line);
+    content: ""; position: absolute; left: 74px; right: 0; top: 0;
+    height: 1px; background: var(--line);
   }
-
-  .avatar {
-    flex: 0 0 auto;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 17px;
-    font-weight: 500;
-    background: #c7c7cc;
-    user-select: none;
-  }
-
-  .avatar.sm { width: 30px; height: 30px; font-size: 13px; }
-  .avatar.lg { width: 64px; height: 64px; font-size: 24px; }
-
-  .chat-main {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .chat-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .chat-name {
-    flex: 1;
-    min-width: 0;
-    font-size: 15.5px;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chat-time {
-    flex: 0 0 auto;
-    font-size: 12px;
-    color: var(--text-2);
-  }
-
-  .chat-preview {
-    flex: 1;
-    min-width: 0;
-    font-size: 13.5px;
-    color: var(--text-2);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
+  .chat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .chat-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .chat-name { flex: 1; min-width: 0; font-size: 15.5px; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chat-time { flex: 0 0 auto; font-size: 12px; color: var(--text-2); }
+  .chat-prev { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-2);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .badge {
-    flex: 0 0 auto;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 10px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 12px;
-    line-height: 20px;
-    text-align: center;
+    flex: 0 0 auto; min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 10px; background: #ff3b30; color: #fff;
+    font-size: 12px; line-height: 20px; text-align: center;
     font-variant-numeric: tabular-nums;
   }
 
-  .empty {
-    padding: 60px 24px;
-    text-align: center;
-    color: var(--text-2);
-    font-size: 14px;
-  }
-
-  /* ============ 通讯录 / 我 ============ */
-  .section-title {
-    padding: 18px 16px 8px;
-    font-size: 12.5px;
-    color: var(--text-2);
-    letter-spacing: .5px;
-  }
-
-  .contact-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-  }
-
-  .contact-item + .contact-item::before {
-    content: "";
-    position: absolute;
-    left: 74px;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: var(--line);
-  }
-
-  .contact-name { font-size: 15.5px; }
-  .contact-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
-
-  .profile {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 24px 16px 20px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .profile-name { font-size: 19px; font-weight: 600; }
-  .profile-sub { font-size: 13px; color: var(--text-2); margin-top: 4px; }
-
-  .row {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    font-size: 15.5px;
-  }
-
-  .row:active { background: var(--bg-soft); }
-
-  .row + .row::before {
-    content: "";
-    position: absolute;
-    left: 50px;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: var(--line);
-  }
-
-  .row svg.lead { width: 20px; height: 20px; color: var(--text); flex: 0 0 auto; }
-  .row .row-text { flex: 1; }
-  .row svg.chev { width: 18px; height: 18px; color: #c7c7cc; flex: 0 0 auto; }
-
-  /* ============ 底部导航（始终位于可视区域底部） ============ */
-  .tabbar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: stretch;
-    background: rgba(255, 255, 255, .96);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-    border-top: 1px solid var(--line);
-    padding-bottom: var(--safe-bottom);
-    z-index: 6;
-  }
-
-  .tab {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 8px 0 7px;
-    border: 0;
-    background: none;
-    color: var(--text-2);
-    font-size: 11px;
-    letter-spacing: .3px;
-    cursor: pointer;
-    transition: color .18s ease;
-  }
-
-  .tab svg { width: 23px; height: 23px; }
-
-  .tab.active { color: var(--text); }
-  .tab.active .dot { opacity: 1; }
-
-  .dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity .18s ease;
-  }
-
   /* ============ 聊天详情 ============ */
-  .chat-head .chat-title {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .chat-head .name {
-    font-size: 16px;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chat-head .sub {
-    font-size: 12px;
-    color: var(--text-2);
-  }
-
   .messages {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 14px 14px 18px;
-    background: var(--bg);
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 16px 14px 20px;
+    background: var(--chat-bg);
+    background-size: cover; background-position: center;
   }
-
-  .time-divider {
-    align-self: center;
-    font-size: 11.5px;
-    color: var(--text-2);
-    padding: 2px 0;
-    margin: 2px 0;
-  }
-
-  .msg {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    max-width: 100%;
-    animation: pop .18s ease-out;
-  }
-
-  @keyframes pop {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
+  .time-divider { align-self: center; font-size: 11.5px; color: var(--text-2); padding: 2px 0; }
+  .msg { display: flex; align-items: flex-end; gap: 8px; animation: pop .18s ease-out; max-width: 100%; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .msg.me { justify-content: flex-end; }
-
   .bubble {
-    max-width: 74%;
-    padding: 9px 13px;
-    border-radius: 16px;
-    font-size: 15px;
-    line-height: 1.45;
-    word-break: break-word;
-    white-space: pre-wrap;
+    max-width: 70%; padding: 9px 13px; border-radius: 16px;
+    font-size: 15px; line-height: 1.45; word-break: break-word; white-space: pre-wrap;
   }
-
-  .msg.them .bubble {
-    background: var(--bubble-them);
-    border-bottom-left-radius: 5px;
-  }
-
-  .msg.me .bubble {
-    background: var(--bubble-me);
-    color: #fff;
-    border-bottom-right-radius: 5px;
-  }
+  .msg.them .bubble { background: #ffffff; border-bottom-left-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .msg.me .bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
 
   .composer {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
+    flex: 0 0 auto; display: flex; align-items: flex-end; gap: 10px;
     padding: 8px 12px calc(var(--safe-bottom) + 8px);
-    border-top: 1px solid var(--line);
-    background: #fff;
+    border-top: 1px solid var(--line); background: #fff;
   }
-
   .composer textarea {
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 38px;
-    max-height: 120px;
-    padding: 9px 13px;
-    border: 0;
-    border-radius: 19px;
-    background: var(--bg-soft);
-    color: var(--text);
-    font: inherit;
-    font-size: 15px;
-    line-height: 1.4;
-    resize: none;
-    outline: none;
-    overflow-y: auto;
+    flex: 1; min-width: 0; min-height: 38px; max-height: 120px;
+    padding: 9px 13px; border: 0; border-radius: 19px;
+    background: var(--soft); color: var(--text);
+    font-size: 15px; line-height: 1.4; resize: none; outline: none; overflow-y: auto;
   }
-
-  .composer textarea::placeholder { color: var(--text-2); }
-
   .send-btn {
-    flex: 0 0 auto;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    cursor: pointer;
-    transition: transform .15s ease, opacity .15s ease;
+    flex: 0 0 auto; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--accent); color: #fff;
+    transition: transform .15s ease;
   }
-
-  .send-btn:active { transform: scale(.92); }
+  .send-btn:active { transform: scale(.9); }
   .send-btn svg { width: 19px; height: 19px; }
+
+  /* ============ 添加联系人 ============ */
+  .ac-wrap { padding: 26px 22px; }
+  .ac-avatar-row { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+  .ac-avatar-btn {
+    width: 84px; height: 84px; border-radius: 50%;
+    background: var(--soft); display: flex; align-items: center; justify-content: center;
+    color: var(--text-2); overflow: hidden; background-size: cover; background-position: center;
+    border: 0; transition: transform .15s ease;
+  }
+  .ac-avatar-btn:active { transform: scale(.94); }
+  .ac-avatar-btn svg { width: 30px; height: 30px; }
+  .ac-avatar-btn.has-img { font-size: 30px; color: #fff; font-weight: 500; }
+  .ac-avatar-hint { font-size: 12.5px; color: var(--text-2); margin-top: 10px; }
+  .ac-field { margin-bottom: 18px; }
+  .ac-field label { display: block; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; padding-left: 2px; }
+  .ac-field input {
+    width: 100%; padding: 13px 15px; border-radius: 12px;
+    background: var(--soft); border: 0; font-size: 15px; color: var(--text);
+  }
+  .ac-save {
+    width: 100%; margin-top: 12px; padding: 14px;
+    border-radius: 13px; background: var(--accent); color: #fff;
+    font-size: 15.5px; font-weight: 500;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .ac-save:active { transform: scale(.98); opacity: .9; }
+
+  /* ============ 朋友圈 ============ */
+  .moments-hero {
+    position: relative; height: 240px;
+    background: var(--moments-bg);
+    background-size: cover; background-position: center;
+    display: flex; align-items: flex-end; padding: 0 18px 16px;
+  }
+  .moments-hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.28) 100%);
+  }
+  .moments-me {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .moments-me .avatar { width: 58px; height: 58px; font-size: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2); border: 2px solid rgba(255,255,255,.85); }
+  .moments-me-name { font-size: 17px; font-weight: 600; color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .moments-empty { padding: 44px 28px; text-align: center; }
+  .moments-empty p { margin: 0 0 6px; font-size: 14px; color: var(--text-2); }
+  .moments-empty p:first-child { font-size: 15.5px; color: var(--text); font-weight: 500; }
+
+  /* ============ 音乐 ============ */
+  .player { padding: 30px 28px calc(var(--safe-bottom) + 26px); display: flex; flex-direction: column; align-items: center; }
+  .cover {
+    width: 100%; max-width: 260px; aspect-ratio: 1 / 1; border-radius: 20px;
+    background: linear-gradient(150deg, #4a4a55, #1c1c1e 70%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 16px 40px rgba(20,30,60,.24);
+  }
+  .cover svg { width: 66px; height: 66px; color: rgba(255,255,255,.9); }
+  .song-title { font-size: 20px; font-weight: 600; margin-top: 28px; }
+  .song-artist { font-size: 14px; color: var(--text-2); margin-top: 5px; }
+  .progress-wrap { width: 100%; margin-top: 26px; }
+  .progress-bar { height: 4px; border-radius: 2px; background: #e6e6ea; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width .4s linear; }
+  .time-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-2); margin-top: 7px; }
+  .controls { display: flex; align-items: center; gap: 34px; margin-top: 30px; }
+  .ctrl { display: flex; align-items: center; justify-content: center; color: var(--text); }
+  .ctrl svg { width: 26px; height: 26px; }
+  .ctrl.play { width: 62px; height: 62px; border-radius: 50%; background: var(--accent); color: #fff;
+    transition: transform .15s ease; }
+  .ctrl.play:active { transform: scale(.93); }
+  .ctrl.play svg { width: 26px; height: 26px; }
+
+  /* ============ 经期 ============ */
+  .cal { padding: 18px 18px 6px; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cal-title { font-size: 16.5px; font-weight: 600; }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav button { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .cal-nav button:active { background: var(--soft); }
+  .cal-nav svg { width: 18px; height: 18px; }
+  .cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .cal-week span { text-align: center; font-size: 11.5px; color: var(--text-2); padding: 4px 0; }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+    font-size: 13.5px; border-radius: 50%; color: var(--text); position: relative; }
+  .cal-day.empty { visibility: hidden; }
+  .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--accent); font-weight: 600; }
+  .cal-day.period { background: #ffd7de; color: #c9184a; }
+  .cal-day.period.today { box-shadow: inset 0 0 0 1.5px #c9184a; }
+  .cal-day.predicted { background: #ffeef2; color: #d9708a; }
+  .stat-row { display: flex; gap: 12px; padding: 12px 18px 4px; }
+  .stat { flex: 1; border-radius: 14px; padding: 14px 12px; text-align: center; background: var(--soft); }
+  .stat .num { font-size: 22px; font-weight: 600; letter-spacing: .5px; }
+  .stat .lbl { font-size: 11.5px; color: var(--text-2); margin-top: 4px; }
+
+  /* ============ 倒数日 ============ */
+  .evt { display: flex; align-items: center; gap: 14px; padding: 16px 18px; position: relative; }
+  .evt + .evt::before { content: ""; position: absolute; left: 18px; right: 0; top: 0; height: 1px; background: var(--line); }
+  .evt-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center; }
+  .evt-icon svg { width: 22px; height: 22px; color: #fff; }
+  .evt-main { flex: 1; min-width: 0; }
+  .evt-name { font-size: 15.5px; font-weight: 500; }
+  .evt-date { font-size: 12.5px; color: var(--text-2); margin-top: 3px; }
+  .evt-days { flex: 0 0 auto; text-align: right; }
+  .evt-days b { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .evt-days span { display: block; font-size: 11px; color: var(--text-2); margin-top: 1px; }
+
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <div id="app">
 
-  <!-- ================= 主界面 ================= -->
-  <div class="view" id="main-view">
-
-    <header class="topbar">
-      <h1 class="title" id="page-title">消息</h1>
-      <button class="icon-btn" id="btn-new" aria-label="新建会话">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14"/>
-        </svg>
-      </button>
-    </header>
-
-    <div class="pages">
-
-      <!-- 消息页 -->
-      <section class="page active" data-page="chats">
-        <div class="search-wrap">
-          <label class="search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="6.5"/>
-              <path d="M20.5 20.5 16 16"/>
-            </svg>
-            <input type="text" id="search" placeholder="搜索" autocomplete="off" />
-          </label>
-        </div>
-        <div id="chat-list"></div>
-      </section>
-
-      <!-- 通讯录页 -->
-      <section class="page" data-page="contacts">
-        <div class="section-title">联系人</div>
-        <div id="contact-list"></div>
-      </section>
-
-      <!-- 我的页面 -->
-      <section class="page" data-page="me">
-        <div class="profile">
-          <div class="avatar lg" style="background:#1c1c1e">林</div>
-          <div>
-            <div class="profile-name">林一</div>
-            <div class="profile-sub">linyi@example.com</div>
-          </div>
-        </div>
-
-        <div class="section-title">通用</div>
-
-        <button class="row" type="button">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-               stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3.2"/>
-            <path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/>
-          </svg>
-          <span class="row-text">设置</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-
-        <button class="row" type="button">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
-          </svg>
-          <span class="row-text">通知</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-
-        <button class="row" type="button">
-          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-               stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 16v-4M12 8h.01"/>
-          </svg>
-          <span class="row-text">关于</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-      </section>
-
-    </div>
-
-    <!-- 底部导航 -->
-    <nav class="tabbar" id="tabbar">
-      <button class="tab active" data-page="chats" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5z"/>
-        </svg>
-        <span>消息</span>
-        <i class="dot"></i>
-      </button>
-
-      <button class="tab" data-page="contacts" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-             stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="8" r="3.5"/>
-          <path d="M2.5 20a6.5 6.5 0 0 1 13 0"/>
-          <path d="M16.5 5.2a3.5 3.5 0 0 1 0 5.6"/>
-          <path d="M18 14.4a6.5 6.5 0 0 1 3.5 5.6"/>
-        </svg>
-        <span>通讯录</span>
-        <i class="dot"></i>
-      </button>
-
-      <button class="tab" data-page="me" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-             stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="8" r="3.8"/>
-          <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>
-        </svg>
-        <span>我</span>
-        <i class="dot"></i>
-      </button>
-    </nav>
-
+  <!-- ===== 状态栏 ===== -->
+  <div class="statusbar">
+    <span id="sb-time">9:41</span>
+    <span class="sb-right">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+        <rect x="0" y="8" width="3" height="4" rx="1"/>
+        <rect x="5" y="5.5" width="3" height="6.5" rx="1"/>
+        <rect x="10" y="3" width="3" height="9" rx="1"/>
+        <rect x="15" y="0" width="3" height="12" rx="1"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M1 4.2a11 11 0 0 1 14 0"/>
+        <path d="M3.6 7a7 7 0 0 1 8.8 0"/>
+        <circle cx="8" cy="10.2" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
+        <rect x="0.7" y="0.7" width="21" height="11.6" rx="3.2" stroke="currentColor" stroke-width="1.2" opacity="0.42"/>
+        <rect x="2.4" y="2.4" width="15" height="8.2" rx="2" fill="currentColor"/>
+        <path d="M23.6 4.4v4.2a2.2 2.2 0 0 0 0-4.2z" fill="currentColor" opacity="0.42"/>
+      </svg>
+    </span>
   </div>
 
-  <!-- ================= 聊天详情 ================= -->
-  <div class="view" id="chat-view">
+  <!-- ===== 主屏幕 ===== -->
+  <div id="home">
+    <div class="home-scroll">
+      <div class="grid" id="home-grid"></div>
+      <div class="page-dots"><i class="on"></i><i></i></div>
+    </div>
+    <div class="dock-wrap">
+      <div class="dock" id="dock"></div>
+    </div>
+  </div>
 
-    <header class="topbar chat-head">
-      <button class="icon-btn" id="btn-back" aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14.5 5.5 8 12l6.5 6.5"/>
-        </svg>
+  <!-- ===== 设置 ===== -->
+  <div class="app-page" id="app-settings">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
       </button>
-      <div class="chat-title">
-        <div class="name" id="chat-name">对话</div>
-        <div class="sub">在线</div>
+      <span class="nav-title">设置</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="group">
+        <button class="row-item" type="button">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"/></svg>
+          <span class="row-text">账户与安全</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="row-item" type="button">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="row-text">通知</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="row-item" type="button">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/></svg>
+          <span class="row-text">通用</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="row-item" type="button">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.6"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          <span class="row-text">隐私</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="group">
+        <button class="row-item" type="button">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span class="row-text">关于本机</span>
+          <span class="row-val">v2.0.0</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 美化 ===== -->
+  <div class="app-page" id="app-beautify">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">美化</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <!-- 我的资料 -->
+      <div class="profile-edit">
+        <button class="avatar lg" id="my-avatar-btn" style="background:#1c1c1e;background-size:cover;background-position:center">我</button>
+        <div class="profile-meta">
+          <input class="profile-name-input" id="my-name-input" placeholder="我的昵称" maxlength="12" />
+          <div class="profile-hint">点击头像可上传图片</div>
+        </div>
+      </div>
+
+      <div class="group-title">主屏幕壁纸</div>
+      <div class="swatches" id="wall-swatches"></div>
+
+      <div class="group-title">微信聊天背景</div>
+      <div class="swatches" id="chatbg-swatches"></div>
+
+      <div class="group-title">朋友圈背景</div>
+      <div class="swatches" id="momentsbg-swatches"></div>
+
+      <div class="group-title">默认好友名</div>
+      <div class="field-row">
+        <input id="default-friend-input" maxlength="8" placeholder="不填则使用「梦」" />
+      </div>
+
+      <div class="group-title">说明</div>
+      <div class="group">
+        <div class="row-item" style="cursor:default">
+          <div class="row-text" style="font-size:13px;color:#8e8e93;line-height:1.6">
+            所有设置会自动保存在本机浏览器中。对方头像和名字可在添加好友时设置，也可在聊天页右上角重新编辑。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 字卡库 ===== -->
+  <div class="app-page" id="app-cards">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">字卡库</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="cards-grid" id="cards-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== 微信 ===== -->
+  <div class="app-page" id="app-wechat">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">微信</span>
+      <div class="nav-actions">
+        <button class="nav-btn" id="wx-moments-btn" aria-label="朋友圈">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>
+          </svg>
+        </button>
+        <button class="nav-btn" id="wx-add-btn" aria-label="添加好友">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
       </div>
     </header>
+    <div class="app-body">
+      <div id="list-wechat"></div>
+    </div>
+  </div>
 
+  <!-- ===== 短信 ===== -->
+  <div class="app-page" id="app-sms">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">短信</span>
+      <div class="nav-actions">
+        <button class="nav-btn" data-add="sms" aria-label="添加联系人">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="app-body">
+      <div id="list-sms"></div>
+    </div>
+  </div>
+
+  <!-- ===== 信箱 ===== -->
+  <div class="app-page" id="app-mail">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">信箱</span>
+      <div class="nav-actions">
+        <button class="nav-btn" data-add="mail" aria-label="添加联系人">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="app-body">
+      <div id="list-mail"></div>
+    </div>
+  </div>
+
+  <!-- ===== 音乐 ===== -->
+  <div class="app-page" id="app-music">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">音乐</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="player">
+        <div class="cover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>
+          </svg>
+        </div>
+        <div class="song-title">安静的午后</div>
+        <div class="song-artist">林间乐队</div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="time-row"><span id="t-cur">0:00</span><span id="t-all">3:24</span></div>
+        </div>
+        <div class="controls">
+          <button class="ctrl" type="button" aria-label="上一首">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h2v14H7zM19 5v14l-9-7z"/></svg>
+          </button>
+          <button class="ctrl play" id="play-btn" type="button" aria-label="播放">
+            <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
+          </button>
+          <button class="ctrl" type="button" aria-label="下一首">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 5h2v14h-2zM5 5v14l9-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 经期 ===== -->
+  <div class="app-page" id="app-period">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">经期</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="stat-next">--</div><div class="lbl">距下次经期（天）</div></div>
+        <div class="stat"><div class="num" id="stat-day">--</div><div class="lbl">当前周期第几天</div></div>
+      </div>
+      <div class="cal">
+        <div class="cal-head">
+          <span class="cal-title" id="cal-title">--</span>
+          <span class="cal-nav">
+            <button type="button" id="cal-prev" aria-label="上个月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+            </button>
+            <button type="button" id="cal-next" aria-label="下个月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+            </button>
+          </span>
+        </div>
+        <div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="cal-days" id="cal-days"></div>
+      </div>
+      <div class="group-title">说明</div>
+      <div class="group">
+        <div class="row-item" style="cursor:default">
+          <div class="row-text" style="font-size:13px;color:#8e8e93;line-height:1.6">
+            浅红色为预计经期日，深红色为实际记录日。数据仅保存在本地浏览器中，用于日常参考。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 倒数日 ===== -->
+  <div class="app-page" id="app-countdown">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">倒数日</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div id="evt-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== 朋友圈 ===== -->
+  <div class="app-page" id="app-moments">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title">朋友圈</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body" style="padding-bottom:0">
+      <div class="moments-hero" id="moments-hero">
+        <div class="moments-me">
+          <div class="avatar" id="moments-my-avatar" style="background:#1c1c1e">我</div>
+          <div class="moments-me-name" id="moments-my-name">林一</div>
+        </div>
+      </div>
+      <div class="moments-empty">
+        <p>还没有动态</p>
+        <p>添加好友后，这里会显示他们的分享</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 聊天详情 ===== -->
+  <div class="app-page" id="app-chat">
+    <header class="nav">
+      <button class="nav-btn" id="chat-back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title" id="chat-title">会话</span>
+      <button class="nav-btn" id="chat-edit-btn" aria-label="编辑">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M14 6l4 4"/>
+        </svg>
+      </button>
+    </header>
     <div class="messages" id="messages"></div>
-
     <form class="composer" id="composer">
       <textarea id="msg-input" rows="1" placeholder="输入消息..." autocomplete="off"></textarea>
       <button class="send-btn" type="submit" aria-label="发送">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 3 10.5 13.5"/>
-          <path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4L21 3z"/>
         </svg>
       </button>
     </form>
-
   </div>
+
+  <!-- ===== 添加 / 编辑联系人 ===== -->
+  <div class="app-page" id="app-add-contact">
+    <header class="nav">
+      <button class="nav-btn" data-close aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+      </button>
+      <span class="nav-title" id="ac-title">添加好友</span>
+      <span class="nav-btn ghost"></span>
+    </header>
+    <div class="app-body">
+      <div class="ac-wrap">
+        <div class="ac-avatar-row">
+          <button class="ac-avatar-btn" id="ac-avatar-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+          <div class="ac-avatar-hint">点击设置头像</div>
+        </div>
+
+        <div class="ac-field">
+          <label>名字</label>
+          <input id="ac-name" type="text" maxlength="12" placeholder="不填则默认叫「梦」" autocomplete="off" />
+        </div>
+
+        <div class="ac-field" id="ac-remark-field">
+          <label>备注</label>
+          <input id="ac-remark" type="text" maxlength="16" placeholder="选填，用于显示在聊天列表" autocomplete="off" />
+        </div>
+
+        <button class="ac-save" id="ac-save" type="button">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="file-avatar" accept="image/*" class="hidden" />
 
 </div>
 
@@ -677,289 +787,903 @@
 (function () {
   'use strict';
 
-  /* ---------------- 数据 ---------------- */
-  const chats = [
-    {
-      id: 'c1', name: '张明', initial: '张', color: '#3b82f6', time: '14:32', unread: 2,
-      messages: [
-        { from: 'them', text: '早上好，项目文档我更新好了', time: '09:12' },
-        { from: 'me',   text: '收到，我下午看一下', time: '09:15' },
-        { from: 'them', text: '好的，有疑问随时找我', time: '09:16' },
-        { from: 'them', text: '另外周五的会议改到下午三点了', time: '14:32' }
-      ]
-    },
-    {
-      id: 'c2', name: '李静', initial: '李', color: '#8b5cf6', time: '13:05', unread: 0,
-      messages: [
-        { from: 'them', text: '设计稿已经上传到共享盘了', time: '12:50' },
-        { from: 'me',   text: '好的，辛苦了', time: '13:00' },
-        { from: 'them', text: '配色方案有两个版本，你选一个吧', time: '13:05' }
-      ]
-    },
-    {
-      id: 'c3', name: '产品讨论组', initial: '组', color: '#10b981', time: '20:15', unread: 5,
-      messages: [
-        { from: 'them', text: '新版本的交互流程我整理了一份', time: '20:10' },
-        { from: 'me',   text: '发群里吧，大家一起看看', time: '20:12' },
-        { from: 'them', text: '已发送，请注意查收', time: '20:15' }
-      ]
-    },
-    {
-      id: 'c4', name: '王芳', initial: '王', color: '#f59e0b', time: '18:46', unread: 0,
-      messages: [
-        { from: 'them', text: '周末有空一起爬山吗', time: '18:40' },
-        { from: 'me',   text: '可以啊，几点出发', time: '18:45' },
-        { from: 'them', text: '早上七点山脚下集合', time: '18:46' }
-      ]
-    },
-    {
-      id: 'c5', name: '陈晨', initial: '陈', color: '#ef4444', time: '11:20', unread: 0,
-      messages: [
-        { from: 'them', text: '合同细节我核对过了，没有问题', time: '11:20' }
-      ]
-    }
+  /* ================= 图标 ================= */
+  var ICO = {
+    gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M12 2.6v2.8M12 18.6v2.8M21.4 12h-2.8M5.4 12H2.6M18.6 5.4l-2 2M7.4 16.6l-2 2M18.6 18.6l-2-2M7.4 7.4l-2-2"/></svg>',
+    palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3.4-3.6 3.4h-1.7a2 2 0 0 0-1.4 3.4A1.9 1.9 0 0 1 12 21z"/><circle cx="8.4" cy="10.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.6" cy="10.4" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="6.4" width="13" height="15" rx="2.4"/><path d="M7 3.4h11a2.6 2.6 0 0 1 2.6 2.6v11"/><path d="M6.6 11.4h6.2M6.6 15.2h4.2"/></svg>',
+    wechat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 4.2c-3.7 0-6.7 2.4-6.7 5.4 0 1.7.9 3.2 2.4 4.2l-.6 2.3 2.4-1.2c.8.2 1.6.3 2.5.3"/><path d="M21.5 14.2c0-2.6-2.5-4.7-5.6-4.7s-5.6 2.1-5.6 4.7 2.5 4.7 5.6 4.7c.7 0 1.4-.1 2-.3l2 1-.5-2c1.3-.9 2.1-2.1 2.1-3.4z"/></svg>',
+    sms: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12a8.6 8.6 0 0 1-12.5 7.7L3.4 20.6l1.3-4.6A8.6 8.6 0 1 1 20.6 12z"/><path d="M8.2 12h.01M12 12h.01M15.8 12h.01"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><path d="M3.4 6.6 12 13l8.6-6.4"/></svg>',
+    music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V5.6l10-2v11.9"/><circle cx="6.4" cy="18" r="2.6"/><circle cx="16.4" cy="16" r="2.6"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.4s-7.6-4.6-7.6-9.6a4.3 4.3 0 0 1 7.6-2.7 4.3 4.3 0 0 1 7.6 2.7c0 5-7.6 9.6-7.6 9.6z"/></svg>',
+    hourglass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 3h10.8M6.6 21h10.8"/><path d="M7.4 3v3.2c0 2.2 4.6 5.8 4.6 5.8s4.6-3.6 4.6-5.8V3"/><path d="M7.4 21v-3.2c0-2.2 4.6-5.8 4.6-5.8s4.6 3.6 4.6 5.8V21"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.2 2"/></svg>',
+    gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="9.4" width="17.2" height="11.2" rx="2"/><path d="M3.4 13.4h17.2M12 9.4v11.2"/><path d="M12 9.4S10.6 4.4 8 4.4a2.2 2.2 0 0 0 0 5zM12 9.4s1.4-5 4-5a2.2 2.2 0 0 1 0 5z"/></svg>',
+    plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 4 3.6 10.6l6.2 2.4 2.4 6.2z"/><path d="M20.6 4 9.8 13"/></svg>',
+    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 21V3.6"/><path d="M5.6 4.4h11.6l-2 4 2 4H5.6z"/></svg>',
+    moments: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>',
+    upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/></svg>',
+    emptyChat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5z"/></svg>'
+  };
+
+  /* ================= 应用配置 ================= */
+  var HOME_APPS = [
+    { id: 'settings',  name: '设置',   color: '#8e8e93', icon: ICO.gear },
+    { id: 'beautify',  name: '美化',   color: '#ff9f0a', icon: ICO.palette },
+    { id: 'cards',     name: '字卡库', color: '#5e5ce6', icon: ICO.cards },
+    { id: 'period',    name: '经期',   color: '#ff2d55', icon: ICO.heart },
+    { id: 'countdown', name: '倒数日', color: '#30b0c7', icon: ICO.hourglass }
+  ];
+  var DOCK_APPS = [
+    { id: 'wechat', name: '微信', color: '#07c160', icon: ICO.wechat },
+    { id: 'sms',    name: '短信', color: '#34c759', icon: ICO.sms },
+    { id: 'mail',   name: '信箱', color: '#0a84ff', icon: ICO.mail },
+    { id: 'music',  name: '音乐', color: '#ff375f', icon: ICO.music }
   ];
 
-  const contacts = [
-    { name: '张明', initial: '张', color: '#3b82f6', sub: '研发工程师' },
-    { name: '李静', initial: '李', color: '#8b5cf6', sub: '视觉设计' },
-    { name: '王芳', initial: '王', color: '#f59e0b', sub: '市场运营' },
-    { name: '陈晨', initial: '陈', color: '#ef4444', sub: '产品经理' },
-    { name: '赵磊', initial: '赵', color: '#0ea5e9', sub: '前端开发' },
-    { name: '孙悦', initial: '孙', color: '#14b8a6', sub: '人事行政' }
+  /* ================= 预置素材 ================= */
+  var WALLS = [
+    'linear-gradient(165deg, #eef2f8 0%, #e2e8f2 45%, #e8e3f2 100%)',
+    'linear-gradient(165deg, #fdf1e7 0%, #fbe3e8 55%, #eae4f6 100%)',
+    'linear-gradient(165deg, #e6f4ef 0%, #dceef7 50%, #e8e9f7 100%)',
+    'linear-gradient(165deg, #f4f0e6 0%, #e9e6dc 55%, #dfe3e6 100%)',
+    'linear-gradient(165deg, #2b2b33 0%, #3a3a46 55%, #4a4458 100%)'
   ];
 
-  const REPLIES = [
-    '收到，我看看。',
-    '好的，没问题。',
-    '明白了，稍后回复你。',
-    '嗯，这个想法不错。',
-    '我这边刚处理完，稍等。',
-    '好的，那就这么定。',
-    '谢谢，辛苦了。',
-    '我确认一下再告诉你。'
+  var CHAT_BGS = [
+    '#f4f4f6',
+    'linear-gradient(160deg, #fdf1e7, #fbe3e8)',
+    'linear-gradient(160deg, #e6f4ef, #dceef7)',
+    'linear-gradient(160deg, #eef0f8, #e3e6f2)',
+    'linear-gradient(160deg, #2b2b33, #3a3a46)'
   ];
 
-  /* ---------------- 状态 ---------------- */
-  const state = { activeChat: null };
-  let chatOpen = false;
+  var MOMENTS_BGS = [
+    'linear-gradient(160deg, #dbe7f5 0%, #e8e0f0 100%)',
+    'linear-gradient(160deg, #fbe3e8 0%, #fdf1e7 100%)',
+    'linear-gradient(160deg, #dceef7 0%, #e6f4ef 100%)',
+    'linear-gradient(160deg, #3a3a46 0%, #4a4458 100%)'
+  ];
 
-  /* ---------------- 工具 ---------------- */
-  const $ = function (sel) { return document.querySelector(sel); };
-  const $$ = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
+  var COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#0ea5e9','#14b8a6','#ec4899','#6366f1','#84cc16'];
 
-  function escapeHTML(str) {
-    return String(str).replace(/[&<>"']/g, function (c) {
+  var CARDS = [
+    { zi: '山', py: 'shān', mean: '地面形成的高耸的部分，亦指形状像山的东西。' },
+    { zi: '水', py: 'shuǐ', mean: '无色无味的透明液体，泛指一切水域。' },
+    { zi: '风', py: 'fēng', mean: '空气流动的现象，也比喻趋势与风格。' },
+    { zi: '月', py: 'yuè', mean: '月亮，亦指时间单位，一年分为十二个月。' },
+    { zi: '光', py: 'guāng', mean: '能引起视觉反应的电磁波，引申为明亮、荣耀。' },
+    { zi: '静', py: 'jìng', mean: '安定不动，没有声响，也指心境平和。' }
+  ];
+
+  var EVENTS = [
+    { name: '春节', date: '2026-02-17', color: '#ff375f', icon: ICO.gift },
+    { name: '生日', date: '2026-05-09', color: '#5e5ce6', icon: ICO.clock },
+    { name: '旅行出发', date: '2026-07-12', color: '#30b0c7', icon: ICO.plane },
+    { name: '项目上线', date: '2026-03-30', color: '#ff9f0a', icon: ICO.flag }
+  ];
+
+  /* ================= 存储 ================= */
+  var STORE_KEY = 'mini_phone_v4';
+
+  function defaultStore() {
+    return {
+      settings: {
+        wall: 0,
+        chatBg: CHAT_BGS[0],
+        chatBgIsImage: false,
+        momentsBg: MOMENTS_BGS[0],
+        momentsBgIsImage: false,
+        myAvatar: '',
+        myName: '林一',
+        defaultFriendName: '梦'
+      },
+      apps: { wechat: [], sms: [], mail: [] }
+    };
+  }
+
+  function loadStore() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.settings && s.apps) {
+          // 补齐缺失字段
+          var d = defaultStore();
+          for (var k in d.settings) { if (!(k in s.settings)) s.settings[k] = d.settings[k]; }
+          for (var a in d.apps) { if (!(a in s.apps)) s.apps[a] = []; }
+          return s;
+        }
+      }
+    } catch (e) { /* 忽略 */ }
+    return defaultStore();
+  }
+
+  var store = loadStore();
+
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* 忽略 */ }
+  }
+
+  /* ================= 状态 ================= */
+  var state = {
+    openApp: null,
+    currentApp: null,
+    currentChat: null,
+    draft: null,
+    calDate: new Date(),
+    playing: false,
+    pos: 0,
+    timer: null
+  };
+
+  var MUSIC_LEN = 204;
+
+  /* ================= 工具 ================= */
+  function $(s) { return document.querySelector(s); }
+  function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
 
   function nowTime() {
-    const d = new Date();
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    var d = new Date();
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
   }
 
-  function toMinutes(t) {
-    const parts = String(t).split(':');
-    return (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
+  function toMin(t) {
+    var p = String(t).split(':');
+    return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
   }
 
-  function lastMessage(chat) {
-    return chat.messages[chat.messages.length - 1] || null;
+  function randomColor() {
+    return COLORS[Math.floor(Math.random() * COLORS.length)];
   }
 
-  /* ---------------- 渲染：会话列表 ---------------- */
-  function renderChatList() {
-    const keyword = ($('#search').value || '').trim().toLowerCase();
-    const listEl = $('#chat-list');
+  function findContact(app, id) {
+    var list = store.apps[app] || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) return list[i];
+    }
+    return null;
+  }
 
-    const filtered = chats.filter(function (c) {
-      if (!keyword) return true;
-      const last = lastMessage(c);
-      return c.name.toLowerCase().indexOf(keyword) > -1 ||
-        (last && last.text.toLowerCase().indexOf(keyword) > -1);
-    });
+  function uid() {
+    return 'c_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+  }
 
-    if (!filtered.length) {
-      listEl.innerHTML = '<div class="empty">没有找到相关会话</div>';
+  function avatarStyle(person) {
+    if (person.avatar) {
+      return 'background-image:url(' + person.avatar + ');background-size:cover;background-position:center;background-color:' + (person.color || '#c7c7cc') + ';color:transparent';
+    }
+    return 'background:' + (person.color || '#c7c7cc') + ';color:#fff';
+  }
+
+  function avatarHTML(person, cls) {
+    return '<span class="avatar ' + cls + '" style="' + avatarStyle(person) + '">' +
+      (person.avatar ? '' : esc((person.initial || person.name || '?').charAt(0))) +
+    '</span>';
+  }
+
+  var REPLIES = ['收到，我看看。', '好的，没问题。', '明白了，稍后回复你。', '嗯，这个想法不错。',
+    '我这边刚处理完，稍等。', '好的，那就这么定。', '谢谢，辛苦了。', '我确认一下再告诉你。'];
+
+  /* ================= 状态栏时钟 ================= */
+  function tickClock() {
+    var d = new Date();
+    $('#sb-time').textContent = d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+
+  /* ================= 主屏幕 ================= */
+  function appCellHTML(app) {
+    return '<button class="app-cell" type="button" data-app="' + app.id + '">' +
+      '<span class="app-icon" style="background:' + app.color + '">' + app.icon + '</span>' +
+      '<span class="app-label">' + esc(app.name) + '</span>' +
+    '</button>';
+  }
+
+  function renderHome() {
+    $('#home-grid').innerHTML = HOME_APPS.map(appCellHTML).join('');
+    $('#dock').innerHTML = DOCK_APPS.map(appCellHTML).join('');
+  }
+
+  /* ================= 页面开关 ================= */
+  function openPage(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  }
+
+  function closePage(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  }
+
+  function openApp(id) {
+    state.openApp = id;
+    openPage('app-' + id);
+    if (id === 'wechat') renderAppList('wechat');
+    if (id === 'sms') renderAppList('sms');
+    if (id === 'mail') renderAppList('mail');
+    if (id === 'cards') renderCards();
+    if (id === 'countdown') renderEvents();
+    if (id === 'period') renderPeriod();
+    if (id === 'beautify') renderBeautify();
+  }
+
+  function closeApp() {
+    if (state.openApp) closePage('app-' + state.openApp);
+    state.openApp = null;
+    closePage('app-chat');
+    closePage('app-add-contact');
+    closePage('app-moments');
+    state.currentChat = null;
+  }
+
+  /* ================= 空状态 ================= */
+  function emptyStateHTML(app) {
+    var icon = app === 'wechat' ? ICO.wechat : (app === 'sms' ? ICO.sms : ICO.mail);
+    var title = app === 'wechat' ? '暂无会话' : '暂无联系人';
+    var sub = app === 'wechat'
+      ? '点击右上角 + 添加好友后，即可开始聊天'
+      : '点击右上角 + 添加联系人后，即可开始对话';
+    return '<div class="empty-state">' +
+      '<div class="empty-icon">' + icon + '</div>' +
+      '<div class="empty-title">' + title + '</div>' +
+      '<div class="empty-sub">' + sub + '</div>' +
+    '</div>';
+  }
+
+  /* ================= 会话列表 ================= */
+  function renderAppList(app) {
+    var box = document.getElementById('list-' + app);
+    if (!box) return;
+    var list = store.apps[app] || [];
+
+    if (!list.length) {
+      box.innerHTML = emptyStateHTML(app);
       return;
     }
 
-    listEl.innerHTML = filtered.map(function (c) {
-      const last = lastMessage(c);
-      const preview = last ? last.text : '';
-      const unread = c.unread
-        ? '<span class="badge">' + (c.unread > 99 ? '99+' : c.unread) + '</span>'
-        : '';
-      return '' +
-        '<button class="chat-item" type="button" data-id="' + c.id + '">' +
-          '<div class="avatar" style="background:' + c.color + '">' + escapeHTML(c.initial) + '</div>' +
-          '<div class="chat-main">' +
-            '<div class="chat-row">' +
-              '<span class="chat-name">' + escapeHTML(c.name) + '</span>' +
-              '<span class="chat-time">' + escapeHTML(c.time) + '</span>' +
-            '</div>' +
-            '<div class="chat-row">' +
-              '<span class="chat-preview">' + escapeHTML(preview) + '</span>' +
-              unread +
-            '</div>' +
-          '</div>' +
-        '</button>';
+    box.innerHTML = list.map(function (c) {
+      var last = c.messages[c.messages.length - 1];
+      var displayName = c.remark || c.name;
+      var preview = last ? last.text : '暂无消息';
+      var time = last ? last.time : '';
+      var unread = c.unread ? '<span class="badge">' + (c.unread > 99 ? '99+' : c.unread) + '</span>' : '';
+      return '<button class="chat-item" type="button" data-app="' + app + '" data-chat="' + c.id + '">' +
+        avatarHTML(c, '') +
+        '<span class="chat-main">' +
+          '<span class="chat-row">' +
+            '<span class="chat-name">' + esc(displayName) + '</span>' +
+            '<span class="chat-time">' + esc(time) + '</span>' +
+          '</span>' +
+          '<span class="chat-row">' +
+            '<span class="chat-prev">' + esc(preview) + '</span>' + unread +
+          '</span>' +
+        '</span>' +
+      '</button>';
     }).join('');
   }
 
-  /* ---------------- 渲染：联系人 ---------------- */
-  function renderContacts() {
-    $('#contact-list').innerHTML = contacts.map(function (p) {
-      return '' +
-        '<div class="contact-item">' +
-          '<div class="avatar" style="background:' + p.color + '">' + escapeHTML(p.initial) + '</div>' +
-          '<div>' +
-            '<div class="contact-name">' + escapeHTML(p.name) + '</div>' +
-            '<div class="contact-sub">' + escapeHTML(p.sub) + '</div>' +
-          '</div>' +
-        '</div>';
-    }).join('');
+  /* ================= 添加 / 编辑联系人 ================= */
+  function openAddContact(app) {
+    state.currentApp = app;
+    state.draft = {
+      id: null,
+      name: '',
+      remark: '',
+      avatar: '',
+      color: randomColor(),
+      initial: '',
+      isEdit: false
+    };
+    $('#ac-title').textContent = app === 'wechat' ? '添加好友' : '添加联系人';
+    $('#ac-remark-field').style.display = app === 'wechat' ? '' : 'none';
+    renderAddForm();
+    openPage('app-add-contact');
   }
 
-  /* ---------------- 渲染：消息 ---------------- */
+  function openEditContact(app, contact) {
+    state.currentApp = app;
+    state.draft = {
+      id: contact.id,
+      name: contact.name,
+      remark: contact.remark || '',
+      avatar: contact.avatar || '',
+      color: contact.color || randomColor(),
+      initial: contact.initial,
+      isEdit: true
+    };
+    $('#ac-title').textContent = app === 'wechat' ? '编辑好友' : '编辑联系人';
+    $('#ac-remark-field').style.display = app === 'wechat' ? '' : 'none';
+    renderAddForm();
+    openPage('app-add-contact');
+  }
+
+  function renderAddForm() {
+    var d = state.draft;
+    var btn = $('#ac-avatar-btn');
+
+    if (d.avatar) {
+      btn.style.backgroundImage = 'url(' + d.avatar + ')';
+      btn.style.backgroundColor = d.color;
+      btn.classList.add('has-img');
+      btn.innerHTML = '';
+    } else {
+      btn.style.backgroundImage = '';
+      btn.style.backgroundColor = '';
+      btn.classList.remove('has-img');
+      btn.innerHTML = ICO.upload;
+    }
+
+    $('#ac-name').value = d.name;
+    $('#ac-remark').value = d.remark;
+  }
+
+  function saveContact() {
+    var d = state.draft;
+    if (!d) return;
+
+    var name = ($('#ac-name').value || '').trim();
+    if (!name) name = store.settings.defaultFriendName || '梦';
+    var remark = ($('#ac-remark').value || '').trim();
+
+    var contact = {
+      id: d.id || uid(),
+      name: name,
+      remark: remark,
+      avatar: d.avatar,
+      color: d.color,
+      initial: name.charAt(0),
+      unread: 0,
+      createdAt: Date.now(),
+      messages: []
+    };
+
+    var list = store.apps[state.currentApp];
+
+    if (d.isEdit) {
+      var old = findContact(state.currentApp, d.id);
+      if (old) {
+        contact.messages = old.messages;
+        contact.unread = old.unread || 0;
+        contact.createdAt = old.createdAt || Date.now();
+        var idx = list.indexOf(old);
+        list[idx] = contact;
+        // 如果正在查看该聊天，更新引用
+        if (state.currentChat && state.currentChat.id === contact.id) {
+          state.currentChat = contact;
+          $('#chat-title').textContent = contact.remark || contact.name;
+        }
+      }
+    } else {
+      list.push(contact);
+    }
+
+    saveStore();
+    closePage('app-add-contact');
+    renderAppList(state.currentApp);
+
+    if (state.currentChat) renderMessages();
+  }
+
+  /* ================= 图片压缩 ================= */
+  function compressImage(file, size, cb) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        var scale = Math.max(size / img.width, size / img.height);
+        var w = img.width * scale;
+        var h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        try {
+          cb(canvas.toDataURL('image/jpeg', 0.82));
+        } catch (err) {
+          cb(e.target.result);
+        }
+      };
+      img.onerror = function () { cb(e.target.result); };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ================= 聊天详情 ================= */
+  function openChat(app, id) {
+    var contact = findContact(app, id);
+    if (!contact) return;
+
+    state.currentApp = app;
+    state.currentChat = contact;
+    contact.unread = 0;
+    renderAppList(app);
+
+    document.documentElement.style.setProperty('--accent', app === 'wechat' ? '#1c1c1e' : '#1c1c1e');
+    $('#chat-title').textContent = contact.remark || contact.name;
+    renderMessages();
+    openPage('app-chat');
+  }
+
+  function closeChat() {
+    closePage('app-chat');
+    state.currentChat = null;
+  }
+
+  function myPerson() {
+    return {
+      avatar: store.settings.myAvatar,
+      color: '#1c1c1e',
+      initial: (store.settings.myName || '我').charAt(0),
+      name: store.settings.myName || '我'
+    };
+  }
+
   function renderMessages() {
-    const chat = state.activeChat;
+    var chat = state.currentChat;
     if (!chat) return;
+    var box = $('#messages');
+    var me = myPerson();
+    var html = '';
+    var prev = null;
 
-    const box = $('#messages');
-    let html = '';
-    let prevTime = null;
+    if (!chat.messages.length) {
+      html = '<div class="time-divider">还没有消息，发送第一条吧</div>';
+    } else {
+      chat.messages.forEach(function (m) {
+        if (prev === null || toMin(m.time) - toMin(prev) >= 5 || toMin(m.time) < toMin(prev)) {
+          html += '<div class="time-divider">' + esc(m.time) + '</div>';
+        }
+        prev = m.time;
 
-    chat.messages.forEach(function (m) {
-      if (prevTime === null || toMinutes(m.time) - toMinutes(prevTime) >= 5 ||
-          toMinutes(m.time) - toMinutes(prevTime) < 0) {
-        html += '<div class="time-divider">' + escapeHTML(m.time) + '</div>';
-      }
-      prevTime = m.time;
-
-      if (m.from === 'me') {
-        html += '<div class="msg me"><div class="bubble">' + escapeHTML(m.text) + '</div></div>';
-      } else {
-        html += '<div class="msg them">' +
-          '<div class="avatar sm" style="background:' + chat.color + '">' + escapeHTML(chat.initial) + '</div>' +
-          '<div class="bubble">' + escapeHTML(m.text) + '</div>' +
-        '</div>';
-      }
-    });
+        if (m.from === 'me') {
+          html += '<div class="msg me">' +
+            '<div class="bubble">' + esc(m.text) + '</div>' +
+            avatarHTML(me, 'sm') +
+          '</div>';
+        } else {
+          html += '<div class="msg them">' +
+            avatarHTML(chat, 'sm') +
+            '<div class="bubble">' + esc(m.text) + '</div>' +
+          '</div>';
+        }
+      });
+    }
 
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
   }
 
-  /* ---------------- 打开 / 关闭聊天 ---------------- */
-  function openChat(id) {
-    const chat = chats.filter(function (c) { return c.id === id; })[0];
-    if (!chat) return;
-
-    state.activeChat = chat;
-    chat.unread = 0;
-    renderChatList();
-
-    $('#chat-name').textContent = chat.name;
-    renderMessages();
-
-    const view = $('#chat-view');
-    view.classList.add('open');
-    chatOpen = true;
-
-    try { history.pushState({ chat: id }, ''); } catch (e) { /* 忽略 */ }
-  }
-
-  function closeChat() {
-    if (!chatOpen) return;
-    chatOpen = false;
-    $('#chat-view').classList.remove('open');
-    state.activeChat = null;
-  }
-
-  /* ---------------- 发送消息 ---------------- */
   function autoGrow() {
-    const el = $('#msg-input');
+    var el = $('#msg-input');
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
   }
 
   function sendMessage() {
-    const input = $('#msg-input');
-    const text = input.value.trim();
-    const chat = state.activeChat;
+    var input = $('#msg-input');
+    var text = input.value.trim();
+    var chat = state.currentChat;
     if (!text || !chat) return;
 
-    const time = nowTime();
-    chat.messages.push({ from: 'me', text: text, time: time });
-    chat.time = time;
+    var t = nowTime();
+    chat.messages.push({ from: 'me', text: text, time: t });
+    chat.time = t;
 
     input.value = '';
     autoGrow();
-
     renderMessages();
-    renderChatList();
+    renderAppList(state.currentApp);
 
-    // 模拟对方回复
     clearTimeout(chat._timer);
     chat._timer = setTimeout(function () {
-      const reply = REPLIES[Math.floor(Math.random() * REPLIES.length)];
-      const replyTime = nowTime();
-      chat.messages.push({ from: 'them', text: reply, time: replyTime });
-      chat.time = replyTime;
+      var reply = REPLIES[Math.floor(Math.random() * REPLIES.length)];
+      var rt = nowTime();
+      chat.messages.push({ from: 'them', text: reply, time: rt });
+      chat.time = rt;
 
-      if (state.activeChat === chat) {
+      if (state.currentChat && state.currentChat.id === chat.id) {
         renderMessages();
       } else {
         chat.unread = (chat.unread || 0) + 1;
       }
-      renderChatList();
-    }, 900 + Math.random() * 800);
+      renderAppList(state.currentApp);
+      saveStore();
+    }, 900 + Math.random() * 700);
+
+    saveStore();
   }
 
-  /* ---------------- 切换页面 ---------------- */
-  const TITLES = { chats: '消息', contacts: '通讯录', me: '我' };
+  /* ================= 美化 ================= */
+  function renderBeautify() {
+    // 我的资料
+    var myAvatarBtn = $('#my-avatar-btn');
+    if (store.settings.myAvatar) {
+      myAvatarBtn.style.backgroundImage = 'url(' + store.settings.myAvatar + ')';
+      myAvatarBtn.style.backgroundColor = '#1c1c1e';
+      myAvatarBtn.style.color = 'transparent';
+      myAvatarBtn.textContent = '';
+    } else {
+      myAvatarBtn.style.backgroundImage = '';
+      myAvatarBtn.style.backgroundColor = '#1c1c1e';
+      myAvatarBtn.style.color = '#fff';
+      myAvatarBtn.textContent = (store.settings.myName || '我').charAt(0);
+    }
+    $('#my-name-input').value = store.settings.myName || '';
+    $('#default-friend-input').value = store.settings.defaultFriendName || '';
 
-  function switchPage(name) {
-    $$('.page').forEach(function (p) {
-      p.classList.toggle('active', p.dataset.page === name);
-    });
-    $$('.tab').forEach(function (t) {
-      t.classList.toggle('active', t.dataset.page === name);
-    });
-    $('#page-title').textContent = TITLES[name] || '';
+    // 壁纸
+    $('#wall-swatches').innerHTML = WALLS.map(function (w, i) {
+      return '<button class="sw' + (i === store.settings.wall ? ' on' : '') +
+        '" type="button" data-wall="' + i + '" style="background:' + w + '"></button>';
+    }).join('');
+
+    // 聊天背景
+    var chatHtml = CHAT_BGS.map(function (bg, i) {
+      var on = (store.settings.chatBg === bg && !store.settings.chatBgIsImage) ? ' on' : '';
+      return '<button class="sw' + on + '" type="button" data-chatbg="' + i + '" style="background:' + bg + '"></button>';
+    }).join('');
+    chatHtml += '<button class="sw upload" type="button" id="chatbg-upload" aria-label="上传背景">' + ICO.upload + '</button>';
+    $('#chatbg-swatches').innerHTML = chatHtml;
+
+    // 朋友圈背景
+    var mHtml = MOMENTS_BGS.map(function (bg, i) {
+      var on = (store.settings.momentsBg === bg && !store.settings.momentsBgIsImage) ? ' on' : '';
+      return '<button class="sw' + on + '" type="button" data-momentsbg="' + i + '" style="background:' + bg + '"></button>';
+    }).join('');
+    mHtml += '<button class="sw upload" type="button" id="momentsbg-upload" aria-label="上传背景">' + ICO.upload + '</button>';
+    $('#momentsbg-swatches').innerHTML = mHtml;
   }
 
-  /* ---------------- 事件绑定 ---------------- */
-  function bindEvents() {
-    // 会话点击
-    $('#chat-list').addEventListener('click', function (e) {
-      const item = e.target.closest('.chat-item');
-      if (item) openChat(item.dataset.id);
+  function applyWall(i) {
+    store.settings.wall = i;
+    document.documentElement.style.setProperty('--wall', WALLS[i]);
+    var dark = i === 4;
+    document.querySelector('.statusbar').style.color = dark ? '#ffffff' : '#1c1c1e';
+    $$('.app-label').forEach(function (el) {
+      el.style.color = dark ? 'rgba(255,255,255,.9)' : '#2c2c30';
     });
+    saveStore();
+  }
 
-    // 搜索
-    $('#search').addEventListener('input', renderChatList);
+  function applyChatBg(val, isImage) {
+    store.settings.chatBg = val;
+    store.settings.chatBgIsImage = !!isImage;
+    document.documentElement.style.setProperty('--chat-bg', val);
+    saveStore();
+  }
 
-    // 底部导航
-    $('#tabbar').addEventListener('click', function (e) {
-      const tab = e.target.closest('.tab');
-      if (tab) switchPage(tab.dataset.page);
-    });
+  function applyMomentsBg(val, isImage) {
+    store.settings.momentsBg = val;
+    store.settings.momentsBgIsImage = !!isImage;
+    document.documentElement.style.setProperty('--moments-bg', val);
+    var hero = $('#moments-hero');
+    if (hero) hero.style.background = val;
+    saveStore();
+  }
 
-    // 返回
-    $('#btn-back').addEventListener('click', function () {
-      if (history.state && history.state.chat) {
-        history.back();
-      } else {
+  /* ================= 朋友圈 ================= */
+  function renderMoments() {
+    var me = myPerson();
+    var av = $('#moments-my-avatar');
+    if (store.settings.myAvatar) {
+      av.style.backgroundImage = 'url(' + store.settings.myAvatar + ')';
+      av.style.backgroundColor = '#1c1c1e';
+      av.style.color = 'transparent';
+      av.textContent = '';
+    } else {
+      av.style.backgroundImage = '';
+      av.style.backgroundColor = '#1c1c1e';
+      av.style.color = '#fff';
+      av.textContent = (store.settings.myName || '我').charAt(0);
+    }
+    $('#moments-my-name').textContent = store.settings.myName || '我';
+    var hero = $('#moments-hero');
+    hero.style.background = store.settings.momentsBg;
+    hero.style.backgroundSize = 'cover';
+    hero.style.backgroundPosition = 'center';
+  }
+
+  /* ================= 字卡库 ================= */
+  function renderCards() {
+    $('#cards-grid').innerHTML = CARDS.map(function (c, i) {
+      return '<button class="card" type="button" data-card="' + i + '">' +
+        '<div class="zi">' + esc(c.zi) + '</div>' +
+        '<div class="py">' + esc(c.py) + '</div>' +
+        '<div class="meaning">' + esc(c.mean) + '</div>' +
+      '</button>';
+    }).join('');
+  }
+
+  /* ================= 音乐 ================= */
+  function fmtTime(sec) {
+    return Math.floor(sec / 60) + ':' + ('0' + Math.floor(sec % 60)).slice(-2);
+  }
+
+  function updateProgress() {
+    var pct = Math.min(100, (state.pos / MUSIC_LEN) * 100);
+    $('#progress-fill').style.width = pct + '%';
+    $('#t-cur').textContent = fmtTime(state.pos);
+  }
+
+  function toggleMusic() {
+    var icon = $('#play-icon');
+    state.playing = !state.playing;
+    if (state.playing) {
+      icon.innerHTML = '<path d="M7.5 5h3.5v14H7.5zM13 5h3.5v14H13z"/>';
+      state.timer = setInterval(function () {
+        state.pos += 1;
+        if (state.pos >= MUSIC_LEN) state.pos = 0;
+        updateProgress();
+      }, 1000);
+    } else {
+      icon.innerHTML = '<path d="M8 5.5v13l11-6.5z"/>';
+      clearInterval(state.timer);
+    }
+  }
+
+  /* ================= 经期 ================= */
+  function renderPeriod() {
+    var d = state.calDate;
+    var y = d.getFullYear();
+    var m = d.getMonth();
+
+    $('#cal-title').textContent = y + '年' + (m + 1) + '月';
+
+    var firstDay = new Date(y, m, 1).getDay();
+    var total = new Date(y, m + 1, 0).getDate();
+    var today = new Date();
+
+    var html = '';
+    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+
+    for (var day = 1; day <= total; day++) {
+      var cls = 'cal-day';
+      var isToday = (today.getFullYear() === y && today.getMonth() === m && today.getDate() === day);
+      var isPeriod = day >= 12 && day <= 16;
+      var isPred = day >= 9 && day <= 11;
+
+      if (isPeriod) cls += ' period';
+      else if (isPred) cls += ' predicted';
+      if (isToday) cls += ' today';
+
+      html += '<div class="' + cls + '">' + day + '</div>';
+    }
+    $('#cal-days').innerHTML = html;
+
+    var nextStart = new Date(today.getFullYear(), today.getMonth(), 16);
+    if (today.getDate() > 16) nextStart = new Date(today.getFullYear(), today.getMonth() + 1, 16);
+    var diff = Math.ceil((nextStart - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+    $('#stat-next').textContent = Math.max(0, diff);
+
+    var cycleDay = today.getDate() >= 16 ? (today.getDate() - 15) : (today.getDate() + 15);
+    $('#stat-day').textContent = cycleDay;
+  }
+
+  /* ================= 倒数日 ================= */
+  function renderEvents() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    var list = EVENTS.map(function (e) {
+      var parts = e.date.split('-');
+      var target = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      var days = Math.round((target - today) / 86400000);
+      return { name: e.name, date: e.date, color: e.color, icon: e.icon, days: days };
+    }).sort(function (a, b) { return a.days - b.days; });
+
+    $('#evt-list').innerHTML = list.map(function (e) {
+      var label = e.days >= 0 ? '天后' : '天前';
+      var num = Math.abs(e.days);
+      return '<div class="evt">' +
+        '<span class="evt-icon" style="background:' + e.color + '">' + e.icon + '</span>' +
+        '<div class="evt-main">' +
+          '<div class="evt-name">' + esc(e.name) + '</div>' +
+          '<div class="evt-date">' + esc(e.date) + '</div>' +
+        '</div>' +
+        '<div class="evt-days"><b>' + num + '</b><span>' + label + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ================= 全局事件 ================= */
+  function bind() {
+    document.addEventListener('click', function (e) {
+      // 打开应用
+      var cell = e.target.closest('.app-cell');
+      if (cell && cell.dataset.app) {
+        openApp(cell.dataset.app);
+        return;
+      }
+
+      // 关闭当前页
+      var closeBtn = e.target.closest('[data-close]');
+      if (closeBtn) {
+        var page = closeBtn.closest('.app-page');
+        if (page) {
+          if (page.id === 'app-add-contact' && state.currentChat) {
+            // 从编辑状态返回聊天
+            closePage('app-add-contact');
+            openPage('app-chat');
+          } else {
+            closePage(page.id);
+            if (page.id === 'app-chat') state.currentChat = null;
+          }
+        }
+        return;
+      }
+
+      // 会话
+      var chatItem = e.target.closest('.chat-item');
+      if (chatItem) {
+        openChat(chatItem.dataset.app, chatItem.dataset.chat);
+        return;
+      }
+
+      // 壁纸
+      var sw = e.target.closest('[data-wall]');
+      if (sw) {
+        applyWall(Number(sw.dataset.wall));
+        renderBeautify();
+        return;
+      }
+
+      // 聊天背景
+      var cb = e.target.closest('[data-chatbg]');
+      if (cb) {
+        applyChatBg(CHAT_BGS[Number(cb.dataset.chatbg)], false);
+        renderBeautify();
+        return;
+      }
+
+      // 朋友圈背景
+      var mb = e.target.closest('[data-momentsbg]');
+      if (mb) {
+        applyMomentsBg(MOMENTS_BGS[Number(mb.dataset.momentsbg)], false);
+        renderBeautify();
+        renderMoments();
+        return;
+      }
+
+      // 字卡
+      var card = e.target.closest('.card');
+      if (card) {
+        card.classList.toggle('on');
+        return;
+      }
+
+      // 添加按钮（短信 / 信箱）
+      var addBtn = e.target.closest('[data-add]');
+      if (addBtn) {
+        openAddContact(addBtn.dataset.add);
+        return;
+      }
+
+      // 微信添加好友
+      if (e.target.closest('#wx-add-btn')) {
+        openAddContact('wechat');
+        return;
+      }
+
+      // 朋友圈入口
+      if (e.target.closest('#wx-moments-btn')) {
+        renderMoments();
+        openPage('app-moments');
+        return;
+      }
+
+      // 聊天返回
+      if (e.target.closest('#chat-back')) {
         closeChat();
+        return;
+      }
+
+      // 聊天编辑（对方资料）
+      if (e.target.closest('#chat-edit-btn')) {
+        if (state.currentChat) {
+          openEditContact(state.currentApp, state.currentChat);
+          closePage('app-chat');
+        }
+        return;
+      }
+
+      // 我的头像上传
+      if (e.target.closest('#my-avatar-btn')) {
+        var f = $('#file-avatar');
+        f.dataset.target = 'my';
+        f.click();
+        return;
+      }
+
+      // 添加联系人头像上传
+      if (e.target.closest('#ac-avatar-btn')) {
+        var f2 = $('#file-avatar');
+        f2.dataset.target = 'draft';
+        f2.click();
+        return;
+      }
+
+      // 聊天背景上传
+      if (e.target.closest('#chatbg-upload')) {
+        var f3 = $('#file-avatar');
+        f3.dataset.target = 'chatbg';
+        f3.click();
+        return;
+      }
+
+      // 朋友圈背景上传
+      if (e.target.closest('#momentsbg-upload')) {
+        var f4 = $('#file-avatar');
+        f4.dataset.target = 'momentsbg';
+        f4.click();
+        return;
+      }
+
+      // 保存联系人
+      if (e.target.closest('#ac-save')) {
+        saveContact();
+        return;
       }
     });
 
-    // 浏览器返回
-    window.addEventListener('popstate', function () {
-      if (chatOpen) closeChat();
+    // 文件选择
+    $('#file-avatar').addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      var target = e.target.dataset.target;
+      var self = this;
+
+      if (target === 'my') {
+        compressImage(file, 160, function (dataUrl) {
+          store.settings.myAvatar = dataUrl;
+          saveStore();
+          renderBeautify();
+          renderMoments();
+          if (state.currentChat) renderMessages();
+        });
+      } else if (target === 'draft') {
+        compressImage(file, 160, function (dataUrl) {
+          if (state.draft) {
+            state.draft.avatar = dataUrl;
+            renderAddForm();
+          }
+        });
+      } else if (target === 'chatbg') {
+        compressImage(file, 800, function (dataUrl) {
+          applyChatBg('url(' + dataUrl + ')', true);
+          renderBeautify();
+        });
+      } else if (target === 'momentsbg') {
+        compressImage(file, 800, function (dataUrl) {
+          applyMomentsBg('url(' + dataUrl + ')', true);
+          renderBeautify();
+          renderMoments();
+        });
+      }
+
+      self.value = '';
+    });
+
+    // 我的昵称
+    $('#my-name-input').addEventListener('input', function () {
+      store.settings.myName = this.value;
+      saveStore();
+      renderMoments();
+      if (state.currentChat) renderMessages();
+    });
+
+    // 默认好友名
+    $('#default-friend-input').addEventListener('input', function () {
+      store.settings.defaultFriendName = this.value || '梦';
+      saveStore();
     });
 
     // 发送
@@ -968,38 +1692,55 @@
       sendMessage();
     });
 
-    const input = $('#msg-input');
-
+    var input = $('#msg-input');
     input.addEventListener('input', autoGrow);
-
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
         e.preventDefault();
         sendMessage();
       }
     });
-
-    // 新建会话按钮
-    $('#btn-new').addEventListener('click', function () {
-      switchPage('chats');
-      $('#search').focus();
-    });
-
-    // 输入框聚焦时滚动到底部
     input.addEventListener('focus', function () {
       setTimeout(function () {
-        const box = $('#messages');
+        var box = $('#messages');
         box.scrollTop = box.scrollHeight;
       }, 260);
     });
+
+    // 音乐
+    $('#play-btn').addEventListener('click', toggleMusic);
+
+    // 日历切换
+    $('#cal-prev').addEventListener('click', function () {
+      state.calDate.setMonth(state.calDate.getMonth() - 1);
+      renderPeriod();
+    });
+    $('#cal-next').addEventListener('click', function () {
+      state.calDate.setMonth(state.calDate.getMonth() + 1);
+      renderPeriod();
+    });
   }
 
-  /* ---------------- 初始化 ---------------- */
+  /* ================= 初始化 ================= */
   function init() {
-    renderChatList();
-    renderContacts();
-    bindEvents();
-    autoGrow();
+    renderHome();
+    bind();
+    tickClock();
+    setInterval(tickClock, 20000);
+
+    // 应用已保存的设置
+    applyWall(store.settings.wall || 0);
+    document.documentElement.style.setProperty('--chat-bg', store.settings.chatBg || '#f4f4f6');
+    document.documentElement.style.setProperty('--moments-bg', store.settings.momentsBg || MOMENTS_BGS[0]);
+
+    // 音乐初始
+    $('#t-all').textContent = fmtTime(MUSIC_LEN);
+    updateProgress();
+
+    // 微信空状态
+    renderAppList('wechat');
+    renderAppList('sms');
+    renderAppList('mail');
   }
 
   if (document.readyState === 'loading') {
